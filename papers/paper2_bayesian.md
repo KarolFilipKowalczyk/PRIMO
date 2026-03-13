@@ -432,7 +432,7 @@ Contraction mappings follow near-geodesic paths to their fixed point (S ≈ 0.5�
 [3] Zhang Chong. "Attention Is Not What You Need: Grassmann Flows." arXiv:2512.19428, Dec 2025.
 [4] Kim, G. "Thermodynamic Isomorphism of Transformers." arXiv:2602.08216, Feb 2026.
 [5] Davis, C., Kahan, W. "The Rotation of Eigenvectors by a Perturbation." SIAM J. Numer. Anal. 7(1), 1970.
-[6] K. [Author]. "Geometric Predicates for Classifying Dynamical Behaviors in Graph Rewrite Systems." In preparation, 2026.
+[6] K. Kowalczyk. "Geometric Predicates for Classifying Dynamical Behaviors in Graph Rewrite Systems." In preparation, 2026.
 [7] Wedin, P.-Å. "Perturbation Bounds in Connection with Singular Value Decomposition." BIT 12, 1972.
 [8] Stewart, G.W., Sun, J.-g. *Matrix Perturbation Theory.* Academic Press, 1990.
 [9] Doob, J.L. "Application of the Theory of Martingales." Le calcul des probabilités et ses applications, CNRS, 1949.

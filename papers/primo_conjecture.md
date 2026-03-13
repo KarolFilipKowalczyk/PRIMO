@@ -56,7 +56,7 @@ The threshold τ* = 0.5 is anchored from below by the ER null-model ceiling (max
 
 ### 2.3 The Φ-predicate
 
-**Spectral dimension stability.** Compute the spectral dimension d_s via diffusion return probability at each time step. Require: std(d_s) < σ*_ds = 0.08 over the trajectory, and d_s within 0.5 of an integer.
+**Spectral dimension stability.** Compute the spectral dimension d_s via log-log regression on the cumulative Laplacian eigenvalue distribution: fit N(λ) ~ λ^{d_s/2} at each time step [14, Definition 4]. Require: std(d_s) < σ*_ds = 0.08 over the trajectory, and d_s within 0.5 of an integer.
 
 **Lawful evolution.** Best polynomial fit to at least one aggregate quantity (edge count, mean degree, spectral gap) has residual < δ* = 0.15.
 
@@ -219,15 +219,15 @@ We measured Laplacian eigenvalue gaps for all 16 DPO rules across all 4 seeds at
 
 | Rule | σ | Crossings | Cluster gap min | Cluster gap stable | Multiplicity at λ=1 |
 |------|---|-----------|----------------|-------------------|---------------------|
-| Vertex Sprouting | 1→2 | 0 | > 0 | Yes | low |
+| Vertex Sprouting | 1→2 | 0 | 0.04 (mean final; one seed degenerate) | Yes | low |
 | Edge Sprouting (one-sided) | 2→3 | 0 | 0.56 | Yes | 58–60 |
-| Edge Replacement | 2→3 | 0 | > 0 | Yes | low |
-| Triangle Completion | 2→3 | 0 | > 0 | Yes | low |
-| Path-4 fresh middle | 3→4 | 0 | > 0 | Yes | low |
-| Tri+pendant preserved | 3→4 | 0 | 2.03 | Yes | 57–60 |
-| Tri+pendant shifted | 3→4 | 0 | 2.04 | Yes | 57–60 |
-| Tri+pendant fresh hub | 3→4 | 0 | > 0 | Yes | low |
-| Diamond fresh vertex | 3→4 | 0 | > 0 | Yes | low |
+| Edge Replacement | 2→3 | 0 | 0.08 (mean final; one seed degenerate) | Yes | low |
+| Triangle Completion | 2→3 | 0 | 0.03 | Yes | low |
+| Path-4 fresh middle | 3→4 | 0 | positive (raw gap ~0; cluster gap not measured) | Yes | low |
+| Tri+pendant preserved | 3→4 | 0 | 2.00 | Yes | 57–60 |
+| Tri+pendant shifted | 3→4 | 0 | 2.00 | Yes | 57–60 |
+| Tri+pendant fresh hub | 3→4 | 0 | 0.10 | Yes | low |
+| Diamond fresh vertex | 3→4 | 0 | 0.10 | Yes | low |
 
 Key findings:
 
@@ -338,11 +338,11 @@ The key difference: Vanchurin works in continuous metric spaces with gradient dy
 
 [13] P.-Å. Wedin. "Perturbation Bounds in Connection with Singular Value Decomposition." *BIT* 12, 1972.
 
-[14] K. [Author]. "Geometric Predicates for Classifying Dynamical Behaviors in Graph Rewrite Systems." In preparation, 2026.
+[14] K. Kowalczyk. "Geometric Predicates for Classifying Dynamical Behaviors in Graph Rewrite Systems." In preparation, 2026.
 
-[15] K. [Author]. "Geometric Signatures of Bayesian Inference in Discrete Dynamical Systems." In preparation, 2026.
+[15] K. Kowalczyk. "Geometric Signatures of Bayesian Inference in Discrete Dynamical Systems." In preparation, 2026.
 
-[16] K. [Author]. "Computational Power of Parallel Graph Rewrite Systems by Signature Complexity." In preparation, 2026.
+[16] K. Kowalczyk. "Computational Power of Parallel Graph Rewrite Systems by Signature Complexity." In preparation, 2026.
 
 [17] H. Zenil, N.A. Kiani, J. Tegnér. *Algorithmic Information Dynamics.* Cambridge University Press, 2023.
 
@@ -413,3 +413,7 @@ $$\tau \geq 1 - \frac{2t_2(T - 1 - t_2)}{\binom{T}{2}} \geq 1 - \frac{2t_2}{T - 
 Setting T > 4t₂ + 1 gives τ > 0.5 = τ*. This parallels [15, Corollary 1], replacing the Bayesian source of convergence (Doob's theorem → posterior concentration) with the spectral stability source (Φ-positivity → eigenvalue distribution convergence). □
 
 The summability condition is the gap in the proof: exp11 shows the per-step angular bound from Davis-Kahan does not decrease, so summability is not established by the current argument. The proposition is valid conditional on summability; establishing summability by other means would complete the proof of Conjecture 1.
+
+## Appendix B — Computational reproducibility
+
+All computations performed in Python 3.12 with NetworkX 3.x, NumPy, SciPy. Random seed fixed at 42 (MASTER_SEED in primo/config.py). Embedding projection seed fixed at 0. Complete source code: https://github.com/KarolFilipKowalczyk/PRIMO. Experiments referenced: exp04 (enumeration), exp06 (temporal profiles), exp09/09b (eigenvalue gaps), exp10 (perturbation-response), exp11 (Davis-Kahan ratio), exp12 (Dehn-twist). 16 DPO rules, 4 seeds, 3 embeddings, T = 30 steps per trajectory (T = 60 where noted). Total experimental runtime: < 30 minutes on a single GPU (RTX 3050, 4GB VRAM).

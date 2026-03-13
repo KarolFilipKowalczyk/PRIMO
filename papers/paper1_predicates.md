@@ -11,7 +11,7 @@ March 2026
 
 ## Abstract
 
-We define two geometric predicates — the I-predicate and the Φ-predicate — that classify dynamical behaviors of graph rewrite systems. The I-predicate detects convergence of embedded state trajectories toward a fixed point, gated by trajectory compressibility, measured under three independent graph embeddings. The Φ-predicate detects stable integer spectral dimension combined with lawful evolution of aggregate quantities. We prove that the predicates are logically independent by constructing explicit witnesses for all four cells of the classification table, with multiple witnesses for the most structurally interesting cell (I-positive, Φ-negative). We prove that Erdős–Rényi random graph dynamics is almost surely classified as (I−, Φ−), establishing a null-model separation for both predicates, and verify this computationally under all three embeddings. We analyze threshold structure: the Φ-predicate's primary threshold sits in a 39% gap in the score distribution across 33 rules; the I-predicate's threshold is anchored by the null-model ceiling below and a Bayesian-theoretic optimum above. As computational illustration, we evaluate both predicates on 33 graph rewrite rules drawn from five independent sources — hand-crafted rules, a systematic rule catalog, standard graph families, and randomly generated DPO rules — across four canonical initial graphs, with sensitivity analysis under threshold variation. We prove a conditional implication: for monotone-growth graph dynamical systems with stable eigenspace gaps, Φ-positivity implies I-positivity, and verify that all 16 enumerated DPO growth rules satisfy the conditions.
+We define two geometric predicates — the I-predicate and the Φ-predicate — that classify dynamical behaviors of graph rewrite systems. The I-predicate detects convergence of embedded state trajectories toward a fixed point, gated by trajectory compressibility, measured under three independent graph embeddings. The Φ-predicate detects stable integer spectral dimension combined with lawful evolution of aggregate quantities. We prove that the predicates are logically independent by constructing explicit witnesses for all four cells of the classification table, with multiple witnesses for the most structurally interesting cell (I-positive, Φ-negative). We prove that Erdős–Rényi random graph dynamics is almost surely classified as (I−, Φ−), establishing a null-model separation for both predicates, and verify this computationally under all three embeddings. We analyze threshold structure: the Φ-predicate's primary threshold sits in a 39% gap in the score distribution across 33 rules; the I-predicate's threshold is anchored by the null-model ceiling below and a Bayesian-theoretic optimum above. As computational illustration, we evaluate both predicates on 33 graph rewrite rules drawn from five independent sources — hand-crafted rules, a systematic rule catalog, standard graph families, and randomly generated DPO rules — across four canonical initial graphs, with sensitivity analysis under threshold variation. We state and computationally verify a conditional implication conjecture: for monotone-growth graph dynamical systems with stable eigenspace gaps, Φ-positivity implies I-positivity, and verify that all 16 enumerated DPO growth rules satisfy the conditions.
 
 ---
 
@@ -34,7 +34,7 @@ The predicates are designed to be intrinsic properties of the dynamical system, 
 3. Null-model separation theorem: ER random dynamics is (I−, Φ−), with theoretical proofs for two embeddings and computational verification for all three (Section 4).
 4. Threshold analysis: the Φ-predicate's primary threshold sits in a natural gap; the I-predicate's threshold is anchored by the ER null-model ceiling and the Bayesian-theoretic optimum (Section 5).
 5. Computational evaluation on 33 rules from five independent sources, with sensitivity analysis (Section 6).
-6. Conditional implication theorem: Φ-positivity implies I-positivity for monotone-growth systems with stable eigenspace gaps (Proposition 2, Section 7.5). Verified computationally on all 16 DPO rules at signatures σ ≤ 4, with zero eigenvalue crossings observed.
+6. Conditional implication conjecture: Φ-positivity implies I-positivity for monotone-growth systems with stable eigenspace gaps (Conjecture 2, Section 7.5). Verified computationally on all 16 DPO rules at signatures σ ≤ 4, with zero eigenvalue crossings observed.
 
 ### 1.2 Scope and non-claims
 
@@ -337,7 +337,7 @@ These predicates are designed for use in a larger program studying the distribut
 
 ### 7.4 Open problems
 
-1. Construct additional (I−, Φ+) witnesses beyond fixed-grid-noise. Proposition 2 shows that such witnesses must violate at least one of (M1)–(M3'). Candidates include cellular automata on fixed lattices (violating M1) and Dehn-twist constructions on toroidal grids (violating M1 with perfect Φ-positivity). Verifying these computationally would strengthen the independence proof.
+1. Construct additional (I−, Φ+) witnesses beyond fixed-grid-noise. Conjecture 2 shows that such witnesses must violate at least one of (M1)–(M3'). Candidates include cellular automata on fixed lattices (violating M1) and Dehn-twist constructions on toroidal grids (violating M1 with perfect Φ-positivity). Verifying these computationally would strengthen the independence proof.
 
 2. Complete the ER null-model separation proof for the Laplacian eigenvector embedding (Conjecture: the subspace cosines of Laplacian eigenvectors of independent G(n, p) concentrate around a value independent of time, via eigenvalue interlacing and Tracy–Widom fluctuations of the spectral edge).
 
@@ -361,7 +361,7 @@ The 2×2 classification table (Section 6.3) shows that the (I−, Φ+) cell cont
 
 *Remark on M3'.* The cluster gap rather than the raw eigenvalue gap is the correct stability measure. Tree-like growth rules (e.g., edge sprouting) produce graphs with high eigenvalue multiplicity at λ = 1, giving a raw gap of zero between the k-th and (k+1)-th sorted eigenvalue, but a large and stable cluster gap. The Davis-Kahan theorem [9, 10] applies to eigenspaces, so cluster gap stability suffices.
 
-**Proposition 2 (Conditional implication).** Let (G₀, R, T) be a graph dynamical system satisfying (M1), (M2), and (M3'). If (G₀, R, T) is Φ-positive, then it is I-positive.
+**Conjecture 2 (Conditional implication).** Let (G₀, R, T) be a graph dynamical system satisfying (M1), (M2), and (M3'). If (G₀, R, T) is Φ-positive, then it is I-positive.
 
 *Proof sketch.* The proof has two parts, corresponding to the two gates of the I-predicate.
 
@@ -390,9 +390,9 @@ The proposition explains the empty (I−, Φ+) cell in the DPO enumeration as a 
 
 [1] N. Agarwal, S.R. Dalal, V. Misra. "The Bayesian Geometry of Transformer Attention." arXiv:2512.22471, 2026.
 
-[2] K. [Author]. "Geometric Signatures of Bayesian Inference in Discrete Dynamical Systems." In preparation, 2026.
+[2] K. Kowalczyk. "Geometric Signatures of Bayesian Inference in Discrete Dynamical Systems." In preparation, 2026.
 
-[3] K. [Author]. "Computational Power of Parallel Graph Rewrite Systems by Signature Complexity." In preparation, 2026.
+[3] K. Kowalczyk. "Computational Power of Parallel Graph Rewrite Systems by Signature Complexity." In preparation, 2026.
 
 [4] N. Agarwal, S.R. Dalal, V. Misra. "Gradient Dynamics of Attention." arXiv:2512.22473, 2025.
 
