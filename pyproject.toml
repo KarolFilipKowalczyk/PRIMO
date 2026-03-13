@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "primo"
 version = "0.1.0"
 description = "Primacy of Inference over Physics in the Space of Minimal Programs"
-requires-python = ">=3.11"
+requires-python = ">=3.10"
 dependencies = [
     "numpy>=1.26",
     "scipy>=1.12",
@@ -18,6 +18,9 @@ dependencies = [
 [project.optional-dependencies]
 gpu = ["torch>=2.2"]
 dev = ["pytest>=8.0"]
+
+[tool.setuptools.packages.find]
+include = ["primo*"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

@@ -12,11 +12,11 @@ make test          # unit + regression (~2 min)
 make exp01         # reproduce 33-rule validation (~5 min, opens Tkinter monitor)
 ```
 
-Requires Python 3.11+, numpy, scipy, networkx, matplotlib. GPU acceleration (optional): PyTorch with CUDA.
+Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (optional): PyTorch with CUDA.
 
 ## Current state
 
-**Last updated:** 2026-03-13, initial commit
+**Last updated:** 2026-03-13
 
 **What's done:**
 - Papers 1–3: complete markdown drafts in `papers/`
@@ -24,15 +24,18 @@ Requires Python 3.11+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - 33-rule diagnostic: classifications established in `reference/primo_diagnostic_output_v5.txt`
 - PRIMO conjecture: draft v6 in `papers/primo_conjecture.md`
 - Repository structure and plan: `CLAUDE.md`
+- `primo/backend.py`: numpy↔torch GPU abstraction — CUDA verified on RTX 3050, 59 tests passing
+- `primo/monitor.py`: Tkinter experiment dashboard with progress tracking, auto-close, checkpointing
+- `primo/run_utils.py`: StepRunner for experiment orchestration
 
 **What's in progress:**
 - Phase 1 bootstrap: building the `primo/` engine from the reference diagnostic
 
 **What's next:**
-- Build `primo/backend.py` (numpy↔torch abstraction)
 - Build `primo/rules.py` (port 33 rules + enumeration from reference)
-- Build `primo/trajectories.py`, `primo/predicates.py`, `primo/monitor.py`
-- Write tests, then `experiments/exp01_validate.py`
+- Build `primo/trajectories.py`, `primo/predicates.py`
+- Write tests (`test_rules.py`, `test_predicates.py`, `test_regression.py`)
+- Write `experiments/exp01_validate.py`
 
 **Known issues:**
 - Threshold stability at 51.5% (below 70% target) — see `reference/primo_diagnostic_output_v5.txt` diagnostic 5
@@ -46,7 +49,7 @@ Requires Python 3.11+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 ## Project structure
 
 ```
-primo/                     # Library (6 files — to be built in Phase 1)
+primo/                     # Library (3 of 6 files built: backend, monitor, run_utils)
 experiments/               # One script per experiment
 tests/                     # Unit + regression tests
 papers/                    # Markdown drafts (LaTeX conversion at Phase 4)
