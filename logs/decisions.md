@@ -104,3 +104,21 @@ Append-only. Every threshold, design choice, and retraction is documented here w
 - S1: no I-only rules at any level. S2: I+=Φ+ at all levels (tied).
 **Interpretation:** All non-trivial DPO growth rules (σ≥2) produce convergent embeddings AND stable spectral dimension. The I and Φ predicates co-occur universally for small DPO rules. This is a structural property of graph growth from a single rewrite rule — growth creates both embedding convergence and dimensional stability simultaneously. Separation likely requires either (a) higher signatures where destructive/restructuring rules appear, or (b) multi-rule programs. The 33-rule diagnostic (which includes non-DPO rules like contractions, fixed-topology rewirers, etc.) does show separation.
 **Status:** Complete. Key open question: does predicate separation emerge at σ=5 (4→5)?
+
+## 2026-03-13: exp07 — DPO null-model recalibration sweep
+
+**Decision:** The ER null model is insufficient for within-DPO calibration. A DPO-specific null-model ceiling has been established.
+**Key findings:**
+- DPO pooled tau_to_final: mean=0.70, std=0.31, p95=0.99, max=1.00
+- 78.1% of DPO tau scores exceed current tau*=0.5 — the threshold is far too permissive for DPO rules
+- DPO ds_std: mean=0.073, max=0.158 — 100% pass current ds_std*=0.18
+- First tau* where >1 DPO rule becomes I-: **tau*=0.60** (Identity + 1 rule flip to I-)
+- Phi separation via ds_std tightening: every ds_std* < 0.16 produces Phi- rules
+- 174 (tau*, ds_std*) combinations produce within-DPO separation
+- All DPO separation is I+Φ- type (no I-Φ+ DPO rules) — tau tightening creates I+Φ- rules, not I-Φ+ rules
+- Cross-check on 33 original rules:
+  - tau*=0.60, ds_std*=0.18: all 4 cells populated (17/5/1/10) — safe, minimal perturbation
+  - tau*=0.80, ds_std*=0.18: all 4 cells populated (14/4/4/11) — aggressive but valid
+  - tau*=0.90, ds_std*=0.18: all 4 cells populated (14/2/4/13) — loses encode_compress, sorting_edges, lattice_rewire from I+
+**Interpretation:** DPO growth rules are structurally I+ because graph growth inherently produces embedding convergence. The I-predicate is not "wrong" — it correctly detects convergence. The issue is that convergence and physics-likeness co-occur for constructive DPO rules. Separation requires either (a) raising tau* to exclude weaker convergence (tau*=0.60–0.80), or (b) tightening ds_std* to distinguish dimensional stability, or (c) going to higher signatures where destructive rules appear.
+**Status:** Complete. No threshold change recommended yet — awaiting Karol's decision on recalibration strategy.

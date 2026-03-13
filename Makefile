@@ -1,4 +1,4 @@
-.PHONY: test exp01 exp02 exp03 exp04 exp05 exp06 clean
+.PHONY: test exp01 exp02 exp03 exp04 exp05 exp06 exp07 clean
 
 test:
 	pytest tests/ -v
@@ -20,6 +20,9 @@ exp05:
 
 exp06:
 	python experiments/exp06_temporal.py
+
+exp07:
+	python experiments/exp07_dpo_null_model.py
 
 reproduce-paper-1: exp01 exp03
 	@echo "Paper 1 results reproduced."

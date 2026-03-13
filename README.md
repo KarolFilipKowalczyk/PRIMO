@@ -18,11 +18,11 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 
 ## Current state
 
-**Last updated:** 2026-03-13 (exp04 extended to 3→4)
+**Last updated:** 2026-03-13 (exp07 DPO null-model recalibration)
 
 **Phase 1: COMPLETE.** All 6 library files, all tests passing, exp01 reproduces the full 33-rule diagnostic.
 
-**Phase 2: IN PROGRESS.** exp01–04 complete (including 3→4 enumeration), exp05–06 next.
+**Phase 2: IN PROGRESS.** exp01–04 complete, exp07 (DPO null model) complete, exp05–06 next.
 
 **What's done:**
 - Papers 1–3: complete markdown drafts in `papers/`
@@ -34,6 +34,16 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - `exp02`: Example B analysis — canonical I-negative (0/4), robustness 18/20 I-positive, adaptive 4/4 I-positive
 - `exp03`: Straightness gate calibrated at 0.35 (was provisional 0.45) — zero I+ rules affected
 - `exp04`: PRIMO enumeration (16 rules, signatures ≤ 3→4) — claim (a) inconclusive (tie at σ=2), claim (b) partial (4/15)
+- `exp07`: DPO null-model recalibration — 78% of DPO tau scores exceed tau*=0.5, 174 separating threshold combos found
+
+**exp07 key findings (DPO null-model recalibration):**
+- DPO pooled tau_to_final: mean=0.70, p95=0.99, max=1.00 — tau*=0.5 is too permissive for within-DPO calibration
+- ds_std: mean=0.073, max=0.158 — 100% pass ds_std*=0.18
+- First tau* where >1 rule flips to I-: **0.60** (only Identity is I- below that)
+- Tightening ds_std below 0.16 produces Phi- rules at all thresholds
+- All DPO separation is I+Phi- type — no I-Phi+ DPO rules (growth is inherently convergent)
+- Cross-check on 33 rules: all 4 cells populated at tau*=0.60 and tau*=0.80 — safe recalibration points
+- Decision: no threshold change yet — awaiting strategy decision (raise tau*, tighten ds_std*, or both)
 
 **exp04 key findings (extended to 3→4):**
 - Enumerated all connected DPO rules at signatures 1→1 (1), 1→2 (1), 2→3 (3), 3→4 (11) — 16 total
@@ -52,9 +62,9 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - All non-trivial growth rules are I+ Φ+ through σ=4 — predicates do not separate at this scale
 
 **What's next:**
+- Decide on recalibration strategy: raise tau* (0.60–0.80), tighten ds_std* (<0.16), or both
 - exp05: Ordering test N_I^min vs N_Φ^min — may need σ=5 (4→5) for separation
 - exp06: Temporal I-profiles — 4 rules with transient decay provide first evidence for claim (b)
-- Consider whether the I-predicate is too permissive for enumerated DPO rules (all growth rules pass)
 
 **Known issues:**
 - `watts_strogatz` is a boundary rule: Φ classification varies across runs (2–4 seeds)
