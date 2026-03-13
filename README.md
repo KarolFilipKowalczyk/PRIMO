@@ -27,14 +27,15 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - `primo/backend.py`: numpy↔torch GPU abstraction — CUDA verified on RTX 3050, 59 tests passing
 - `primo/monitor.py`: Tkinter experiment dashboard with progress tracking, auto-close, checkpointing
 - `primo/run_utils.py`: StepRunner for experiment orchestration
+- `primo/rules.py`: all 33 rules ported, rule enumeration with isomorphism, catalog I/O — counts match all 3 catalogs
+- `primo/trajectories.py`: trajectory generation, 3 embeddings, tensor conversion, compression ratios, spectral dimension, checkpointing
+- `primo/predicates.py`: I-predicate and Phi-predicate classification, majority voting, classification tables, ER null model
 
 **What's in progress:**
-- Phase 1 bootstrap: building the `primo/` engine from the reference diagnostic
+- Phase 1 bootstrap: 6/6 library files built, tests and exp01 remaining
 
 **What's next:**
-- Build `primo/rules.py` (port 33 rules + enumeration from reference)
-- Build `primo/trajectories.py`, `primo/predicates.py`
-- Write tests (`test_rules.py`, `test_predicates.py`, `test_regression.py`)
+- Write tests (`test_rules.py`, `test_predicates.py`, `test_backend.py` already done, `test_regression.py`)
 - Write `experiments/exp01_validate.py`
 
 **Known issues:**
@@ -49,7 +50,7 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 ## Project structure
 
 ```
-primo/                     # Library (3 of 6 files built: backend, monitor, run_utils)
+primo/                     # Library (6 of 6 files built)
 experiments/               # One script per experiment
 tests/                     # Unit + regression tests
 papers/                    # Markdown drafts (LaTeX conversion at Phase 4)
