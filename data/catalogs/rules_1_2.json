@@ -1,0 +1,21 @@
+{
+  "signature": "1_2",
+  "l_vertices": 1,
+  "r_vertices": 2,
+  "r_connected_only": true,
+  "rules": [
+    {
+      "id": "rule_2_1",
+      "name": "Vertex Sprouting",
+      "l_edges": [],
+      "r_edges": [[0, 1]],
+      "iota": [0],
+      "fresh": [1],
+      "description": "Each matched vertex gains a new pendant neighbor. L=K1 matches every vertex; all vertices matched simultaneously under GPI.",
+      "effect": "Every vertex sprouts a leaf. Graph doubles in size each step (exponential growth)."
+    }
+  ],
+  "total_connected": 1,
+  "total_any": 2,
+  "notes": "The disconnected rule (Rule 2.0: isolated vertex duplication) is omitted under R-connected constraint."
+}

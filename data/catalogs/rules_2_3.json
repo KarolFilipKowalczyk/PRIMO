@@ -1,0 +1,47 @@
+{
+  "signature": "2_3",
+  "l_vertices": 2,
+  "r_vertices": 3,
+  "r_connected_only": true,
+  "l_graph": "K2 (the only connected graph on 2 vertices)",
+  "application_note": "Under GPI, a maximal matching of edges is selected; each matched edge is rewritten.",
+  "rules": [
+    {
+      "id": "rule_3_1",
+      "name": "Edge Sprouting (one-sided)",
+      "l_edges": [[0, 1]],
+      "r_edges": [[0, 1], [0, 2]],
+      "iota": [0, 1],
+      "fresh": [2],
+      "l_edge_preserved": true,
+      "description": "R = P3 as star centered at 0. Fresh vertex 2 connects to vertex 0 (one interface vertex).",
+      "effect": "Matched edge u-v is kept. New pendant vertex w attached to u. One-sided sprouting."
+    },
+    {
+      "id": "rule_3_2",
+      "name": "Edge Replacement (subdivision)",
+      "l_edges": [[0, 1]],
+      "r_edges": [[0, 1], [0, 2]],
+      "iota": [1, 2],
+      "fresh": [0],
+      "l_edge_preserved": false,
+      "description": "R = P3 as star centered at 0. Interface maps to vertices 1,2. L-edge image (1,2) NOT in R → DELETED. Fresh vertex 0 connects to both interface vertices.",
+      "effect": "Matched edge u-v is REMOVED and replaced by fresh vertex w connected to both u and v. Subdivision: u-v becomes u-w-v. The only rule at this level that deletes an existing edge."
+    },
+    {
+      "id": "rule_3_3",
+      "name": "Edge Sprouting (triangle completion)",
+      "l_edges": [[0, 1]],
+      "r_edges": [[0, 1], [0, 2], [1, 2]],
+      "iota": [0, 1],
+      "fresh": [2],
+      "l_edge_preserved": true,
+      "description": "R = K3. Fresh vertex 2 connects to both interface vertices 0 and 1.",
+      "effect": "Matched edge u-v is kept, new vertex w attached to BOTH u and v, forming a triangle. Triangle completion."
+    }
+  ],
+  "total_connected": 3,
+  "total_any": 6,
+  "verification": "All 3 rules verified genuinely distinct by exhaustive isomorphism check over all (phi, psi) pairs. See reference/primo_diagnostic_v5.py and Paper 3 Section 3.",
+  "hierarchy_note": "At signature 2→3, L=K2 is the only connected LHS, so all rules share the same LHS. Per-step priority between rules with identical LHS is vacuous: rule-set extension adds no power at this level (Paper 3, Section 1.2)."
+}

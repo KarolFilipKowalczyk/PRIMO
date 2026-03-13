@@ -1,0 +1,275 @@
+================================================================================
+PRIMO PREDICATE DIAGNOSTIC v5
+================================================================================
+Rules: 33 | Seeds: 4 | Steps: 30
+Embeddings: ['laplacian', 'random_proj', 'degree_prof']
+
+Generating trajectories...
+  Generated 132 trajectories.
+
+────────────────────────────────────────────────────────────────────────────────
+Rule                       I+    Φ+    I(seeds)   Φ(seeds)   Source
+────────────────────────────────────────────────────────────────────────────────
+do_nothing                 no    no    0/4       0/4       orig
+add_random_edge            no    no    1/4       0/4       orig
+preferential_attach        YES   YES   4/4       4/4       orig
+subdivision                YES   YES   4/4       4/4       orig
+triangle_closure           no    no    0/4       0/4       orig
+grid_growth                YES   YES   4/4       4/4       orig
+line_growth                YES   YES   4/4       4/4       orig
+progressive_compress       no    no    0/4       0/4       orig
+star_growth                YES   YES   4/4       4/4       orig
+cycle_then_fill            YES   no    4/4       0/4       orig
+er_random                  no    no    0/4       0/4       orig
+copy_with_noise            no    no    0/4       0/4       orig
+lattice_rewire             YES   YES   4/4       4/4       orig
+fixed_grid_noise           no    YES   0/4       3/4       orig
+sorting_edges              YES   YES   4/4       4/4       orig
+hierarchical_tree          YES   YES   4/4       4/4       witness
+hub_sort                   no    no    0/4       1/4       witness
+encode_compress            YES   YES   4/4       4/4       witness
+vertex_sprouting           YES   YES   4/4       4/4       catalog
+edge_sprout_one            YES   YES   4/4       4/4       catalog
+triangle_complete          YES   YES   4/4       4/4       catalog
+edge_deletion              no    no    0/4       0/4       catalog
+edge_rewiring              YES   no    3/4       1/4       catalog
+barabasi_albert            YES   YES   4/4       4/4       struct
+watts_strogatz             YES   no    4/4       2/4       struct
+caterpillar                YES   YES   4/4       4/4       struct
+complete_bipartite         YES   no    4/4       0/4       struct
+degree_regular             YES   no    4/4       0/4       struct
+random_dpo_0               YES   YES   4/4       4/4       rndDPO
+random_dpo_1               no    no    2/4       1/4       rndDPO
+random_dpo_2               no    no    2/4       1/4       rndDPO
+random_dpo_3               YES   YES   4/4       4/4       rndDPO
+random_dpo_4               YES   YES   4/4       4/4       rndDPO
+
+================================================================================
+DIAGNOSTIC 1: Non-degeneracy & Independence
+================================================================================
+  I+: 22, I-: 11, Φ+: 18, Φ-: 15
+
+  (I+, Φ+) (17): ['preferential_attach', 'subdivision', 'grid_growth', 'line_growth', 'star_growth', 'lattice_rewire', 'sorting_edges', 'hierarchical_tree', 'encode_compress', 'vertex_sprouting', 'edge_sprout_one', 'triangle_complete', 'barabasi_albert', 'caterpillar', 'random_dpo_0', 'random_dpo_3', 'random_dpo_4']
+  (I+, Φ-) (5): ['cycle_then_fill', 'edge_rewiring', 'watts_strogatz', 'complete_bipartite', 'degree_regular']
+  (I-, Φ+) (1): ['fixed_grid_noise']
+  (I-, Φ-) (10): ['do_nothing', 'add_random_edge', 'triangle_closure', 'progressive_compress', 'er_random', 'copy_with_noise', 'hub_sort', 'edge_deletion', 'random_dpo_1', 'random_dpo_2']
+
+  All four cells populated: YES ✓
+
+  ── (I+, Φ-) witness analysis ──
+  cycle_then_fill: ds_std=0.329, τ=[laplacian=0.812, random_proj=0.848, degree_prof=0.608]
+  edge_rewiring: ds_std=0.000, τ=[laplacian=0.178, random_proj=0.177, degree_prof=0.288]
+  watts_strogatz: ds_std=0.180, τ=[laplacian=0.945, random_proj=0.867, degree_prof=0.558]
+  complete_bipartite: ds_std=0.875, τ=[laplacian=0.536, random_proj=0.890, degree_prof=0.990]
+  degree_regular: ds=N/A, τ=[laplacian=0.555, random_proj=0.995, degree_prof=0.990]
+
+================================================================================
+DIAGNOSTIC 2: Embedding gap analysis (Priority 1)
+================================================================================
+
+  Per-embedding gaps:
+  τ_to_final (laplacian):
+    Range: [-0.1218, 1.0000], Largest gap: 0.0653 at 0.3438 (ratio=5.8%)
+    → No gap (5.8% < 20%)
+  τ_to_final (random_proj):
+    Range: [-0.5075, 1.0000], Largest gap: 0.1522 at -0.3343 (ratio=10.1%)
+    → No gap (10.1% < 20%)
+  τ_to_final (degree_prof):
+    Range: [-0.5488, 1.0000], Largest gap: 0.1863 at -0.1651 (ratio=12.0%)
+    → No gap (12.0% < 20%)
+
+  Pooled gap (all embeddings):
+  τ_to_final (pooled, 2 emb: lap+rp):
+    Range: [-0.5488, 1.0000], Largest gap: 0.1161 at -0.2001 (ratio=7.5%)
+    → No gap (7.5% < 20%)
+
+  Pooled gap (3 embeddings: lap+rp+deg):
+  τ_to_final (pooled, 3 emb):
+    Range: [-0.5488, 1.0000], Largest gap: 0.1161 at -0.2001 (ratio=7.5%)
+    → No gap (7.5% < 20%)
+
+================================================================================
+DIAGNOSTIC 3: Compression gate invariance (Priority 3)
+================================================================================
+  Rule                       edge_list    adj_rows     hash_canon   Consistent?
+  ──────────────────────────────────────────────────────────────────────
+  do_nothing                 0.077✓       0.064✓       0.069✓       ✓
+  add_random_edge            0.064✓       0.057✓       0.057✓       ✓
+  preferential_attach        0.039✓       0.051✓       0.058✓       ✓
+  subdivision                0.063✓       0.082✓       0.078✓       ✓
+  triangle_closure           0.074✓       0.063✓       0.067✓       ✓
+  grid_growth                0.172✓       0.259✓       0.173✓       ✓
+  line_growth                0.050✓       0.050✓       0.066✓       ✓
+  progressive_compress       0.083✓       0.072✓       0.084✓       ✓
+  star_growth                0.039✓       0.051✓       0.057✓       ✓
+  cycle_then_fill            0.040✓       0.052✓       0.044✓       ✓
+  er_random                  0.153✓       0.218✓       0.153✓       ✓
+  copy_with_noise            0.137✓       0.106✓       0.112✓       ✓
+  lattice_rewire             0.057✓       0.089✓       0.058✓       ✓
+  fixed_grid_noise           0.037✓       0.055✓       0.042✓       ✓
+  sorting_edges              0.040✓       0.042✓       0.044✓       ✓
+
+  Inconsistencies: 0 / 15 original rules
+
+================================================================================
+DIAGNOSTIC 4: ER null-model separation per embedding (Priority 4)
+================================================================================
+  laplacian: mean τ = -0.0473, std = 0.1690, max = 0.3103, P(τ > 0.5) = 0.00
+  random_proj: mean τ = -0.0283, std = 0.1328, max = 0.3054, P(τ > 0.5) = 0.00
+  degree_prof: mean τ = 0.0010, std = 0.0868, max = 0.1330, P(τ > 0.5) = 0.00
+
+  ER spectral dim std: mean=0.3237, min=0.2126 (threshold=0.18)
+  P(ds_std < 0.18) = 0.00
+
+================================================================================
+DIAGNOSTIC 5: Threshold sensitivity (Priority 6)
+================================================================================
+  Rule                       ×0.5    ×0.75   ×1.0    ×1.25   ×1.5    Stable?
+  ──────────────────────────────────────────────────────────────────────────────
+  do_nothing                 ..      ..      ..      ..      ..      ✓
+  add_random_edge            ..      ..      ..      ..      ..      ✓
+  preferential_attach        I.      I.      IΦ      IΦ      IΦ      ✗
+  subdivision                IΦ      IΦ      IΦ      IΦ      IΦ      ✓
+  triangle_closure           ..      ..      ..      ..      ..      ✓
+  grid_growth                IΦ      IΦ      IΦ      IΦ      IΦ      ✓
+  line_growth                IΦ      IΦ      IΦ      IΦ      IΦ      ✓
+  progressive_compress       ..      ..      ..      ..      ..      ✓
+  star_growth                I.      I.      IΦ      IΦ      IΦ      ✗
+  cycle_then_fill            I.      I.      I.      I.      I.      ✓
+  er_random                  ..      ..      ..      ..      ..      ✓
+  copy_with_noise            ..      ..      ..      ..      ..      ✓
+  lattice_rewire             I.      I.      IΦ      IΦ      .Φ      ✗
+  fixed_grid_noise           ..      ..      .Φ      .Φ      .Φ      ✗
+  sorting_edges              I.      IΦ      IΦ      IΦ      .Φ      ✗
+  hierarchical_tree          I.      IΦ      IΦ      IΦ      IΦ      ✗
+  hub_sort                   I.      I.      ..      .Φ      .Φ      ✗
+  encode_compress            I.      IΦ      IΦ      IΦ      .Φ      ✗
+  vertex_sprouting           I.      IΦ      IΦ      IΦ      IΦ      ✗
+  edge_sprout_one            I.      I.      IΦ      IΦ      IΦ      ✗
+  triangle_complete          IΦ      IΦ      IΦ      IΦ      IΦ      ✓
+  edge_deletion              I.      ..      ..      ..      ..      ✗
+  edge_rewiring              I.      I.      I.      ..      ..      ✗
+  barabasi_albert            IΦ      IΦ      IΦ      IΦ      IΦ      ✓
+  watts_strogatz             I.      I.      I.      IΦ      IΦ      ✗
+  caterpillar                IΦ      IΦ      IΦ      IΦ      IΦ      ✓
+  complete_bipartite         I.      I.      I.      I.      I.      ✓
+  degree_regular             I.      I.      I.      I.      I.      ✓
+  random_dpo_0               I.      IΦ      IΦ      IΦ      IΦ      ✗
+  random_dpo_1               I.      I.      ..      ..      ..      ✗
+  random_dpo_2               I.      I.      ..      ..      ..      ✗
+  random_dpo_3               IΦ      IΦ      IΦ      IΦ      IΦ      ✓
+  random_dpo_4               IΦ      IΦ      IΦ      IΦ      IΦ      ✓
+
+  Stable rules: 17/33 (51.5%)
+  ⚠ Below 70% target
+
+  ── Instability analysis ──
+  preferential_attach: base=IΦ, flips at ['×0.5', '×0.75']
+  star_growth: base=IΦ, flips at ['×0.5', '×0.75']
+  lattice_rewire: base=IΦ, flips at ['×0.5', '×0.75', '×1.5']
+  fixed_grid_noise: base=.Φ, flips at ['×0.5', '×0.75']
+  sorting_edges: base=IΦ, flips at ['×0.5', '×1.5']
+  hierarchical_tree: base=IΦ, flips at ['×0.5']
+  hub_sort: base=.., flips at ['×0.5', '×0.75', '×1.25', '×1.5']
+  encode_compress: base=IΦ, flips at ['×0.5', '×1.5']
+  vertex_sprouting: base=IΦ, flips at ['×0.5']
+  edge_sprout_one: base=IΦ, flips at ['×0.5', '×0.75']
+  edge_deletion: base=.., flips at ['×0.5']
+  edge_rewiring: base=I., flips at ['×1.25', '×1.5']
+  watts_strogatz: base=I., flips at ['×1.25', '×1.5']
+  random_dpo_0: base=IΦ, flips at ['×0.5']
+  random_dpo_1: base=.., flips at ['×0.5', '×0.75']
+  random_dpo_2: base=.., flips at ['×0.5', '×0.75']
+
+================================================================================
+DIAGNOSTIC 6: Base-rate estimates
+================================================================================
+  Original (15): I+ = 8/15 (53%), Φ+ = 8/15 (53%)
+  Catalog (5): I+ = 4/5 (80%), Φ+ = 3/5 (60%)
+  Structural (5): I+ = 5/5 (100%), Φ+ = 2/5 (40%)
+  Random DPO (5): I+ = 3/5 (60%), Φ+ = 3/5 (60%)
+  Witnesses (3): I+ = 2/3 (67%), Φ+ = 2/3 (67%)
+  ALL (33): I+ = 22/33 (67%), Φ+ = 18/33 (55%)
+
+================================================================================
+DIAGNOSTIC 7: Φ-predicate gap analysis (updated)
+================================================================================
+  Spectral dim std (all rules):
+    Range: [0.0000, 0.9679], Largest gap: 0.4244 at 0.6625 (ratio=43.8%)
+    → GAP EXISTS (43.8% ≥ 20%)
+
+================================================================================
+DIAGNOSTIC 8: Score details for key rules (seed=K3)
+================================================================================
+
+  hierarchical_tree:
+    Compression: 0.035
+    laplacian: τ_final=0.968
+    random_proj: τ_final=1.000
+    degree_prof: τ_final=0.853
+    Spectral dim: mean=1.27, std=0.00
+    Best law: edges_per_node (constant), resid=0.0000
+
+  hub_sort:
+    Compression: 0.047
+    laplacian: τ_final=0.155
+    random_proj: τ_final=0.311
+    degree_prof: τ_final=0.341
+    Spectral dim: mean=2.21, std=0.19
+    Best law: edges_per_node (quadratic), resid=0.1442
+
+  encode_compress:
+    Compression: 0.037
+    laplacian: τ_final=0.647
+    random_proj: τ_final=0.633
+    degree_prof: τ_final=0.595
+    Spectral dim: mean=2.49, std=0.00
+    Best law: edges_per_node (quadratic), resid=0.1319
+
+  cycle_then_fill:
+    Compression: 0.037
+    laplacian: τ_final=0.812
+    random_proj: τ_final=0.848
+    degree_prof: τ_final=0.608
+    Spectral dim: mean=2.54, std=0.33
+    Best law: total_edges (quadratic), resid=0.0355
+
+  er_random:
+    Compression: 0.156
+    laplacian: τ_final=-0.099
+    random_proj: τ_final=0.080
+    degree_prof: τ_final=0.044
+    Spectral dim: mean=1.73, std=0.38
+    Best law: degree_entropy (quadratic), resid=0.1595
+
+  fixed_grid_noise:
+    Compression: 0.037
+    laplacian: τ_final=0.021
+    random_proj: τ_final=0.113
+    degree_prof: τ_final=0.241
+    Spectral dim: mean=2.05, std=0.05
+    Best law: spectral_gap (quadratic), resid=0.1527
+
+  grid_growth:
+    Compression: 0.172
+    laplacian: τ_final=0.819
+    random_proj: τ_final=0.952
+    degree_prof: τ_final=0.933
+    Spectral dim: mean=2.13, std=0.03
+    Best law: total_edges (quadratic), resid=0.0006
+
+  star_growth:
+    Compression: 0.037
+    laplacian: τ_final=0.057
+    random_proj: τ_final=0.963
+    degree_prof: τ_final=0.994
+    Spectral dim: mean=0.74, std=0.06
+    Best law: edges_per_node (constant), resid=0.0000
+
+================================================================================
+SUMMARY
+================================================================================
+  (I+, Φ-) witnesses: 5 → ['cycle_then_fill', 'edge_rewiring', 'watts_strogatz', 'complete_bipartite', 'degree_regular']
+  Stability: 17/33 (51.5%)
+  ER separation: confirmed under all 3 embeddings
+  Total rules evaluated: 33

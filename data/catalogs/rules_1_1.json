@@ -1,0 +1,19 @@
+{
+  "signature": "1_1",
+  "l_vertices": 1,
+  "r_vertices": 1,
+  "r_connected_only": true,
+  "rules": [
+    {
+      "id": "rule_1_1",
+      "name": "Identity",
+      "l_edges": [],
+      "r_edges": [],
+      "iota": [0],
+      "description": "The single vertex is preserved. Trivially the identity on the matched vertex.",
+      "effect": "Nothing. Computationally trivial."
+    }
+  ],
+  "total_connected": 1,
+  "total_any": 1
+}
