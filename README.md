@@ -20,40 +20,39 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 
 **Phase 1: COMPLETE.** All 6 library files, 301 tests passing, exp01 reproduces the full 33-rule diagnostic.
 
+**Phase 2: IN PROGRESS.** exp01–03 complete, exp04–06 next.
+
 **What's done:**
 - Papers 1–3: complete markdown drafts in `papers/`
 - Rule catalog: verified at signatures 1→1, 1→2, 2→3 (1, 1, 3 connected rules)
 - 33-rule diagnostic: classifications established in `reference/primo_diagnostic_output_v5.txt`
 - PRIMO conjecture: draft v6 in `papers/primo_conjecture.md`
-- Repository structure and plan: `CLAUDE.md`
-- `primo/backend.py`: numpy↔torch GPU abstraction — CUDA verified on RTX 3050
-- `primo/monitor.py`: Tkinter experiment dashboard with progress tracking and auto-close
-- `primo/run_utils.py`: StepRunner for experiment orchestration
-- `primo/rules.py`: all 33 rules ported, rule enumeration with isomorphism, catalog I/O
-- `primo/trajectories.py`: trajectory generation, 3 embeddings, tensor conversion, compression ratios, spectral dimension
-- `primo/predicates.py`: I-predicate and Φ-predicate classification, majority voting, ER null model
-- `experiments/exp01_validate.py`: full 8-diagnostic reproduction — all 33 rules match reference
-- Tests: 301 passing (test_backend, test_rules, test_predicates, test_regression, test_monitor)
+- `primo/`: all 6 library files built (backend, rules, trajectories, predicates, monitor, run_utils)
+- Tests: 301 passing
+- `exp01`: 33-rule validation — all rules match reference, stability 75.8%
+- `exp02`: Example B analysis — canonical I-negative (0/4), robustness 18/20 I-positive, adaptive 4/4 I-positive
+- `exp03`: Straightness gate calibrated at 0.35 (was provisional 0.45) — zero I+ rules affected
 
-**exp01 results:**
-- All 33 rules match reference classifications
-- Threshold stability: 75.8% (above 70% target)
-- ER null-model separation confirmed under all 3 embeddings
-- Φ-predicate gap: 43.8% (exists)
-- All four (I, Φ) cells populated: (I+,Φ+)=17, (I+,Φ-)=5, (I-,Φ+)=1, (I-,Φ-)=10
+**exp02 key findings:**
+- Contraction mapping reaches fixed point at step 4 (10% active dynamics)
+- 18/20 random seeds are I-positive — predicate is permissive without straightness gate
+- Adaptive variant (grow-then-contract) fools predicate entirely (4/4 I-positive)
+- Straightness discriminator: contraction ~0.61 vs known I+ rules ~0.07–0.39
 
-**What's in progress:**
-- Phase 2: foundation experiments for Papers 1–3
+**exp03 key findings:**
+- Swept S* from 0.10–0.85 across 264 I+ and 42 contraction measurements
+- No clean separation (overlap 0.13–0.50), but S*=0.35 is optimal safe threshold
+- Zero I+ rules lost, 20/42 contraction measurements rejected
 
 **What's next:**
-- exp02: Example B analysis (I-negative, 2/4 seeds) — Paper 2
-- exp03: Straightness gate calibration — Paper 1
-- exp04–06: PRIMO enumeration and ordering tests — Paper 4
+- exp04: First PRIMO enumeration (single rules ≤ 2→3) — Paper 4
+- exp05: Ordering test N_I^min vs N_Φ^min — Paper 4
+- exp06: Temporal I-profiles of Φ-positive programs — Paper 4
 
 **Known issues:**
 - `watts_strogatz` is a boundary rule: Φ classification varies across runs (2–4 seeds)
-- Straightness gate threshold (0.45) is provisional, pending exp03 calibration
-- Example B seed sensitivity — see `reference/example_b_analysis.md`
+- Straightness gate overlap: no clean separation between I+ rules and contractions
+- Adaptive variant not caught by straightness gate (S ~0.13–0.17)
 
 **Hardware:**
 - Development: RTX 3050 (4GB VRAM), `DEVICE="cuda"`, `GPU_BATCH_SIZE=8`

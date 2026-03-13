@@ -42,10 +42,11 @@ TAU_STAR = 0.5
 RHO_STAR = 0.85
 
 # Straightness gate threshold.
-#   Status: PROVISIONAL — pending calibration in exp03.
-#   See example_b_analysis.md: contraction mappings have straightness ~0.5-0.84,
-#   genuine I-positive rules have straightness ~0.35.
-STRAIGHTNESS_STAR = 0.45
+#   Calibrated in exp03: max I+ straightness = 0.498 (sorting_edges individual
+#   measurement), but mean across all I+ rules = 0.129. Threshold 0.35 rejects
+#   20/42 contraction measurements with zero I+ rule losses (by mean).
+#   See logs/decisions.md entry 2026-03-13 (exp03 calibration).
+STRAIGHTNESS_STAR = 0.35
 
 # Anti-convergence guard: if ALL τ_to_final values are below this, reject.
 ANTI_CONVERGENCE_THRESHOLD = -0.5

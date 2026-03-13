@@ -54,6 +54,23 @@ Append-only. Every threshold, design choice, and retraction is documented here w
 **Analysis:** Most instability is at the Φ boundary (rules that are borderline Φ-positive flip when ds_std threshold is scaled). The I-predicate is more stable. The instability is concentrated in rules whose scores sit near threshold boundaries, not in rules whose classifications are clear.
 **Status:** Acknowledged. Does not block Paper 1 (which documents this honestly). May improve after straightness gate calibration.
 
+## 2026-03-13: exp02 — Example B contraction mapping analysis
+
+**Decision:** Example B canonical classification confirmed as I-negative (0/4 seeds, stronger than paper's 2/4).
+**Key findings:**
+- Fixed point reached at step 4 for all canonical seeds (10% active dynamics)
+- Random seed robustness: 18/20 I-positive (worse than paper's ~7/20 — predicate is permissive)
+- Adaptive variant: 4/4 I-positive (confirms need for straightness gate)
+- Straightness discriminator: contraction I- seeds ~0.61, known I+ rules 0.07–0.39
+**Status:** Complete. Feeds into exp03.
+
+## 2026-03-13: exp03 — Straightness gate calibrated at 0.35
+
+**Decision:** STRAIGHTNESS_STAR updated from 0.45 (provisional) to 0.35 (calibrated).
+**Justification:** Swept thresholds 0.10–0.85 across all 33 rules (4 seeds × 3 embeddings = 264 I+ measurements) plus 14 contraction mapping trajectories (42 measurements). At S*=0.35: zero I+ rules lost, 20/42 contraction measurements rejected. No clean separation exists (overlap zone 0.13–0.50), but 0.35 is the most aggressive safe threshold.
+**Impact:** Only `edge_deletion` (I-, S=0.511) has mean straightness above 0.35 — already I-negative.
+**Status:** Active. Replaces provisional 0.45.
+
 ## 2026-03-13: Base rates — I+ = 67%, Φ+ = 55% across 33 rules
 
 **Decision:** Documented. Base rates by source: Original (15): I+=53% Φ+=53%. Catalog (5): I+=80% Φ+=60%. Structural (5): I+=100% Φ+=40%. Random DPO (5): I+=60% Φ+=60%. Witnesses (3): I+=67% Φ+=67%.
