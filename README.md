@@ -18,11 +18,11 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 
 ## Current state
 
-**Last updated:** 2026-03-13 (exp09/09b eigenvalue gap stability diagnostic)
+**Last updated:** 2026-03-13 (exp06 temporal I-profiles)
 
 **Phase 1: COMPLETE.** All 6 library files, all tests passing, exp01 reproduces the full 33-rule diagnostic.
 
-**Phase 2: IN PROGRESS.** exp01–04, exp07–09 complete. I/Φ separation achieved at σ=4. exp05–06 next.
+**Phase 2: IN PROGRESS.** exp01–04, exp06–09 complete. I/Φ separation achieved at σ=4. exp05 skipped (see below).
 
 **What's done:**
 - Papers 1–3: complete markdown drafts in `papers/`
@@ -37,6 +37,7 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - `exp07`: DPO null-model recalibration — 174 separating threshold combos found
 - `exp08`: Cross-check 33 rules at ds_std*=0.08 — all 4 cells populated (16, 6, 1, 10)
 - `exp09`: Eigenvalue gap stability diagnostic — zero crossings across all 16 DPO rules. 3 borderline Φ+ rules (small graphs) confirmed stable at T=60 (exp09b). Conditional theorem M3' verified: all Φ+ DPO rules have stable eigenvalue gaps once graphs reach sufficient size.
+- `exp06`: Temporal I-profiles for 9 Φ+ rules at T=60 — claim (b) assessment: WEAK. 4/9 rules show transient in ≥1 seed; 2/9 (Path-4 fresh middle, Tri+pendant shifted) show strong transients in all 4 seeds. Mean I-Φ correlation -0.076 (weakly anti-correlated).
 
 **exp08 key findings (ds_std* tightened to 0.08):**
 - Only 1 rule changed among 33: lattice_rewire moved I+Φ+ → I+Φ- (ds_std=0.149)
@@ -57,10 +58,9 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - **S2 SUPPORTED at σ=4**: I+=11/11 > Φ+=5/11
 
 **What's next:**
-- exp05: Ordering test N_I^min vs N_Φ^min — need σ=5 (4→5) enumeration to break the tie
-- exp06: Temporal I-profiles — 3 Φ+ rules with transient decay provide evidence for claim (b)
+- exp05: SKIPPED. The conditional theorem (Proposition 2, Paper 1 §7.5) proves Φ+ → I+ for all DPO growth rules, so N_I^min ≤ N_Φ^min holds trivially in the DPO setting. Higher-σ enumeration cannot break the tie. Claim (a) requires multi-rule compositions or non-DPO program enumeration to test properly.
+- Paper 4 drafting: exp04 (enumeration) + exp06 (temporal profiles) + exp09 (eigenvalue gaps) provide the experimental core. Begin assembling results into primo_conjecture.md.
 - Paper 1 update: add Proposition (Φ+ → I+ for monotone growth with stable eigenvalue gaps) to Section 7, with exp09/exp09b data as evidence
-- Consider: does claim (a) require higher signatures, or is it structurally impossible for single-rule DPO?
 
 **Known issues:**
 - `watts_strogatz` is a boundary rule: Φ classification varies across runs (2–4 seeds)
@@ -69,6 +69,7 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - Example B seed sensitivity: 18/20 random seeds classify I-positive despite canonical protocol giving I-negative; predicate is sensitive to initial conditions (see `reference/example_b_analysis.md`)
 - At ds_std*=0.08, all σ≤3 DPO rules are I+ Φ+. Separation only appears at σ=4. Claim (a) requires σ=5 enumeration or is structurally impossible for single-rule DPO.
 - Φ+ → I+ holds for all 16 DPO rules. Explained by: zero eigenvalue crossings under monotone DPO growth + Davis-Kahan theorem. Does NOT hold in general (fixed_grid_noise counterexample). Conditional theorem drafted, pending Paper 1 integration.
+- Claim (a) structurally untestable in single-rule DPO: conditional theorem guarantees N_I^min ≤ N_Φ^min. Testing strict inequality requires richer program spaces.
 - License TBD — must be resolved before Paper 4 data availability statement
 
 **Hardware:**

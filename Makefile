@@ -19,7 +19,7 @@ exp05:
 	python experiments/exp05_ordering.py
 
 exp06:
-	python experiments/exp06_temporal.py
+	python experiments/exp06_temporal_profiles.py
 
 exp07:
 	python experiments/exp07_dpo_null_model.py

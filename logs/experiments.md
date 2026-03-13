@@ -73,3 +73,29 @@ Append-only. Every experiment run is logged with git hash, config, duration, and
 - Verdict: M3' (eigenspace gap stability) HOLDS for all Phi+ DPO rules
 
 **Key finding:** The 3 "unstable" rules from exp09 produce tree-like graphs where Laplacian eigenvalue 1 has multiplicity ~60. The raw gap (eig[k]-eig[k-1]) is zero because both sit inside this degenerate cluster. But the cluster gap (distance to the next distinct eigenvalue) is large and stable. Davis-Kahan guarantees the embedding subspace is stable under these conditions. Conditional theorem Phi+ ∧ M1 ∧ M2 ∧ M3' → I+ is fully supported for all 16 DPO rules.
+
+## exp06 — Temporal I-profiles for Φ-positive rules (claim (b))
+
+**Date:** 2026-03-13
+**Git hash:** TBD (this commit)
+**Config:** T=60, W=8 (window), stride=1, ds_std*=0.08, 4 seeds (K1,K2,K3,P3), DEVICE=cuda
+**Rules:** 9 Φ+ DPO rules (σ=2: 1, σ=3: 3, σ=4: 5)
+**Duration:** ~5 min
+
+**Results:**
+- 4/9 Φ+ rules show transient in ≥1 seed
+- 2/9 show transient in ≥3 seeds (majority): Path-4 fresh middle (4/4), Tri+pendant shifted (4/4)
+- Mean I-decay Kendall τ: -0.017 (near zero overall, but strong in transient rules)
+- Mean I-Φ Pearson correlation (where Φ transition exists): -0.076 (weakly anti-correlated)
+- Claim (b) assessment: **WEAK**
+
+**Strong transient rules:**
+- Path-4 fresh middle: delta +0.19 to +0.27, τ -0.30 to -0.43, I-Φ corr -0.05 to -0.16 (all 4 seeds)
+- Tri+pendant shifted: delta +0.28 to +0.30, τ -0.33 to -0.43 (all 4 seeds)
+
+**No transient:**
+- Edge Replacement (subdivision): I-scores increasing (τ +0.41 to +0.49)
+- Tri+pendant preserved: flat I-scores, no decay
+- Diamond fresh vertex: I-scores slightly increasing
+
+**Key observation:** Transient detection is method-dependent. Method A (early-vs-late) and B (Kendall τ) agree well. Method C (I-Φ cross-correlation) is limited by the fact that most Φ+ rules are Φ+ throughout the entire trajectory (no transition from Φ- to Φ+), making cross-correlation undefined. The claim (b) signal is concentrated in 2 rules with clear monotonic I-decay.
