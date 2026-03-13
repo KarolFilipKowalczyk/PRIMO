@@ -18,30 +18,42 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 
 **Last updated:** 2026-03-13
 
+**Phase 1: COMPLETE.** All 6 library files, 301 tests passing, exp01 reproduces the full 33-rule diagnostic.
+
 **What's done:**
 - Papers 1–3: complete markdown drafts in `papers/`
 - Rule catalog: verified at signatures 1→1, 1→2, 2→3 (1, 1, 3 connected rules)
 - 33-rule diagnostic: classifications established in `reference/primo_diagnostic_output_v5.txt`
 - PRIMO conjecture: draft v6 in `papers/primo_conjecture.md`
 - Repository structure and plan: `CLAUDE.md`
-- `primo/backend.py`: numpy↔torch GPU abstraction — CUDA verified on RTX 3050, 59 tests passing
-- `primo/monitor.py`: Tkinter experiment dashboard with progress tracking, auto-close, checkpointing
+- `primo/backend.py`: numpy↔torch GPU abstraction — CUDA verified on RTX 3050
+- `primo/monitor.py`: Tkinter experiment dashboard with progress tracking and auto-close
 - `primo/run_utils.py`: StepRunner for experiment orchestration
-- `primo/rules.py`: all 33 rules ported, rule enumeration with isomorphism, catalog I/O — counts match all 3 catalogs
-- `primo/trajectories.py`: trajectory generation, 3 embeddings, tensor conversion, compression ratios, spectral dimension, checkpointing
-- `primo/predicates.py`: I-predicate and Phi-predicate classification, majority voting, classification tables, ER null model
+- `primo/rules.py`: all 33 rules ported, rule enumeration with isomorphism, catalog I/O
+- `primo/trajectories.py`: trajectory generation, 3 embeddings, tensor conversion, compression ratios, spectral dimension
+- `primo/predicates.py`: I-predicate and Φ-predicate classification, majority voting, ER null model
+- `experiments/exp01_validate.py`: full 8-diagnostic reproduction — all 33 rules match reference
+- Tests: 301 passing (test_backend, test_rules, test_predicates, test_regression, test_monitor)
+
+**exp01 results:**
+- All 33 rules match reference classifications
+- Threshold stability: 75.8% (above 70% target)
+- ER null-model separation confirmed under all 3 embeddings
+- Φ-predicate gap: 43.8% (exists)
+- All four (I, Φ) cells populated: (I+,Φ+)=17, (I+,Φ-)=5, (I-,Φ+)=1, (I-,Φ-)=10
 
 **What's in progress:**
-- Phase 1 bootstrap: 6/6 library files built, tests and exp01 remaining
+- Phase 2: foundation experiments for Papers 1–3
 
 **What's next:**
-- Write tests (`test_rules.py`, `test_predicates.py`, `test_backend.py` already done, `test_regression.py`)
-- Write `experiments/exp01_validate.py`
+- exp02: Example B analysis (I-negative, 2/4 seeds) — Paper 2
+- exp03: Straightness gate calibration — Paper 1
+- exp04–06: PRIMO enumeration and ordering tests — Paper 4
 
 **Known issues:**
-- Threshold stability at 51.5% (below 70% target) — see `reference/primo_diagnostic_output_v5.txt` diagnostic 5
-- Example B seed sensitivity — see `reference/example_b_analysis.md`
+- `watts_strogatz` is a boundary rule: Φ classification varies across runs (2–4 seeds)
 - Straightness gate threshold (0.45) is provisional, pending exp03 calibration
+- Example B seed sensitivity — see `reference/example_b_analysis.md`
 
 **Hardware:**
 - Development: RTX 3050 (4GB VRAM), `DEVICE="cuda"`, `GPU_BATCH_SIZE=8`
