@@ -8,7 +8,7 @@
 
 ## Abstract
 
-We enumerate all 16 connected DPO graph rewrite rules at signatures σ = 1 through σ = 4 and classify each by two independent geometric predicates: the I-predicate (convergent state-space trajectories with compressible dynamics) and the Φ-predicate (stable integer spectral dimension with lawful aggregate evolution). Every Φ-positive rule is I-positive, but six rules are I-positive without being Φ-positive. We prove that this asymmetry is structural: for monotone-growth graph dynamical systems with stable eigenspace gaps, Φ-positivity implies I-positivity (Theorem 1). A perturbation-response experiment confirms the dynamical content of this relationship — perturbed Φ-positive systems return to equilibrium via I-positive trajectories in 108 out of 108 tested cases, with positive dose-response and clean null controls.
+We enumerate all 16 connected DPO graph rewrite rules at signatures σ = 1 through σ = 4 and classify each by two independent geometric predicates: the I-predicate (convergent state-space trajectories with compressible dynamics) and the Φ-predicate (stable integer spectral dimension with lawful aggregate evolution). Every Φ-positive rule is I-positive, but six rules are I-positive without being Φ-positive. We conjecture that this asymmetry is structural: for monotone-growth graph dynamical systems with stable eigenspace gaps, Φ-positivity implies I-positivity (Conjecture 1), and provide complete computational verification on all 16 rules with zero eigenvalue crossings observed. A perturbation-response experiment confirms the dynamical content of this relationship — perturbed Φ-positive systems return to equilibrium via I-positive trajectories in 108 out of 108 tested cases, with positive dose-response and clean null controls.
 
 ---
 
@@ -18,17 +18,17 @@ Graph rewrite systems produce diverse dynamical behaviors. Two geometric predica
 
 We enumerate all 16 connected DPO graph rewrite rules at signatures σ = 1 through σ = 4 and discover a one-sided relationship: every Φ-positive rule is also I-positive, but not vice versa. Six rules are I-positive without being Φ-positive. The (I−, Φ+) cell is empty.
 
-We prove this is not a coincidence. For monotone-growth graph dynamical systems with stable eigenspace gaps, Φ-positivity implies I-positivity (Theorem 1). The proof connects spectral dimension stability to embedding convergence via the Davis-Kahan perturbation theorem [12]. The implication fails for non-growth systems, where eigenvalue crossings disrupt eigenvector structure.
+We conjecture this is not a coincidence. For monotone-growth graph dynamical systems with stable eigenspace gaps, Φ-positivity implies I-positivity (Theorem 1). The conjecture is supported by complete computational verification (zero eigenvalue crossings across all rules and seeds) and a partial proof connecting spectral dimension stability to embedding convergence via the Davis-Kahan perturbation theorem [12]. The Davis-Kahan bound is loose in practice (mean ratio ‖ΔA‖_F / gap ≈ 11), so the empirical stability is stronger than what the bound alone guarantees. The implication fails for non-growth systems, where eigenvalue crossings disrupt eigenvector structure.
 
 A perturbation-response experiment confirms the dynamical content of this relationship: when Φ-positive systems are perturbed out of geometric equilibrium, they return via I-positive trajectories in 108 out of 108 tested cases, with positive dose-response and clean null controls (0/36). Physical regularity is actively maintained by inference-like dynamics.
 
 Three contributions:
 
-1. **Theorem 1:** Φ-positivity implies I-positivity for monotone growth with stable eigenspace gaps.
+1. **Conjecture 1** (computationally verified): Φ-positivity implies I-positivity for monotone growth with stable eigenspace gaps. Verified on all 16 DPO rules with zero exceptions.
 2. **Perturbation-response (Proposition 2, computational):** Φ-positive equilibrium is maintained by I-positive recovery dynamics (108/108 positive, 0/36 null).
 3. **Frequency asymmetry:** I+ ⊋ Φ+ in DPO rule space (15/16 vs 9/16 non-trivial; 6 I-only rules, 0 Φ-only rules at σ = 4).
 
-This work was originally motivated by the PRIMO programme (Physical Regularity from Inference in Minimal Ontologies), which conjectured that inference-like behavior precedes physics-like behavior in program space. The present results provide the first computational evidence, with the unexpected finding that the relationship is provable under growth conditions rather than merely statistical.
+This work was originally motivated by the PRIMO programme (Physical Regularity from Inference in Minimal Ontologies), which conjectured that inference-like behavior precedes physics-like behavior in program space. The present results provide the first computational evidence, with the unexpected finding that the relationship appears structural under growth conditions rather than merely statistical.
 
 ---
 
@@ -75,7 +75,7 @@ The predicates are logically independent [14, Theorem 1]. Witnesses for all four
 | I−Φ+ | fixed_grid_noise |
 | I−Φ− | er_random |
 
-The conditional theorem we prove does not contradict independence — it identifies a structural condition (monotone growth) under which one direction of the implication holds. The fixed_grid_noise witness for (I−, Φ+) violates monotone growth.
+The conditional conjecture does not contradict independence — it identifies a structural condition (monotone growth) under which one direction of the implication holds. The fixed_grid_noise witness for (I−, Φ+) violates monotone growth.
 
 ### 2.5 Threshold parameters
 
@@ -92,7 +92,7 @@ The conditional theorem we prove does not contradict independence — it identif
 
 ## 3. Main results
 
-### 3.1 Theorem: Φ-positivity implies I-positivity for monotone growth systems
+### 3.1 Conjecture: Φ-positivity implies I-positivity for monotone growth systems
 
 **Conditions.** A graph dynamical system (G₀, R, T) is a *monotone growth system* if it satisfies:
 
@@ -108,7 +108,9 @@ Each matched subgraph contributes at most r edge additions/deletions, each a ran
 
 *Remark on M3'.* The cluster gap rather than the raw eigenvalue gap is the correct stability measure. Tree-like growth rules produce graphs with high eigenvalue multiplicity (e.g., multiplicity 57–60 at λ = 1), giving a raw gap of zero, but a large stable cluster gap (minimum 0.56 in our enumeration). The Davis-Kahan theorem [12] applies to eigenspaces, so cluster gap suffices.
 
-**Theorem 1.** *Let (G₀, R, T) satisfy (M1), (M2), (M3'). If (G₀, R, T) is Φ-positive, then it is I-positive.*
+**Conjecture 1.** *Let (G₀, R, T) satisfy (M1), (M2), (M3'). If (G₀, R, T) is Φ-positive, then it is I-positive.*
+
+Conjecture 1 is verified computationally on all 16 enumerated DPO growth rules at σ = 1–4, with zero exceptions (Section 4.2). The status of the conditions: (M1) holds by construction for DPO growth rules; (M3') is verified in exp09/09b with zero eigenvalue crossings; (M2) is verified in exp11 with measured ‖ΔA_t‖_F values. A proof attempt via the Davis-Kahan perturbation theorem is given below; it establishes the correct mechanism but the quantitative bound is loose (see Remark after the proof).
 
 **Proof outline.** Complete details in Appendix A.
 
@@ -122,6 +124,8 @@ The critical ratio is ‖ΔA_t‖_F / gap_k^{cluster}(L_t). Under (M2), the nume
 
 This argument works for any embedding satisfying E1–E3. For e_L (Laplacian eigenvectors), Davis-Kahan applies directly to the symmetric Laplacian. For e_R (random projection), the connection follows via adjacency singular values and Laplacian eigenvalues. For e_D (degree profile), degree profiles are Lipschitz in the adjacency matrix under E1.
 
+**Remark (Looseness of the Davis-Kahan bound).** The proof outline argues that the angular perturbation per step decreases because the relative perturbation ‖ΔA_t‖_F / ‖A_t‖_F vanishes under growth. Direct measurement (exp11) shows this is not the case: the mean ratio ‖ΔA_t‖_F / gap_k^{cluster} ≈ 11 across Φ-positive rules, and only 3 of 9 rules show a decreasing ratio over time. The Davis-Kahan bound is loose — it permits large eigenvector rotations per step, yet zero rotations are observed (exp09). The eigenvector stability is real but is not explained by the per-step perturbation bound alone. A tighter argument — likely based on spectral convergence of the graph sequence rather than per-step perturbation bounds — is needed to convert Conjecture 1 into a theorem. The proof outline above identifies the correct mechanism (eigenspace gap stability prevents eigenvalue crossings, which prevents eigenvector rotation) but does not provide a quantitatively tight bound.
+
 *Part II (Compression gate — claim).*
 
 **Claim.** *Under (M1) and Φ-positivity, the trajectory compression ratio satisfies ρ < ρ* = 0.85.*
@@ -130,7 +134,7 @@ Under (M1), the trajectory is determined by the initial graph G₀ plus the sequ
 
 This is not a rigorous proof. The bound on Kolmogorov complexity is informal (we use zlib, not an optimal compressor). The argument assumes the matching is deterministic given the graph, which holds for canonical-ordering GPI but may not hold for other matching strategies.
 
-**Remark.** The fixed_grid_noise rule (I−, Φ+) violates (M1): the graph has fixed size with one random edge swap per step. This allows eigenvalue crossings that disrupt embedding convergence. The Dehn-twist construction — a toroidal grid with periodic relabeling — provides a theoretical counterexample satisfying all Φ-predicate conditions while violating (M1) and producing oscillating embeddings. Constructing and verifying this computationally is listed as future work.
+**Remark.** The fixed_grid_noise rule (I−, Φ+) violates (M1): the graph has fixed size with one random edge swap per step. This allows eigenvalue crossings that disrupt embedding convergence. The Dehn-twist construction — a 10×10 toroidal grid with periodic relabeling — is a verified (I−, Φ+) counterexample: it has perfect spectral dimension (d_s = 2.58, σ_ds = 0.000), constant edge count, and homogeneous curvature (Φ-positive), but all three embeddings give τ_to_final ≤ 0 (I-negative). The Dehn twist preserves the Laplacian spectrum exactly (zero eigenvalue crossings) but rotates eigenvectors within degenerate eigenspaces, producing constant subspace cosines rather than convergent ones.
 
 ### 3.2 Perturbation-response: Φ-positive equilibrium is maintained by I-positive dynamics
 
@@ -173,7 +177,7 @@ Across all 16 rules (σ = 1 through σ = 4), excluding the Identity rule (I−Φ
 - I-only (I+Φ−): 6 rules
 - Φ-only (I−Φ+): 0 rules
 
-The asymmetry I+ ⊋ Φ+ is predicted by the conditional theorem: Φ+ implies I+ for growth rules, guaranteeing the (I−, Φ+) cell is empty, while the (I+, Φ−) cell is populated by rules that converge in embedding space without developing stable geometry (e.g., Star-3 replacement, Diamond preserved, K4 completion — rules producing structures with unstable spectral dimension, σ_ds > 0.08).
+The asymmetry I+ ⊋ Φ+ is predicted by Conjecture 1: Φ+ implies I+ for growth rules, guaranteeing the (I−, Φ+) cell is empty, while the (I+, Φ−) cell is populated by rules that converge in embedding space without developing stable geometry (e.g., Star-3 replacement, Diamond preserved, K4 completion — rules producing structures with unstable spectral dimension, σ_ds > 0.08).
 
 Secondary hypotheses from the PRIMO programme:
 
@@ -209,7 +213,7 @@ We enumerate all connected DPO graph rewrite rules at signatures σ = 1 through 
 | Diamond preserved | 3→4 | + | − | I+Φ− |
 | K4 completion | 3→4 | + | − | I+Φ− |
 
-### 4.2 Eigenvalue gap data (Theorem 1 verification)
+### 4.2 Eigenvalue gap data (Conjecture 1 verification)
 
 We measured Laplacian eigenvalue gaps for all 16 DPO rules across all 4 seeds at T = 30 (with T = 60 for three borderline rules). This data verifies condition (M3').
 
@@ -231,7 +235,7 @@ Key findings:
 - All 9 Φ-positive rules satisfy (M3'). Three tree-like rules (Edge Sprouting one-sided, Tri+pendant preserved, Tri+pendant shifted) have high eigenvalue multiplicity at λ = 1, giving raw gap zero but cluster gap ≥ 0.56 (confirmed at T = 60).
 - Two Φ-negative rules (Star-3 fresh hub, K4 completion) have stable eigenspace gaps but fail Φ-positivity on spectral dimension instability (σ_ds > 0.08). Condition (M3') is not the binding constraint for those rules.
 
-The ‖ΔA_t‖_F / gap_k^{cluster} ratio — the critical quantity in the Davis-Kahan bound — was not directly measured. The zero-crossing result provides indirect evidence that the ratio is well-behaved: if eigenvalue crossings never occur, the cluster gap remains bounded away from zero, keeping the ratio finite. Direct measurement is planned for a future revision to strengthen the computational verification.
+The ‖ΔA_t‖_F / gap_k^{cluster} ratio — the critical quantity in the Davis-Kahan bound — was measured directly (exp11). The mean ratio across Φ-positive rules in the latter half of trajectories is approximately 11, and only 3 of 9 rules show a decreasing ratio over time. The mean relative perturbation ‖ΔA‖_F / ‖A‖_F ≈ 0.31, confirming that each step adds a non-negligible fraction of new structure. The Davis-Kahan bound is loose: it permits large eigenvector rotations, yet none are observed. Eigenspace stability (zero crossings) is an empirical fact that is not fully explained by the per-step perturbation bound. This is why Conjecture 1 remains a conjecture rather than a theorem.
 
 ### 4.3 Perturbation-response data (Proposition 2 verification)
 
@@ -269,15 +273,15 @@ The PRIMO programme conjectured two claims:
 
 **(b) Equilibrium:** Physics-like behavior is the dynamical equilibrium of inference-like processes.
 
-Claim (a) is absorbed by Theorem 1. For DPO growth rules, Φ+ → I+, so N_I^{min} ≤ N_Φ^{min} holds trivially. But strict inequality cannot be demonstrated in this setting — the first non-trivial rule (Vertex Sprouting, σ = 2) is both I-positive and Φ-positive. Testing strict inequality requires either multi-rule compositions or non-DPO program enumeration.
+Claim (a) is absorbed by Conjecture 1. For DPO growth rules, Φ+ → I+, so N_I^{min} ≤ N_Φ^{min} holds trivially. But strict inequality cannot be demonstrated in this setting — the first non-trivial rule (Vertex Sprouting, σ = 2) is both I-positive and Φ-positive. Testing strict inequality requires either multi-rule compositions or non-DPO program enumeration.
 
-Claim (b) is supported by the perturbation-response result (Proposition 2). The conditional theorem provides the structural basis: growth plus spectral stability forces inference-like convergence. The perturbation-response shows this is not just a logical implication but an active dynamical mechanism — perturbed systems re-infer their way back to geometric equilibrium. The dose-response and clean null controls distinguish this from coincidence.
+Claim (b) is supported by the perturbation-response result (Proposition 2). Conjecture 1 provides the structural basis: growth plus spectral stability forces inference-like convergence. The perturbation-response shows this is not just a logical implication but an active dynamical mechanism — perturbed systems re-infer their way back to geometric equilibrium. The dose-response and clean null controls distinguish this from coincidence.
 
 ### 5.2 Relationship to Vanchurin
 
 Vanchurin's programme [1–4] proposes that physical law emerges as the equilibrium of learning dynamics. His "Geometric Learning Dynamics" [4] identifies three regimes (α = 0, 1/2, 1) of the metric-noise relationship, with the α = 1 regime corresponding to equilibrium physics.
 
-The present results provide the first discrete, computational test case. Theorem 1 is the discrete analog of Vanchurin's continuous-time result: stable geometry (his "equilibrium") requires convergent dynamics (his "learning"). The perturbation-response parallels his prediction that perturbation from equilibrium triggers a learning-like return process.
+The present results provide the first discrete, computational test case. Conjecture 1 is the discrete analog of Vanchurin's continuous-time result: stable geometry (his "equilibrium") requires convergent dynamics (his "learning"). The perturbation-response parallels his prediction that perturbation from equilibrium triggers a learning-like return process.
 
 The key difference: Vanchurin works in continuous metric spaces with gradient dynamics; we work in discrete graph spaces with DPO rewriting. The fact that the structural relationship survives this translation suggests it is not an artifact of the continuous framework.
 
@@ -285,24 +289,23 @@ The key difference: Vanchurin works in continuous metric spaces with gradient dy
 
 1. **Small signatures.** Sixteen rules at σ ≤ 4. The frequency asymmetry and perturbation-response need confirmation at higher signatures.
 
-2. **DPO growth rules only.** All enumerated rules are graph-growing. The conditional theorem explicitly requires (M1). Non-growth systems (fixed_grid_noise, Dehn-twist) can be Φ-positive without being I-positive. The results characterize a property of *growth dynamics*, not of all possible graph dynamics.
+2. **DPO growth rules only.** All enumerated rules are graph-growing. Conjecture 1 explicitly requires (M1). Non-growth systems (fixed_grid_noise, Dehn-twist) can be Φ-positive without being I-positive. The results characterize a property of *growth dynamics*, not of all possible graph dynamics.
 
 3. **Threshold sensitivity.** The Φ-predicate threshold σ*_ds was tightened from 0.18 to 0.08 to achieve I/Φ separation at σ = 4. At the original threshold, all DPO rules are I+Φ+ and there is no separation to analyze. The results depend on this calibration.
 
-4. **The M2 condition.** The bound ‖ΔA_t‖_F = O(|E_t|^{1/2}) is argued but not formally proved for GPI application. The argument (independent updates on disjoint matched subgraphs) is plausible but assumes the matching is well-spread, which is not guaranteed for all graph topologies.
+4. **The Davis-Kahan gap.** The Davis-Kahan per-step bound is loose (exp11: mean ratio ‖ΔA‖_F / gap ≈ 11). The proof outline identifies the correct mechanism (eigenspace gap stability prevents crossings) but does not provide a tight quantitative bound. Converting Conjecture 1 to a theorem requires either a tighter perturbation argument or a fundamentally different approach based on spectral convergence of the graph sequence.
 
 5. **The compression gate.** Part II of the proof is a claim, not a theorem. The compression argument is informal and relies on zlib as a proxy for Kolmogorov complexity.
 
 6. **Is the I-predicate detecting growth?** Within DPO, every non-trivial rule is a growth rule, so the I-predicate could be merely detecting structured growth. Evidence against: in the 33-rule study [14], non-growth rules like sorting_edges are I-positive, and the Bayesian forward theorem [15] shows I-positivity captures convergent dynamics independent of growth. But within the DPO enumeration specifically, this concern cannot be fully resolved.
 
-7. **Dehn-twist counterexample not verified.** The theoretical counterexample (Section 3.1 Remark) is claimed but not computationally constructed.
+7. **Dehn-twist counterexample.** Verified computationally (exp12). The 10×10 toroidal grid with Dehn twist is Φ-positive (d_s = 2.58, σ_ds = 0) and I-negative (all τ ≤ 0), confirming that (M1) is essential.
 
 ### 5.4 Future work
 
 - Enumerate σ = 5 (4→5) to test frequency asymmetry at larger scale.
 - Multi-rule compositions for testing claim (a) strict inequality.
-- Implement and verify the Dehn-twist counterexample.
-- Compute ‖ΔA_t‖_F / gap_k^{cluster} ratio for all rules to strengthen the Theorem 1 verification.
+- Find a tight proof for Conjecture 1. The Davis-Kahan per-step bound is loose (exp11). Candidate approaches: (i) spectral convergence of the graph sequence under Φ-positivity implies Grassmannian convergence of the embedding; (ii) averaging arguments showing that per-step perturbations, while large, are directionally incoherent and cancel over multiple steps; (iii) a Lyapunov-function argument using the spectral dimension stability as a monotone quantity.
 - Non-DPO program enumeration (binary lambda calculus or Wolfram-style hypergraph rules).
 
 ---
@@ -349,7 +352,7 @@ The key difference: Vanchurin works in continuous metric spaces with gradient dy
 
 ---
 
-## Appendix A — Proof details for Theorem 1
+## Appendix A — Proof outline for Conjecture 1
 
 ### A.1 Lemma (GPI perturbation bound)
 
@@ -397,7 +400,7 @@ by the triangle inequality on the Grassmannian. For t ≥ t_2, this is bounded b
 
 ### A.3 The τ_to_final bound
 
-**Proposition.** *Under conditions (M1), (M2), (M3'), for T sufficiently large:*
+**Proposition (conditional on the per-step bound).** *If the angular perturbation per step θ_s is summable (∑ θ_s < ∞), then for T sufficiently large:*
 
 $$\tau_{\mathrm{to\_final}}(e) \geq 1 - \frac{2t_2}{T - 1} > 0.5$$
 
@@ -408,3 +411,5 @@ $$\tau_{\mathrm{to\_final}}(e) \geq 1 - \frac{2t_2}{T - 1} > 0.5$$
 $$\tau \geq 1 - \frac{2t_2(T - 1 - t_2)}{\binom{T}{2}} \geq 1 - \frac{2t_2}{T - 1}$$
 
 Setting T > 4t₂ + 1 gives τ > 0.5 = τ*. This parallels [15, Corollary 1], replacing the Bayesian source of convergence (Doob's theorem → posterior concentration) with the spectral stability source (Φ-positivity → eigenvalue distribution convergence). □
+
+The summability condition is the gap in the proof: exp11 shows the per-step angular bound from Davis-Kahan does not decrease, so summability is not established by the current argument. The proposition is valid conditional on summability; establishing summability by other means would complete the proof of Conjecture 1.
