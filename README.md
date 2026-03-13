@@ -18,11 +18,11 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 
 ## Current state
 
-**Last updated:** 2026-03-13 (exp08 ds_std* tightened to 0.08, exp04 rerun)
+**Last updated:** 2026-03-13 (exp09/09b eigenvalue gap stability diagnostic)
 
 **Phase 1: COMPLETE.** All 6 library files, all tests passing, exp01 reproduces the full 33-rule diagnostic.
 
-**Phase 2: IN PROGRESS.** exp01–04, exp07–08 complete. I/Φ separation achieved at σ=4. exp05–06 next.
+**Phase 2: IN PROGRESS.** exp01–04, exp07–09 complete. I/Φ separation achieved at σ=4. exp05–06 next.
 
 **What's done:**
 - Papers 1–3: complete markdown drafts in `papers/`
@@ -36,6 +36,7 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - `exp04`: PRIMO enumeration (16 rules, signatures ≤ 3→4) — rerun at ds_std*=0.08
 - `exp07`: DPO null-model recalibration — 174 separating threshold combos found
 - `exp08`: Cross-check 33 rules at ds_std*=0.08 — all 4 cells populated (16, 6, 1, 10)
+- `exp09`: Eigenvalue gap stability diagnostic — zero crossings across all 16 DPO rules. 3 borderline Φ+ rules (small graphs) confirmed stable at T=60 (exp09b). Conditional theorem M3' verified: all Φ+ DPO rules have stable eigenvalue gaps once graphs reach sufficient size.
 
 **exp08 key findings (ds_std* tightened to 0.08):**
 - Only 1 rule changed among 33: lattice_rewire moved I+Φ+ → I+Φ- (ds_std=0.149)
@@ -58,6 +59,7 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 **What's next:**
 - exp05: Ordering test N_I^min vs N_Φ^min — need σ=5 (4→5) enumeration to break the tie
 - exp06: Temporal I-profiles — 3 Φ+ rules with transient decay provide evidence for claim (b)
+- Paper 1 update: add Proposition (Φ+ → I+ for monotone growth with stable eigenvalue gaps) to Section 7, with exp09/exp09b data as evidence
 - Consider: does claim (a) require higher signatures, or is it structurally impossible for single-rule DPO?
 
 **Known issues:**
@@ -66,6 +68,7 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - Adaptive variant not caught by straightness gate (S ~0.13–0.17); identified mitigation: active dynamics gate requiring edit distance > 0 for at least 2T/3 steps (see `logs/decisions.md`)
 - Example B seed sensitivity: 18/20 random seeds classify I-positive despite canonical protocol giving I-negative; predicate is sensitive to initial conditions (see `reference/example_b_analysis.md`)
 - At ds_std*=0.08, all σ≤3 DPO rules are I+ Φ+. Separation only appears at σ=4. Claim (a) requires σ=5 enumeration or is structurally impossible for single-rule DPO.
+- Φ+ → I+ holds for all 16 DPO rules. Explained by: zero eigenvalue crossings under monotone DPO growth + Davis-Kahan theorem. Does NOT hold in general (fixed_grid_noise counterexample). Conditional theorem drafted, pending Paper 1 integration.
 - License TBD — must be resolved before Paper 4 data availability statement
 
 **Hardware:**
