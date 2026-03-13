@@ -37,13 +37,11 @@ class StepRunner:
     """Orchestrates an experiment with monitor integration and checkpointing."""
 
     def __init__(self, experiment_name, total_rules=0, total_seeds=4,
-                 phases=None, checkpoint_dir=None, auto_close=True,
-                 auto_close_delay=2.0):
+                 phases=None, checkpoint_dir=None, auto_close_delay=2.0):
         self.experiment_name = experiment_name
         self.total_rules = total_rules
         self.total_seeds = total_seeds
         self.phases = phases or []
-        self.auto_close = auto_close
         self.auto_close_delay = auto_close_delay
 
         self._checkpoint_dir = checkpoint_dir or os.path.join(
@@ -70,7 +68,6 @@ class StepRunner:
             total_rules=self.total_rules,
             total_seeds=self.total_seeds,
             phases=self.phases,
-            auto_close=self.auto_close,
             auto_close_delay=self.auto_close_delay,
         )
         self._monitor = mon
@@ -128,6 +125,10 @@ class StepRunner:
         if total_seeds is not None:
             self.total_seeds = total_seeds
         self._monitor.set_total(total_rules, total_seeds)
+
+    def add_extra_ticks(self, n):
+        """Add extra ticks to the progress total (for diagnostic phases)."""
+        self._monitor.add_extra_ticks(n)
 
     # ── Checkpointing ────────────────────────────────────────────────
 

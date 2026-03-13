@@ -151,14 +151,13 @@ class TestMonitorSmoke:
     def test_smoke_monitor_direct(self):
         """Open the monitor with a simulated experiment.
 
-        Auto-closes after completion via auto_close=True.
+        Auto-closes after completion.
         """
         mon = ExperimentMonitor(
             "smoke_test",
             total_rules=len(FAKE_RULES),
             total_seeds=len(FAKE_SEEDS),
             phases=["Generating trajectories", "Classifying rules", "Diagnostics"],
-            auto_close=True,
             auto_close_delay=1.0,
         )
         mon.run(_simulated_experiment)
@@ -194,7 +193,6 @@ if __name__ == "__main__":
         "smoke_test_demo",
         total_rules=len(FAKE_RULES),
         total_seeds=len(FAKE_SEEDS),
-        auto_close=True,
         auto_close_delay=2.0,
     )
 

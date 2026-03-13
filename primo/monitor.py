@@ -91,13 +91,11 @@ class ExperimentMonitor:
     POLL_INTERVAL = 50
 
     def __init__(self, experiment_name, total_rules=0, total_seeds=4,
-                 phases=None, json_path=None, auto_close=True,
-                 auto_close_delay=2.0):
+                 phases=None, json_path=None, auto_close_delay=2.0):
         self.experiment_name = experiment_name
         self.total_rules = total_rules
         self.total_seeds = total_seeds
         self.phases = phases or []
-        self.auto_close = auto_close
         self.auto_close_delay = auto_close_delay
         self.json_path = json_path or os.path.join(
             DATA_DIR, f"{experiment_name}_progress.json"
@@ -169,6 +167,10 @@ class ExperimentMonitor:
             self.experiment_name, total_rules,
             total_seeds or self.total_seeds, self.phases,
         ))
+
+    def add_extra_ticks(self, n):
+        """Add extra ticks to the total (for diagnostic phases etc.)."""
+        self._total_ticks += n
 
     # ── Run: main thread gets Tkinter, worker gets experiment ────────
 
@@ -489,7 +491,7 @@ class ExperimentMonitor:
             self._write_json()
 
             # Auto-close on success (not on stop/error)
-            if self.auto_close and not self._stop_event.is_set():
+            if not self._stop_event.is_set():
                 delay_ms = int(self.auto_close_delay * 1000)
                 self._root.after(delay_ms, self._root.destroy)
 
