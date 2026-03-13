@@ -71,6 +71,20 @@ Append-only. Every threshold, design choice, and retraction is documented here w
 **Impact:** Only `edge_deletion` (I-, S=0.511) has mean straightness above 0.35 — already I-negative.
 **Status:** Active. Replaces provisional 0.45.
 
+## 2026-03-13: exp04 — First PRIMO enumeration (signatures ≤ 2→3)
+
+**Decision:** Enumeration at signatures 1→1, 1→2, 2→3 complete. 5 total rules classified with straightness gate.
+**Results:**
+- σ=1 (1→1): 1 rule — Identity (I- Φ-)
+- σ=2 (1→2): 1 rule — Vertex Sprouting (I+ Φ+, S=0.124)
+- σ=3 (2→3): 3 rules — all I+ Φ+ (S=0.082–0.122)
+- N_I^min = σ=2, N_Φ^min = σ=2 — **tie** (claim (a) inconclusive)
+- Claim (b) not supported: all Φ+ rules show increasing I-scores over time (convergence strengthening), no transient decay
+- S1 (I-only at shortest lengths): no I-only rules found
+- S2 (frequency dominance): I+ = Φ+ at every signature (tied)
+**Interpretation:** At this scale (5 rules), all non-trivial growth rules are both I+ and Φ+. The conjecture cannot be tested meaningfully until signature 3→4 provides enough rules for the predicates to separate.
+**Status:** Complete. Motivates extending enumeration to 3→4.
+
 ## 2026-03-13: Base rates — I+ = 67%, Φ+ = 55% across 33 rules
 
 **Decision:** Documented. Base rates by source: Original (15): I+=53% Φ+=53%. Catalog (5): I+=80% Φ+=60%. Structural (5): I+=100% Φ+=40%. Random DPO (5): I+=60% Φ+=60%. Witnesses (3): I+=67% Φ+=67%.

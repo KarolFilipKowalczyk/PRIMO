@@ -13,7 +13,7 @@ exp03:
 	python experiments/exp03_straightness.py
 
 exp04:
-	python experiments/exp04_enumerate.py
+	python experiments/exp04_enumeration.py
 
 exp05:
 	python experiments/exp05_ordering.py
