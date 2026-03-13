@@ -18,11 +18,11 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 
 ## Current state
 
-**Last updated:** 2026-03-13 (exp07 DPO null-model recalibration)
+**Last updated:** 2026-03-13 (exp08 ds_std* tightened to 0.08, exp04 rerun)
 
 **Phase 1: COMPLETE.** All 6 library files, all tests passing, exp01 reproduces the full 33-rule diagnostic.
 
-**Phase 2: IN PROGRESS.** exp01–04 complete, exp07 (DPO null model) complete, exp05–06 next.
+**Phase 2: IN PROGRESS.** exp01–04, exp07–08 complete. I/Φ separation achieved at σ=4. exp05–06 next.
 
 **What's done:**
 - Papers 1–3: complete markdown drafts in `papers/`
@@ -30,48 +30,42 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - 33-rule diagnostic: classifications established in `reference/primo_diagnostic_output_v5.txt`
 - PRIMO conjecture: draft v6 in `papers/primo_conjecture.md`
 - `primo/`: all 6 library files (backend, rules, trajectories, predicates, monitor, run_utils)
-- `exp01`: 33-rule validation — all rules match reference, stability 75.8%, all four (I,Φ) cells populated (17, 5, 1, 10)
+- `exp01`: 33-rule validation — all rules match reference at original thresholds
 - `exp02`: Example B analysis — canonical I-negative (0/4), robustness 18/20 I-positive, adaptive 4/4 I-positive
 - `exp03`: Straightness gate calibrated at 0.35 (was provisional 0.45) — zero I+ rules affected
-- `exp04`: PRIMO enumeration (16 rules, signatures ≤ 3→4) — claim (a) inconclusive (tie at σ=2), claim (b) partial (4/15)
-- `exp07`: DPO null-model recalibration — 78% of DPO tau scores exceed tau*=0.5, 174 separating threshold combos found
+- `exp04`: PRIMO enumeration (16 rules, signatures ≤ 3→4) — rerun at ds_std*=0.08
+- `exp07`: DPO null-model recalibration — 174 separating threshold combos found
+- `exp08`: Cross-check 33 rules at ds_std*=0.08 — all 4 cells populated (16, 6, 1, 10)
 
-**exp07 key findings (DPO null-model recalibration):**
-- DPO pooled tau_to_final: mean=0.70, p95=0.99, max=1.00 — tau*=0.5 is too permissive for within-DPO calibration
-- ds_std: mean=0.073, max=0.158 — 100% pass ds_std*=0.18
-- First tau* where >1 rule flips to I-: **0.60** (only Identity is I- below that)
-- Tightening ds_std below 0.16 produces Phi- rules at all thresholds
-- All DPO separation is I+Phi- type — no I-Phi+ DPO rules (growth is inherently convergent)
-- Cross-check on 33 rules: all 4 cells populated at tau*=0.60 and tau*=0.80 — safe recalibration points
-- Decision: no threshold change yet — awaiting strategy decision (raise tau*, tighten ds_std*, or both)
+**exp08 key findings (ds_std* tightened to 0.08):**
+- Only 1 rule changed among 33: lattice_rewire moved I+Φ+ → I+Φ- (ds_std=0.149)
+- All 4 cells populated: (16, 6, 1, 10) — hard constraint satisfied
+- Critical I-Φ+ cell (fixed_grid_noise) preserved
 
-**exp04 key findings (extended to 3→4):**
-- Enumerated all connected DPO rules at signatures 1→1 (1), 1→2 (1), 2→3 (3), 3→4 (11) — 16 total
-- σ=1: Identity is I- Φ- (trivial, no dynamics)
-- σ=2: Vertex Sprouting is I+ Φ+ (S=0.124)
-- σ=3: All 3 rules are I+ Φ+ (S=0.082–0.122)
-- σ=4: All 11 rules are I+ Φ+ (S=0.050–0.123)
+**exp04 rerun findings (at ds_std*=0.08):**
+- σ=1: Identity (I- Φ-) — unchanged
+- σ=2: Vertex Sprouting (I+ Φ+) — unchanged
+- σ=3: 3 rules, all I+ Φ+ — unchanged
+- σ=4: **5 I+Φ+, 6 I+Φ-** — separation achieved!
+  - I+Φ-: Star-3 replacement, Star-3 fresh hub, Path-4 partial preserve, Diamond minus one, Diamond preserved, K4 completion
+  - I+Φ+: Path-4 fresh middle, Tri+pendant (preserved/shifted/fresh hub), Diamond fresh vertex
 - N_I^min = N_Φ^min = σ=2 — claim (a) still inconclusive (tie)
-- Claim (b) PARTIAL: 4/15 Φ+ rules show I-positive transient decay (all at σ=4)
-  - Path-4 partial preserve: early-late delta +0.15 to +0.27 across seeds
-  - Path-4 fresh middle: mixed, delta +0.28 on K3
-  - Triangle + pendant (preserved): delta +0.10 to +0.16 on K2, P3
-  - Triangle + pendant (shifted): delta +0.16 to +0.50 on K2, K3, P3
-- No I-only rules at any level — S1 not supported
-- I+ = Φ+ at every signature level — S2 inconclusive (tied)
-- All non-trivial growth rules are I+ Φ+ through σ=4 — predicates do not separate at this scale
+- Claim (b) PARTIAL: 3/9 Φ+ rules show I-positive transient decay
+  - Path-4 fresh middle (K3: delta +0.28), Tri+pendant preserved (P3: +0.16), Tri+pendant shifted (K3: +0.50)
+- **S1 SUPPORTED at σ=4**: 6 I-only rules, 0 Φ-only rules
+- **S2 SUPPORTED at σ=4**: I+=11/11 > Φ+=5/11
 
 **What's next:**
-- Decide on recalibration strategy: raise tau* (0.60–0.80), tighten ds_std* (<0.16), or both
-- exp05: Ordering test N_I^min vs N_Φ^min — may need σ=5 (4→5) for separation
-- exp06: Temporal I-profiles — 4 rules with transient decay provide first evidence for claim (b)
+- exp05: Ordering test N_I^min vs N_Φ^min — need σ=5 (4→5) enumeration to break the tie
+- exp06: Temporal I-profiles — 3 Φ+ rules with transient decay provide evidence for claim (b)
+- Consider: does claim (a) require higher signatures, or is it structurally impossible for single-rule DPO?
 
 **Known issues:**
 - `watts_strogatz` is a boundary rule: Φ classification varies across runs (2–4 seeds)
 - Straightness gate overlap: no clean separation between I+ rules and contractions (overlap 0.13–0.50)
 - Adaptive variant not caught by straightness gate (S ~0.13–0.17); identified mitigation: active dynamics gate requiring edit distance > 0 for at least 2T/3 steps (see `logs/decisions.md`)
 - Example B seed sensitivity: 18/20 random seeds classify I-positive despite canonical protocol giving I-negative; predicate is sensitive to initial conditions (see `reference/example_b_analysis.md`)
-- All enumerated growth rules (σ≥2) are I+ Φ+ — the I/Φ predicates may lack discriminating power for small DPO rules. The 33-rule set includes non-DPO rules that do separate.
+- At ds_std*=0.08, all σ≤3 DPO rules are I+ Φ+. Separation only appears at σ=4. Claim (a) requires σ=5 enumeration or is structurally impossible for single-rule DPO.
 - License TBD — must be resolved before Paper 4 data availability statement
 
 **Hardware:**

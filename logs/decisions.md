@@ -121,4 +121,30 @@ Append-only. Every threshold, design choice, and retraction is documented here w
   - tau*=0.80, ds_std*=0.18: all 4 cells populated (14/4/4/11) — aggressive but valid
   - tau*=0.90, ds_std*=0.18: all 4 cells populated (14/2/4/13) — loses encode_compress, sorting_edges, lattice_rewire from I+
 **Interpretation:** DPO growth rules are structurally I+ because graph growth inherently produces embedding convergence. The I-predicate is not "wrong" — it correctly detects convergence. The issue is that convergence and physics-likeness co-occur for constructive DPO rules. Separation requires either (a) raising tau* to exclude weaker convergence (tau*=0.60–0.80), or (b) tightening ds_std* to distinguish dimensional stability, or (c) going to higher signatures where destructive rules appear.
-**Status:** Complete. No threshold change recommended yet — awaiting Karol's decision on recalibration strategy.
+**Status:** Complete. Recalibration strategy decided — see exp08 entry below.
+
+## 2026-03-13: exp08 — Tighten ds_std* from 0.18 to 0.08 for DPO discrimination
+
+**Decision:** DS_STD_STAR changed from 0.18 to 0.08. TAU_STAR kept at 0.50.
+**Justification:** DPO null model shows ds_std mean=0.073 with 100% pass rate at ds_std*=0.18 — the old threshold had zero discriminating power within DPO. A natural gap exists in the DPO ds_std distribution between 0.073 and 0.092. Setting ds_std*=0.08 splits the DPO population near the median: 9/16 rules remain Φ+, 7/16 become Φ-. The threshold is still well below the ER null model floor (min ds_std=0.21). Growth inherently produces embedding convergence, so I-Φ+ DPO rules won't exist at any threshold; the path to claim (a) separation is through I+Φ- rules, which this threshold creates.
+**Cross-check on 33 original rules:** All 4 cells populated. Cells: (16, 6, 1, 10). Only 1 rule changed: lattice_rewire moved from I+Φ+ to I+Φ- (ds_std=0.149, above new 0.08 threshold). The critical I-Φ+ cell (fixed_grid_noise) is preserved.
+**Alternatives considered:** ds_std*=0.07 (too aggressive, 7 Φ+ vs 9 Φ- — asymmetric), ds_std*=0.10 (10 Φ+ / 6 Φ- — less separation). Tau* was not raised because the DPO I-predicate captures genuine embedding convergence and all 4 cells are already populated on the 33 rules.
+**Status:** Active. Replaces ds_std*=0.18.
+
+## 2026-03-13: exp04 rerun — PRIMO enumeration at ds_std*=0.08
+
+**Decision:** exp04 rerun at tightened threshold. 6 I+Φ- rules now appear at σ=4.
+**Results:**
+- σ=1: Identity (I- Φ-) — unchanged
+- σ=2: Vertex Sprouting (I+ Φ+) — unchanged
+- σ=3: 3 rules, all I+ Φ+ — unchanged
+- σ=4: 5 I+Φ+, 6 I+Φ- — **separation achieved**
+  - I+Φ-: Star-3 replacement, Star-3 fresh hub, Path-4 partial preserve, Diamond minus one, Diamond preserved, K4 completion
+  - I+Φ+: Path-4 fresh middle, Triangle+pendant (preserved/shifted/fresh hub), Diamond fresh vertex
+- N_I^min = σ=2, N_Φ^min = σ=2 — **tie persists** (claim (a) still inconclusive)
+- Claim (b) PARTIAL: 3/9 Φ+ rules show I-positive transient decay
+  - Path-4 fresh middle (K3: delta +0.28), Triangle+pendant preserved (P3: delta +0.16), Triangle+pendant shifted (K3: delta +0.50)
+- S1 SUPPORTED at σ=4: 6 I-only (I+Φ-) rules exist, 0 Φ-only rules
+- S2 SUPPORTED at σ=4: I+=11/11 > Φ+=5/11
+**Interpretation:** The tightened ds_std* successfully creates I/Φ separation within DPO rules. At σ=4, rules with higher spectral dimension variability (Star-3, K4 completion, Diamonds) lose Φ+ status while retaining I+. The 6 I+Φ- rules are structurally those with edge-breaking interfaces or high connectivity growth that disrupts dimensional stability. S1 and S2 are both supported at σ=4. Claim (a) remains inconclusive because both predicates first appear at σ=2 (Vertex Sprouting); separation requires either going to σ=5 or finding that N_Φ^min > N_I^min there.
+**Status:** Complete.

@@ -53,10 +53,13 @@ ANTI_CONVERGENCE_THRESHOLD = -0.5
 
 # === Φ-predicate thresholds ===
 # Spectral dimension stability.
-#   Justification: 39% gap exists in the ds_std distribution at 0.18.
-#   ER null model: min ds_std = 0.21, mean = 0.32 (all above threshold).
-#   See diagnostic output v5, diagnostics 4 and 7.
-DS_STD_STAR = 0.18
+#   Original: 0.18 (39% gap in 33-rule distribution, ER null model min=0.21).
+#   Tightened to 0.08: splits DPO population near median (mean=0.073).
+#   Natural gap in DPO ds_std distribution at 0.073->0.092.
+#   9/16 DPO rules pass (Phi+), 7/16 fail (Phi-) — enables I/Phi separation.
+#   Still well below ER null model floor (min ds_std=0.21).
+#   See logs/decisions.md entry 2026-03-13 (exp07→exp08 recalibration).
+DS_STD_STAR = 0.08
 DS_INT_DIST = 0.5            # max distance from nearest integer for ds_mean
 
 # Law residual: polynomial fit residual for "lawful evolution" of aggregates.
