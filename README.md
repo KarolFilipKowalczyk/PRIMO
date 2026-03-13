@@ -4,6 +4,8 @@
 
 We conjecture that in the space of all programs ordered by complexity, inference-like behavior appears at strictly shorter program lengths than physics-like behavior, and that physics-like behavior is generically the dynamical equilibrium of an inference-like process.
 
+The project has two research directions: the **original PRIMO conjecture** (Papers 1–4: does inference appear before physics in program space?) and the **stratification question** (intermediate physics paper: is the gap between inference and physics internally structured, and if so, in what order do intermediate physical theories emerge?).
+
 ## Quick start
 
 ```bash
@@ -18,7 +20,7 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 
 ## Current state
 
-**Last updated:** 2026-03-13 (exp11 Davis-Kahan ratio, exp12 Dehn-twist)
+**Last updated:** 2026-03-13 (physics fingerprint experiments T=30 and T=200)
 
 **Phase 1: COMPLETE.** All 6 library files, all tests passing, exp01 reproduces the full 33-rule diagnostic.
 
@@ -60,7 +62,13 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - **S1 SUPPORTED at σ=4**: 6 I-only rules, 0 Φ-only rules
 - **S2 SUPPORTED at σ=4**: I+=11/11 > Φ+=5/11
 
-**What's next:**
+**Current experimental track (intermediate physics / stratification):**
+- `exp_physics_fingerprint.py` — **DONE** (T=30, CPU, 33 rules). Key finding: stabilization order gap_norm → law_resid → clustering → d_s → curv_cv. Preliminary, needs validation at scale.
+- `exp_physics_fingerprint_gpu.py` — **DONE** (T=200, GPU, 33 rules). Validates that stabilization order is robust across trajectory lengths (Kendall τ=0.643, p=0.031). 21/28 parameter pairs have significant pairwise precedence. H1 (d_s before curv_cv) robustly wrong.
+- **Planned:** initial condition sensitivity test — same rules, different starting graphs. Tests whether the ordering is a property of rules or of starting conditions.
+- **Planned:** DPO enumeration fingerprint — all rules at σ=2→3 and σ=3→4, T=50. Tests whether the ordering holds on an unbiased rule sample.
+
+**What's next (PRIMO conjecture / Papers 1–4):**
 - exp05: SKIPPED. The conditional theorem (Proposition 2, Paper 1 §7.5) proves Φ+ → I+ for all DPO growth rules, so N_I^min ≤ N_Φ^min holds trivially in the DPO setting. Higher-σ enumeration cannot break the tie. Claim (a) requires multi-rule compositions or non-DPO program enumeration to test properly.
 - Paper 4 drafting: all experimental evidence collected. Core results:
   - Conditional theorem Φ+ → I+ for growth rules (exp09, Proposition 2)
@@ -107,6 +115,9 @@ See `CLAUDE.md` for the full five-phase plan from bootstrap to submission.
 | 2 | Geometric Signatures of Bayesian Inference in Discrete Dynamical Systems | JMLR | Draft complete |
 | 3 | Computational Power of Parallel Graph Rewrite Systems by Signature Complexity | Theoretical CS | Draft complete |
 | 4 | Physical Regularity Implies Inference-Like Dynamics in Graph Rewrite Systems | TBD | Draft v7, results paper |
+| 5 | Mandatory Intermediate Physics in the Space of Minimal Programs | TBD | Sketch, awaiting experimental validation |
+
+Paper 5 asks whether the path from inference to full physics in program space passes through mandatory intermediate physical theories, and if so, in what order.
 
 ## License
 

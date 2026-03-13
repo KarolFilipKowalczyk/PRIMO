@@ -218,3 +218,92 @@ Classifications: 16 I+Φ+, 6 I+Φ-, 1 I-Φ+, 10 I-Φ-
 4. T=30 may be too short to see ordering effects — all 33 rules stabilize all parameters by T=30, washing out any complexity-dependent signal.
 
 **Decision:** Consider extending to T=100 to see if ordering effects emerge at longer trajectories. The Hasse diagram hypotheses (Section 4 of papers/intermediate_physics.md) need revision — gap_norm stabilizes first, not d_s. The intermediate physics profiles have descriptive value and should be retained.
+
+## exp_physics_fingerprint_gpu — GPU scale-up (T=200, RTX 3050)
+
+**Date:** 2026-03-13
+**Git hash:** TBD (this commit)
+**Config:** T=200, N_MAX=500, 4 seeds (K1,K2,K3,P3), all 33 rules, STAB_FRAC=0.05, STAB_CUTOFF=0.8*T, 1000 bootstrap resamples, DEVICE=cuda (RTX 3050)
+**Duration:** ~10 min
+**Supports:** papers/intermediate_physics.md
+
+**What it tested:** Same 8-parameter physics fingerprint as exp_physics_fingerprint, but at T=200 (vs T=30), with GPU-accelerated eigenvalue decomposition, tighter stabilization criterion (5% vs 10% range, must stabilize before 80% of T), and bootstrap 95% confidence intervals on pairwise precedence.
+
+Classifications: 16 I+Φ+, 6 I+Φ-, 1 I-Φ+, 10 I-Φ- (identical to T=30).
+
+### T=30 vs T=200 comparison
+
+**Q1. Does the stabilization order change between T=30 and T=200?**
+
+| Rank | T=30 (mean step)            | T=200 (mean step)           |
+|------|-----------------------------|-----------------------------|
+| 1    | gap_norm (2.9)              | law_resid (5.0)             |
+| 2    | law_resid (5.0)             | gap_norm (15.6)             |
+| 3    | clustering (5.1)            | ev_ratio (19.6)             |
+| 4    | d_s (5.3)                   | clustering (23.5)           |
+| 5    | curv_cv (6.8)               | d_s (34.4)                  |
+| 6    | ev_ratio (7.5)              | curv_cv (45.7)              |
+| 7    | dist_corr (10.3)            | deg_entropy (63.4)          |
+| 8    | deg_entropy (14.1)          | dist_corr (89.2)            |
+
+Kendall τ = 0.643, p = 0.031. The order changes in detail but is significantly correlated — the same parameters tend early (law_resid, gap_norm) and the same tend late (deg_entropy, dist_corr). The main shuffle is ev_ratio moving from rank 6 to rank 3, and clustering/d_s separating from the early pack.
+
+**Q2. Which precedences in the 8×8 matrix have bootstrap 95% CI excluding 0.5?**
+
+21 of 28 unordered pairs are significant. Listed as "A → B" meaning A stabilizes before B with CI entirely above 0.5:
+
+| Precedes | Significantly preceded by                          |
+|----------|-----------------------------------------------------|
+| clustering | law_resid, curv_cv, d_s, ev_ratio, deg_entropy (5) |
+| law_resid  | d_s, dist_corr, ev_ratio, deg_entropy (4)          |
+| gap_norm   | d_s, dist_corr, ev_ratio, deg_entropy (4)          |
+| curv_cv    | d_s, ev_ratio, deg_entropy (3)                      |
+| ev_ratio   | deg_entropy (1)                                     |
+| d_s        | deg_entropy (1)                                     |
+| dist_corr  | deg_entropy (1)                                     |
+
+Also significant in the "precedes" direction (reading ci_high < 0.5):
+- curv_cv → gap_norm: P=0.31 [0.21, 0.41] — curv_cv stabilizes before gap_norm 69% of the time despite gap_norm having a lower mean step (distributional skew).
+
+The 7 non-significant pairs (CI includes 0.5): d_s↔dist_corr, d_s↔ev_ratio, gap_norm↔law_resid, gap_norm↔clustering, curv_cv↔law_resid, curv_cv↔dist_corr, clustering↔dist_corr.
+
+Notable: **clustering is the most dominant parameter in pairwise precedence** (precedes 5 others significantly), even though its mean step (23.5) is only 4th. This suggests clustering stabilizes early for most rules but has outlier cases that inflate its mean.
+
+Hypothesis test results (from paper sketch):
+- **H1 (d_s before curv_cv): 0.22 [0.13, 0.32] — SIGNIFICANT, WRONG DIRECTION.** curv_cv precedes d_s.
+- **H2 (curv_cv before law_resid): 0.60 [0.49, 0.72] — NOT significant.** CI includes 0.5.
+- **H3 (clustering before dist_corr): 0.56 [0.44, 0.68] — NOT significant.** CI includes 0.5.
+
+**Q3. Does distance_correlation_ratio (P7) now show a clear stabilization pattern, or is it still noise?**
+
+At T=200 with the 5% threshold, dist_corr stabilizes at mean step 89.2 — it IS stabilizing, but very late (45% of the trajectory). It significantly follows gap_norm, law_resid, and ev_ratio. It does NOT significantly precede anything except deg_entropy. At T=30 with 10% threshold, dist_corr appeared to stabilize at step 10.3, but this was an artifact of the loose threshold on a short trajectory. The T=200 result shows dist_corr is a genuine late-stabilizing parameter, not noise — it needs large graphs with developed distance structure before degree-degree correlations at r=3 become meaningful.
+
+**Q4. Do the same intermediate physics get visited? Does 1D_conserved still appear for 65%+ of Φ+ trajectories?**
+
+Yes. Intermediate physics visit counts are virtually identical:
+
+| Profile            | T=30   | T=200  |
+|--------------------|--------|--------|
+| 1D_conserved       | 44/68 (64.7%) | 45/68 (66.2%) |
+| 2D_flat            | 28/68 (41.2%) | 28/68 (41.2%) |
+| 2D_nonlocal        | 15/68 (22.1%) | 16/68 (23.5%) |
+| topology_no_metric | 5/68 (7.4%)   | 6/68 (8.8%)   |
+| broken_symmetry    | 0/68 (0.0%)   | 0/68 (0.0%)   |
+
+1D_conserved crosses the 65% mark at T=200 (66.2%), up from 64.7% at T=30. The profiles are scale-invariant — they capture early-trajectory behavior that doesn't change with extension.
+
+**Q5. Are cycle_then_fill and watts_strogatz still terminal-matching 2D_flat?**
+
+Yes. Both (I+, Φ-) rules still terminal-match 2D_flat at T=200:
+- cycle_then_fill → 2D_flat (d=0.278, unchanged from T=30)
+- watts_strogatz → 2D_flat (d=0.387, was 0.177 at T=30 — slightly worse fit but same profile)
+
+The other (I+, Φ-) placements at T=200:
+- lattice_rewire → laws_no_geometry (d=0.394, same category as T=30)
+- edge_rewiring → 1D_conserved (same)
+- complete_bipartite → broken_symmetry (d=10.560, changed from laws_no_geometry — diverges at T=200)
+- degree_regular → 1D_conserved (same)
+
+### Verdict
+
+The stabilization order is **robust** across scales (Kendall τ=0.643, p=0.031). Of 28 parameter pairs, **21 have significant pairwise precedence** (bootstrap 95% CI excludes 0.5). The dominant pattern is a 3-tier partial order: {clustering, law_resid, gap_norm, curv_cv} early → {d_s, ev_ratio} middle → {dist_corr, deg_entropy} late. H1 from the paper sketch is **robustly wrong** (curv_cv precedes d_s, not the reverse); H2 and H3 are non-significant. The intermediate physics profiles are scale-invariant (1D_conserved=66%, 2D_flat=41%) and cycle_then_fill/watts_strogatz remain terminal-matched to 2D_flat. Recommended next step: revise the Hasse diagram in papers/intermediate_physics.md to reflect the empirical 3-tier ordering, remove H1, and strengthen the "lawfulness before geometry" narrative that law_resid and clustering suggest.

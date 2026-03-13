@@ -36,6 +36,9 @@ exp12:
 exp-fingerprint:
 	python experiments/exp_physics_fingerprint.py
 
+exp-fingerprint-gpu:
+	python experiments/exp_physics_fingerprint_gpu.py
+
 reproduce-paper-1: exp01 exp03
 	@echo "Paper 1 results reproduced."
 
