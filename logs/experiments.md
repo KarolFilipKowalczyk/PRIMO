@@ -99,3 +99,32 @@ Append-only. Every experiment run is logged with git hash, config, duration, and
 - Diamond fresh vertex: I-scores slightly increasing
 
 **Key observation:** Transient detection is method-dependent. Method A (early-vs-late) and B (Kendall τ) agree well. Method C (I-Φ cross-correlation) is limited by the fact that most Φ+ rules are Φ+ throughout the entire trajectory (no transition from Φ- to Φ+), making cross-correlation undefined. The claim (b) signal is concentrated in 2 rules with clear monotonic I-decay.
+
+## exp10 — Perturbation-response test for claim (b)
+
+**Date:** 2026-03-13
+**Git hash:** TBD (this commit)
+**Config:** T_burnin=30, T_recovery=30, W=8 (window), perturbation levels 5%/15%/30%, 4 seeds, ds_std*=0.08
+**Rules:** 9 Φ+ DPO rules (same as exp06)
+**Duration:** ~8 min
+
+**Results:**
+- **100% I+ recovery**: 108/108 (rule, seed, perturbation) pairs recover via I-positive trajectories
+- Dose-response in τ_to_final: 5%=0.731, 15%=0.797, 30%=0.835 (monotone increasing)
+- Elevated-I (early recovery > baseline + 0.05): 5%=42%, 15%=47%, 30%=44%
+- 3/9 rules show elevated I at majority of seeds (≥3/4): Edge Sprouting one-sided, Tri+pendant shifted, Path-4 fresh middle (partial)
+- Null control (random recovery): 0/36 I+ — clean
+- Unperturbed continuation control: 8/36 elevated — slightly noisy
+- Claim (b) assessment: **PARTIAL**
+
+**Per-rule highlights:**
+- Tri+pendant shifted: strongest signal — I_early well above baseline at all levels, all seeds. Low baseline (τ ≈ 0.04–0.41) makes elevation easy to detect.
+- Edge Sprouting (one-sided): clear dose-response — τ increases from 0.39→0.45→0.81 at K1, elevated at larger perturbations
+- Vertex Sprouting, Edge Replacement, Triangle completion: very high baseline I-scores (>0.9), so recovery stays high but isn't "elevated" above baseline
+- Φ-recovery nearly instant: t_phi_recovery = 0 for almost all pairs (one "never" at Edge Sprouting 15%)
+
+**Key observations:**
+1. The 100% I+ recovery rate with 0% null-recovery is the strongest evidence for claim (b) — perturbed Φ+ systems consistently return to equilibrium via I-positive paths, and this is not a property of arbitrary trajectories.
+2. The "elevated" criterion is hard to trigger when baseline I-scores are already high (>0.9 for 5/9 rules). The test design favors rules with moderate baseline I (Edge Sprouting, Tri+pendant shifted, Path-4 fresh middle).
+3. The positive dose-response in mean τ (monotone increasing with perturbation size) supports the claim that larger perturbations require more "re-inference."
+4. Φ-recovery is nearly instantaneous (t=0), suggesting the DPO rule structure itself forces Φ-positive geometry quickly — the I-positive recovery is about the embedding convergence path, not the return of Φ-positivity.

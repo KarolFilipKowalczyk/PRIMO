@@ -18,7 +18,7 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 
 ## Current state
 
-**Last updated:** 2026-03-13 (exp06 temporal I-profiles)
+**Last updated:** 2026-03-13 (exp10 perturbation-response)
 
 **Phase 1: COMPLETE.** All 6 library files, all tests passing, exp01 reproduces the full 33-rule diagnostic.
 
@@ -38,6 +38,7 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - `exp08`: Cross-check 33 rules at ds_std*=0.08 — all 4 cells populated (16, 6, 1, 10)
 - `exp09`: Eigenvalue gap stability diagnostic — zero crossings across all 16 DPO rules. 3 borderline Φ+ rules (small graphs) confirmed stable at T=60 (exp09b). Conditional theorem M3' verified: all Φ+ DPO rules have stable eigenvalue gaps once graphs reach sufficient size.
 - `exp06`: Temporal I-profiles for 9 Φ+ rules at T=60 — claim (b) assessment: WEAK. 4/9 rules show transient in ≥1 seed; 2/9 (Path-4 fresh middle, Tri+pendant shifted) show strong transients in all 4 seeds. Mean I-Φ correlation -0.076 (weakly anti-correlated).
+- `exp10`: Perturbation-response test for claim (b) — PARTIAL. 9/9 Φ+ rules return to equilibrium via I-positive paths (108/108 pairs). Dose-response positive (τ: 0.73→0.80→0.84). Null controls clean (0/36). Elevated-I criterion met by 3/9 rules at majority level.
 
 **exp08 key findings (ds_std* tightened to 0.08):**
 - Only 1 rule changed among 33: lattice_rewire moved I+Φ+ → I+Φ- (ds_std=0.149)
@@ -59,7 +60,12 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 
 **What's next:**
 - exp05: SKIPPED. The conditional theorem (Proposition 2, Paper 1 §7.5) proves Φ+ → I+ for all DPO growth rules, so N_I^min ≤ N_Φ^min holds trivially in the DPO setting. Higher-σ enumeration cannot break the tie. Claim (a) requires multi-rule compositions or non-DPO program enumeration to test properly.
-- Paper 4 drafting: exp04 (enumeration) + exp06 (temporal profiles) + exp09 (eigenvalue gaps) provide the experimental core. Begin assembling results into primo_conjecture.md.
+- Paper 4 drafting: all experimental evidence collected. Core results:
+  - Conditional theorem Φ+ → I+ for growth rules (exp09, Proposition 2)
+  - Claim (a) structurally inconclusive for single-rule DPO (explained by conditional theorem)
+  - Claim (b) PARTIAL via perturbation-response (exp10): 100% I+ recovery, positive dose-response, clean null controls
+  - S1 and S2 supported at σ=4
+  Begin assembling into primo_conjecture.md.
 - Paper 1 update: add Proposition (Φ+ → I+ for monotone growth with stable eigenvalue gaps) to Section 7, with exp09/exp09b data as evidence
 
 **Known issues:**
