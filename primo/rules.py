@@ -998,6 +998,39 @@ def dpo_rule_to_callable(rule_dict):
                 return H
             u, v = edges[np.random.randint(len(edges))]
             match_map = {0: u, 1: v}
+        elif l_vertices == 3:
+            # Match a triangle (K3)
+            triangles = []
+            for u in H.nodes():
+                for v in H.neighbors(u):
+                    if v <= u:
+                        continue
+                    for w in H.neighbors(u):
+                        if w <= v:
+                            continue
+                        if H.has_edge(v, w):
+                            triangles.append((u, v, w))
+            if not triangles:
+                # No triangle found — grow toward one
+                nodes = list(H.nodes())
+                if len(nodes) < 3:
+                    n = max(H.nodes()) + 1 if H.nodes() else 0
+                    H.add_node(n)
+                    if n > 0:
+                        H.add_edge(n - 1, n)
+                    return H
+                # Add edges to form a triangle
+                u, v = nodes[0], nodes[1]
+                if not H.has_edge(u, v):
+                    H.add_edge(u, v)
+                w = nodes[2]
+                if not H.has_edge(u, w):
+                    H.add_edge(u, w)
+                if not H.has_edge(v, w):
+                    H.add_edge(v, w)
+                return H
+            tri = triangles[np.random.randint(len(triangles))]
+            match_map = {0: tri[0], 1: tri[1], 2: tri[2]}
         else:
             raise NotImplementedError(
                 f"LHS matching for l_vertices={l_vertices} not implemented")

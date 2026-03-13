@@ -90,3 +90,17 @@ Append-only. Every threshold, design choice, and retraction is documented here w
 **Decision:** Documented. Base rates by source: Original (15): I+=53% Φ+=53%. Catalog (5): I+=80% Φ+=60%. Structural (5): I+=100% Φ+=40%. Random DPO (5): I+=60% Φ+=60%. Witnesses (3): I+=67% Φ+=67%.
 **Note:** High I+ base rate (67%) raises concern that the I-predicate may be too permissive. The straightness gate should reduce this.
 **Status:** Documented.
+
+## 2026-03-13: exp04 extended — PRIMO enumeration through 3→4 (16 rules total)
+
+**Decision:** Enumeration at signature 3→4 complete. 11 connected rules, all classified I+ Φ+.
+**Results:**
+- σ=4 (3→4): 11 rules, all I+ Φ+ (S=0.050–0.123, well below straightness gate 0.35)
+- N_I^min = σ=2, N_Φ^min = σ=2 — **tie persists** (claim (a) still inconclusive)
+- Claim (b) upgraded to PARTIAL: 4/15 Φ+ rules show I-positive transient decay
+  - Path-4 partial preserve, Path-4 fresh middle, Triangle + pendant (preserved/shifted)
+  - These are all σ=4 rules with edge-breaking or partial-preserve interfaces
+  - Transient effect strongest in Triangle + pendant (shifted): delta up to +0.50
+- S1: no I-only rules at any level. S2: I+=Φ+ at all levels (tied).
+**Interpretation:** All non-trivial DPO growth rules (σ≥2) produce convergent embeddings AND stable spectral dimension. The I and Φ predicates co-occur universally for small DPO rules. This is a structural property of graph growth from a single rewrite rule — growth creates both embedding convergence and dimensional stability simultaneously. Separation likely requires either (a) higher signatures where destructive/restructuring rules appear, or (b) multi-rule programs. The 33-rule diagnostic (which includes non-DPO rules like contractions, fixed-topology rewirers, etc.) does show separation.
+**Status:** Complete. Key open question: does predicate separation emerge at σ=5 (4→5)?

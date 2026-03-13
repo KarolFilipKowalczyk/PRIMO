@@ -1,10 +1,11 @@
 """
-exp04 — First PRIMO enumeration (single rules <= 2->3).
+exp04 — PRIMO enumeration (single rules <= 3->4).
 
 Tests the PRIMO conjecture claims at small signature levels:
   sigma=1: signature 1->1 (1 rule: identity)
   sigma=2: signature 1->2 (1 rule: vertex sprouting)
   sigma=3: signature 2->3 (3 connected rules)
+  sigma=4: signature 3->4 (11 connected rules)
 
 Claims tested:
   (a) Ordering: N_I^min < N_Phi^min
@@ -54,6 +55,7 @@ SIGNATURES = [
     (1, 1),  # sigma=1
     (1, 2),  # sigma=2
     (2, 3),  # sigma=3
+    (3, 4),  # sigma=4
 ]
 
 WINDOW_SIZE = 8  # sliding window for temporal I-profiles
@@ -278,6 +280,7 @@ def run_exp04(runner):
             "1->1": 1,
             "1->2": 2,
             "2->3": 3,
+            "3->4": 4,
         }
 
         N_I_min = None
