@@ -1,4 +1,4 @@
-.PHONY: test exp01 exp02 exp03 exp04 exp05 exp06 exp07 exp10 clean
+.PHONY: test exp01 exp02 exp03 exp04 exp05 exp06 exp07 exp10 exp11 exp12 clean
 
 test:
 	pytest tests/ -v
@@ -27,6 +27,12 @@ exp07:
 exp10:
 	python experiments/exp10_perturbation_response.py
 
+exp11:
+	python experiments/exp11_perturbation_ratio.py
+
+exp12:
+	python experiments/exp12_dehn_twist.py
+
 reproduce-paper-1: exp01 exp03
 	@echo "Paper 1 results reproduced."
 
@@ -36,7 +42,7 @@ reproduce-paper-2: exp01 exp02
 reproduce-paper-3:
 	@echo "Paper 3 is purely theoretical — no experiments to reproduce."
 
-reproduce-paper-4: exp04 exp06 exp10
+reproduce-paper-4: exp04 exp06 exp10 exp11 exp12
 	@echo "Paper 4 results reproduced."
 
 clean:

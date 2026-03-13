@@ -128,3 +128,46 @@ Append-only. Every experiment run is logged with git hash, config, duration, and
 2. The "elevated" criterion is hard to trigger when baseline I-scores are already high (>0.9 for 5/9 rules). The test design favors rules with moderate baseline I (Edge Sprouting, Tri+pendant shifted, Path-4 fresh middle).
 3. The positive dose-response in mean τ (monotone increasing with perturbation size) supports the claim that larger perturbations require more "re-inference."
 4. Φ-recovery is nearly instantaneous (t=0), suggesting the DPO rule structure itself forces Φ-positive geometry quickly — the I-positive recovery is about the embedding convergence path, not the return of Φ-positivity.
+
+## exp11 — Davis-Kahan ratio ‖ΔA‖_F / gap_k^{cluster}
+
+**Date:** 2026-03-13
+**Git hash:** TBD (this commit)
+**Config:** T=30, k=5, 4 seeds, cluster_tol=1e-6, Kendall threshold -0.15
+**Rules:** All 16 DPO rules at signatures 1→1 through 3→4
+**Duration:** <3 min
+
+**Results:**
+- Only 3/9 Φ+ rules have majority-decreasing ratio (Edge Sprouting one-sided, Tri+pendant shifted, Edge Sprouting triangle completion)
+- Mean ratio across Φ+ rules (latter half): 10.9996 — large, not close to zero
+- Mean relative perturbation ‖ΔA‖/‖A‖ across Φ+ rules: 0.3060 — not vanishing
+- Identity has N/A ratio (graph doesn't grow → no cluster gap computable)
+- Verdict: Davis-Kahan bound is **not tightening** over time for Φ+ DPO rules
+
+**Key observations:**
+1. The raw perturbation norms ‖ΔA‖_F are large relative to the cluster gaps, giving ratios >> 1 for most rules. Davis-Kahan gives a bound, not an equality — the eigenvectors can still be stable even when the bound is loose.
+2. The relative perturbation ‖ΔA‖/‖A‖ ≈ 0.31 is not decreasing toward zero, meaning each step adds a non-negligible fraction of new edges. Growth adds structure but also adds perturbation.
+3. The theorem verification should rely primarily on the gap stability result (exp09/09b) which directly shows eigenspace stability, rather than on the Davis-Kahan bound tightening. The bound explains *why* stability is possible (gaps open), not *how tight* the stability is.
+4. Rules with small σ (Vertex Sprouting, σ=3) have the largest ratios (~19) because they add relatively many edges per step. Higher-σ rules add proportionally fewer edges, giving smaller ratios.
+
+## exp12 — Dehn-twist counterexample
+
+**Date:** 2026-03-13
+**Git hash:** TBD (this commit)
+**Config:** Grid 10×10 (100 nodes), T=30, 4-regular torus
+**Duration:** <1 min
+
+**Results:**
+- Φ-positive: ds_mean=2.58, ds_std=0.000, law_resid=0.000, curv_CV=0.000
+- I-negative: compression=0.028 (PASS), all three τ_to_final ≤ 0 (FAIL convergence gate)
+- τ_to_final: laplacian=0.000, random_proj=0.000, degree_prof=-0.093
+- Eigenvalue crossings: 0 (spectrum is identical at every step)
+- Eigenvalue spectrum difference: 0.000000 (isometry)
+- Cosine-to-final: laplacian=[1.0,1.0], random_proj=[1.0,1.0], degree_prof=[0.81,1.0]
+- Verdict: **CONFIRMED** as (I−, Φ+) counterexample
+
+**Key observations:**
+1. The Dehn twist preserves the spectrum (eigenvalues identical at every step) but rotates eigenvectors within degenerate eigenspaces. This produces τ_to_final = 0 for laplacian and random_proj embeddings (subspace cosine is constant = 1.0, so Kendall τ of a constant sequence is 0).
+2. The degree-profile embedding gives τ = -0.093 (slightly negative). Despite the torus being vertex-transitive, the degree-profile embedding is NOT perfectly constant across steps — the embedding depends on node labels (neighbor indices), not just structural features. This gives slight oscillation.
+3. The compression ratio is extremely low (0.028) because the trajectory is highly regular — the compression gate passes easily. The convergence gate is what fails.
+4. This confirms the Remark in Paper 4: growth (M1) is essential for Φ+ → I+. Without growth, a symmetry-based rewrite can produce Φ+ geometry with no convergence. The Dehn twist is an isometry that rotates the embedding without changing the geometry.

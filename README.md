@@ -18,11 +18,11 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 
 ## Current state
 
-**Last updated:** 2026-03-13 (exp10 perturbation-response)
+**Last updated:** 2026-03-13 (exp11 Davis-Kahan ratio, exp12 Dehn-twist)
 
 **Phase 1: COMPLETE.** All 6 library files, all tests passing, exp01 reproduces the full 33-rule diagnostic.
 
-**Phase 2: IN PROGRESS.** exp01–04, exp06–09 complete. I/Φ separation achieved at σ=4. exp05 skipped (see below).
+**Phase 2: IN PROGRESS.** exp01–04, exp06–12 complete. I/Φ separation achieved at σ=4. exp05 skipped (see below).
 
 **What's done:**
 - Papers 1–3: complete markdown drafts in `papers/`
@@ -39,6 +39,8 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - `exp09`: Eigenvalue gap stability diagnostic — zero crossings across all 16 DPO rules. 3 borderline Φ+ rules (small graphs) confirmed stable at T=60 (exp09b). Conditional theorem M3' verified: all Φ+ DPO rules have stable eigenvalue gaps once graphs reach sufficient size.
 - `exp06`: Temporal I-profiles for 9 Φ+ rules at T=60 — claim (b) assessment: WEAK. 4/9 rules show transient in ≥1 seed; 2/9 (Path-4 fresh middle, Tri+pendant shifted) show strong transients in all 4 seeds. Mean I-Φ correlation -0.076 (weakly anti-correlated).
 - `exp10`: Perturbation-response test for claim (b) — PARTIAL. 9/9 Φ+ rules return to equilibrium via I-positive paths (108/108 pairs). Dose-response positive (τ: 0.73→0.80→0.84). Null controls clean (0/36). Elevated-I criterion met by 3/9 rules at majority level.
+- `exp11`: Davis-Kahan ratio ‖ΔA‖_F / gap verified NOT tightening for Φ+ rules (3/9 decreasing, mean ratio=11.0). The bound is loose — gap stability (exp09) is the stronger result. Theorem 1 verification relies on gap stability, not bound tightness.
+- `exp12`: Dehn-twist counterexample CONFIRMED as I−Φ+. 10×10 torus with Dehn twist: Φ+ (ds_std=0, perfect geometry) but I− (all τ_to_final ≤ 0). Validates that growth (M1) is essential for the conditional theorem.
 
 **exp08 key findings (ds_std* tightened to 0.08):**
 - Only 1 rule changed among 33: lattice_rewire moved I+Φ+ → I+Φ- (ds_std=0.149)
