@@ -171,3 +171,50 @@ Append-only. Every experiment run is logged with git hash, config, duration, and
 2. The degree-profile embedding gives τ = -0.093 (slightly negative). Despite the torus being vertex-transitive, the degree-profile embedding is NOT perfectly constant across steps — the embedding depends on node labels (neighbor indices), not just structural features. This gives slight oscillation.
 3. The compression ratio is extremely low (0.028) because the trajectory is highly regular — the compression gate passes easily. The convergence gate is what fails.
 4. This confirms the Remark in Paper 4: growth (M1) is essential for Φ+ → I+. Without growth, a symmetry-based rewrite can produce Φ+ geometry with no convergence. The Dehn twist is an isometry that rotates the embedding without changing the geometry.
+
+## exp_physics_fingerprint — Physics fingerprint trajectories (8D parameter vector)
+
+**Date:** 2026-03-13
+**Git hash:** TBD (this commit)
+**Config:** T=30, N_MAX=500, 4 seeds (K1,K2,K3,P3), all 33 rules, STAB_FRAC=0.1, MATCH_TOLERANCE=0.3
+**Duration:** ~2 min
+**Supports:** papers/intermediate_physics.md
+
+**What it tested:** Measured an 8-parameter "physics fingerprint" P(t) at every timestep of every rule. Parameters: spectral dimension, normalized spectral gap, curvature CV, law residual, degree entropy, clustering, distance correlation ratio, edge/vertex ratio. Analyzed stabilization order for Φ+ rules, intermediate physics identification, (I+, Φ-) terminal positions, and complexity correlation.
+
+**Results:**
+
+Classifications: 16 I+Φ+, 6 I+Φ-, 1 I-Φ+, 10 I-Φ-
+
+*Analysis 1 — Stabilization order (Φ+ rules):*
+- Mean order: gap_norm (2.9) → law_resid (5.0) → clustering (5.1) → d_s (5.3) → curv_cv (6.8) → ev_ratio (7.5) → dist_corr (10.3) → deg_entropy (14.1)
+- **H1 (d_s before curv_cv): 0.24** — NOT supported. d_s stabilizes before curv_cv only 24% of the time. Curvature homogeneity often stabilizes first.
+- **H2 (curv_cv before law_resid): 0.66** — WEAK support. Curvature precedes lawfulness ~2/3 of the time, but not universal.
+- **H3 (clustering before dist_corr): 0.49** — NOT supported. Essentially coin-flip ordering.
+
+*Analysis 2 — Intermediate physics visits:*
+- 1D_conserved visited by 44/68 Φ+ trajectories (most common early-stage match)
+- 2D_flat visited by 28/68
+- 2D_nonlocal and laws_no_geometry each visited by 15/68
+- topology_no_metric visited by only 5/68
+- broken_symmetry visited by 0/68
+- Intermediates ARE visited, but the Hasse diagram ordering is not confirmed.
+
+*Analysis 3 — (I+, Φ-) terminal positions:*
+- cycle_then_fill → 2D_flat (d=0.278) — closest to flat 2D geometry
+- watts_strogatz → 2D_flat (d=0.177) — similar
+- lattice_rewire → laws_no_geometry (d=0.239) — lawful but geometrically inhomogeneous
+- edge_rewiring → 1D_conserved (d=2.941) — far from any profile (degenerate graph)
+- complete_bipartite → laws_no_geometry (d=1.499) — bipartite structure doesn't match physics profiles well
+- degree_regular → 1D_conserved (d=2.617) — degenerate
+
+*Analysis 4 — Complexity correlation:*
+- All rules stabilize all 8 parameters by T=30 regardless of source — no discrimination at this trajectory length.
+
+**Key findings:**
+1. The hypothesized ordering from papers/intermediate_physics.md is **not confirmed** at T=30. H1 is clearly wrong: spectral dimension does NOT reliably stabilize before curvature homogeneity. The spectral gap (gap_norm) stabilizes fastest, followed by law residual and clustering, then d_s and curvature.
+2. Intermediate physics profiles ARE visited during trajectories (1D_conserved is the most common early match), suggesting the decomposition into recognizable stages has descriptive value even if the ordering is not as hypothesized.
+3. Two of the six (I+, Φ-) rules (cycle_then_fill, watts_strogatz) terminal-match 2D_flat geometry — they achieve flat 2D physics but not full physics. This partially supports the "stuck at intermediate" interpretation.
+4. T=30 may be too short to see ordering effects — all 33 rules stabilize all parameters by T=30, washing out any complexity-dependent signal.
+
+**Decision:** Consider extending to T=100 to see if ordering effects emerge at longer trajectories. The Hasse diagram hypotheses (Section 4 of papers/intermediate_physics.md) need revision — gap_norm stabilizes first, not d_s. The intermediate physics profiles have descriptive value and should be retained.

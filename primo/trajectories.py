@@ -578,3 +578,100 @@ def law_residual_score(traj, quantity_fn):
             best_model = name
 
     return float(best_resid), best_model
+
+
+# ══════════════════════════════════════════════════════════════════════
+# PHYSICS FINGERPRINT PARAMETERS (P5–P8)
+# ══════════════════════════════════════════════════════════════════════
+
+def normalized_degree_entropy(G):
+    """P5: Shannon entropy of degree distribution, normalized by log(n).
+    Returns 0 for n < 2. Returns value in [0, 1]."""
+    n = G.number_of_nodes()
+    if n < 2:
+        return 0.0
+    degs = [d for _, d in G.degree()]
+    vals, counts = np.unique(degs, return_counts=True)
+    p = counts / counts.sum()
+    H = float(-np.sum(p * np.log(p + 1e-15)))
+    return H / np.log(n)
+
+
+def mean_clustering(G):
+    """P6: Average clustering coefficient."""
+    if G.number_of_nodes() < 3:
+        return 0.0
+    return nx.average_clustering(G)
+
+
+def distance_correlation_ratio(G, r_near=1, r_far=3):
+    """P7: Ratio of degree-degree correlation at distance r_far to r_near.
+    Measures nonlocal correlations. Returns 0 if graph is too small.
+
+    O(n^2) due to shortest path computation; for n > 200, samples pairs.
+    """
+    n = G.number_of_nodes()
+    if n < 6:
+        return 0.0
+    degrees = dict(G.degree())
+
+    if n <= 200:
+        pairs_near = []
+        pairs_far = []
+        for u in G.nodes():
+            lengths = nx.single_source_shortest_path_length(G, u, cutoff=r_far)
+            for v, dist in lengths.items():
+                if v > u:
+                    if dist == r_near:
+                        pairs_near.append((degrees[u], degrees[v]))
+                    elif dist == r_far:
+                        pairs_far.append((degrees[u], degrees[v]))
+    else:
+        rng = np.random.RandomState(42)
+        nodes = list(G.nodes())
+        pairs_near = []
+        pairs_far = []
+        for _ in range(400):
+            u = rng.choice(nodes)
+            lengths = nx.single_source_shortest_path_length(G, u, cutoff=r_far)
+            for v, dist in lengths.items():
+                if dist == r_near:
+                    pairs_near.append((degrees[u], degrees[v]))
+                elif dist == r_far:
+                    pairs_far.append((degrees[u], degrees[v]))
+
+    def _corr(pairs):
+        if len(pairs) < 5:
+            return 0.0
+        x, y = zip(*pairs)
+        x, y = np.array(x, dtype=float), np.array(y, dtype=float)
+        if np.std(x) < 1e-12 or np.std(y) < 1e-12:
+            return 0.0
+        return float(np.corrcoef(x, y)[0, 1])
+
+    c_near = _corr(pairs_near)
+    c_far = _corr(pairs_far)
+    if abs(c_near) < 1e-12:
+        return 0.0
+    return c_far / c_near
+
+
+def edge_vertex_ratio(G):
+    """P8: |E|/|V|. For a d-dimensional lattice this equals d."""
+    n = G.number_of_nodes()
+    if n == 0:
+        return 0.0
+    return G.number_of_edges() / n
+
+
+# Registry of single-graph physics fingerprint parameters
+PHYSICS_PARAMETERS = {
+    "d_s": spectral_dimension_estimate,
+    "spectral_gap": spectral_gap,
+    "curvature_cv": curvature_homogeneity,
+    # P4 (law_residual) handled separately — needs trajectory window
+    "degree_entropy_norm": normalized_degree_entropy,
+    "clustering": mean_clustering,
+    "dist_corr_ratio": distance_correlation_ratio,
+    "edge_vertex_ratio": edge_vertex_ratio,
+}

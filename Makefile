@@ -1,4 +1,4 @@
-.PHONY: test exp01 exp02 exp03 exp04 exp05 exp06 exp07 exp10 exp11 exp12 clean
+.PHONY: test exp01 exp02 exp03 exp04 exp05 exp06 exp07 exp10 exp11 exp12 exp-fingerprint clean
 
 test:
 	pytest tests/ -v
@@ -32,6 +32,9 @@ exp11:
 
 exp12:
 	python experiments/exp12_dehn_twist.py
+
+exp-fingerprint:
+	python experiments/exp_physics_fingerprint.py
 
 reproduce-paper-1: exp01 exp03
 	@echo "Paper 1 results reproduced."
