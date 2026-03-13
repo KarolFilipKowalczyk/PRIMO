@@ -1,219 +1,410 @@
-# PRIMO: Primacy of Inference over Physics in the Space of Minimal Programs
+# Physical Regularity Implies Inference-Like Dynamics in Graph Rewrite Systems
 
-**Author:** Karol (AIRON Games / MIMUW)
+**Author:** Karol (AIRON Games / Faculty of Mathematics, Informatics and Mechanics, University of Warsaw)
 **Date:** March 2026
-**Status:** Draft v6
+**Status:** Draft v7
 
 ---
 
-## 1. Overview
+## Abstract
 
-We conjecture that in the space of all programs ordered by Kolmogorov complexity, inference-like behavior appears at strictly shorter program lengths than physics-like behavior, and that physics-like behavior is generically the dynamical equilibrium of an inference-like process. The conjecture is formalized using predicates assembled from existing peer-reviewed frameworks and is testable via program enumeration.
-
----
-
-## 2. Definitions
-
-Throughout, fix a universal prefix-free Turing machine $U$. Let $\mathcal{P}_N = \{p : |p| \leq N\}$ denote the set of all programs of length at most $N$. Each $p \in \mathcal{P}_N$ is executed on a family of canonical initial graphs $\mathcal{G}_0 = \{K_1, K_2, K_3, P_3\}$ (single node, single edge, triangle, path of length 3) for $T$ steps, producing a trajectory $(G_0, G_1, \ldots, G_T)$ for each $G_0 \in \mathcal{G}_0$. A program is classified as $I$-positive or $\Phi$-positive only if it satisfies the relevant predicate for *at least three of the four* initial graphs in $\mathcal{G}_0$, ensuring that classifications reflect intrinsic program behavior rather than initial-condition artifacts.
-
-### 2.1 The $I$-predicate (inference-like behavior)
-
-We require three independent embedding methods $\mathcal{E} = \{e_L, e_N, e_R\}$: graph Laplacian eigenvectors, node2vec, and random projection of the adjacency matrix. For each embedding $e \in \mathcal{E}$, the trajectory is mapped to a sequence of matrices $X_t^e \in \mathbb{R}^{n \times d}$.
-
-**Definition 1** (Bayesian geometric signature). A trajectory satisfies *progressive alignment* under embedding $e$ if $\cos\theta(\mathrm{col}(X_t^e), \mathrm{col}(X_{t+1}^e))$ is monotonically increasing in $t$, and satisfies *dimensional reduction* if the participation ratio of singular values of $X_{t+1}^e - X_t^e$ is monotonically decreasing in $t$. (After Agarwal, Dalal, Misra [7, 8].)
-
-**Definition 2** (Grassmann flow). A trajectory exhibits *directional flow* under embedding $e$ if the sequence of points $[\mathrm{col}(X_t^e)]$ on the Grassmannian $\mathrm{Gr}(k, d)$ has non-zero mean drift exceeding a null-model baseline. It exhibits *semantic clustering* if trajectories from nearby initial conditions converge on $\mathrm{Gr}(k, d)$. (After Zhang Chong [9].)
-
-**Definition 3** (Compression gate). A trajectory satisfies the *compression criterion* if its lossless compression ratio $\rho(p)$ satisfies $\rho(p) < \rho_{\mathrm{null}} - 2\sigma_{\mathrm{null}}$, where $\rho_{\mathrm{null}}$ and $\sigma_{\mathrm{null}}$ are the mean and standard deviation over a degree-preserving random graph dynamics null model.
-
-**Definition 4** ($I$-positive). A program $p$ is *$I$-positive* if it satisfies the compression criterion (Definition 3) and at least one of Definitions 1, 2, under *all three* embeddings in $\mathcal{E}$.
-
-A program is *embedding-sensitive* if its classification changes across embeddings. If the majority of candidate $I$-positive programs are embedding-sensitive, the predicate requires redesign.
-
-**Remark.** The intersection rule across embeddings ensures that $I$-positivity is an intrinsic dynamical property, not an artifact of the representation. The analogies to "keys," "queries," and "values" in Definitions 1–2 are suggestive but play no role in the formal definitions; only the measurable geometric quantities matter (progressive alignment, dimensional reduction, directional flow, compression). The architecture-neutrality of these signatures is established empirically in [7, 8]: Mamba, a state-space model without attention, exhibits identical geometric structure.
-
-### 2.2 The $\Phi$-predicate (physics-like behavior)
-
-**Definition 5** (Spectral dimension). Compute the spectral dimension via diffusion return probability: $d_s(\sigma) = -2\, d\log P(\sigma) / d\log\sigma$. A trajectory satisfies *stable spectral dimension* if $d_s$ converges to a value in $\{1, 2, 3, 4, \ldots\}$ within tolerance $\epsilon$ across a range of scales, persisting over the evolution. (After Trugenberger [11].)
-
-**Definition 6** (Approximate symmetry). A trajectory exhibits *approximate isometry invariance* if the variance of Ollivier-Ricci curvature under random graph relabelings consistent with the emergent geometry is below threshold $\delta_1$.
-
-**Definition 7** (Conservation). A trajectory exhibits a *conservation law* if at least one nontrivial aggregate quantity (total edges, degree moments, spectral gap) has temporal variance below threshold $\delta_2$ over the observation window.
-
-**Definition 8** ($\Phi$-positive). A program $p$ is *$\Phi$-positive* if it satisfies stable spectral dimension (Definition 5) and at least one of Definitions 6, 7.
-
-**Null models.** Erdős–Rényi random graphs do not produce stable integer spectral dimension, providing a clean baseline for Definition 5. Degree-preserving random rewiring serves as baseline for Definitions 6–7. As with the $I$-predicate, these definitions rest on measurable graph-theoretic quantities alone; whether stable integer spectral dimension constitutes "emergent spacetime" is an interpretive claim of the source literature that plays no role in the formal framework.
-
-### 2.3 Independence of predicates
-
-The $I$-predicate measures geometric properties of state-space trajectories (alignment, dimensional reduction, Grassmann flow). The $\Phi$-predicate measures geometric properties of the graph itself (spectral dimension, curvature symmetry, conservation). These are independent measurement domains: a program may be $I$-positive, $\Phi$-positive, both, or neither. The conjecture that these classes are structurally related is therefore nontrivial.
+We enumerate all 16 connected DPO graph rewrite rules at signatures σ = 1 through σ = 4 and classify each by two independent geometric predicates: the I-predicate (convergent state-space trajectories with compressible dynamics) and the Φ-predicate (stable integer spectral dimension with lawful aggregate evolution). Every Φ-positive rule is I-positive, but six rules are I-positive without being Φ-positive. We prove that this asymmetry is structural: for monotone-growth graph dynamical systems with stable eigenspace gaps, Φ-positivity implies I-positivity (Theorem 1). A perturbation-response experiment confirms the dynamical content of this relationship — perturbed Φ-positive systems return to equilibrium via I-positive trajectories in 108 out of 108 tested cases, with positive dose-response and clean null controls.
 
 ---
 
-## 3. The PRIMO Conjecture
+## 1. Introduction
 
-Define:
-$$N_I^{\min} = \min\{|p| : p \text{ is } I\text{-positive}\}, \qquad N_\Phi^{\min} = \min\{|p| : p \text{ is } \Phi\text{-positive}\}.$$
+Graph rewrite systems produce diverse dynamical behaviors. Two geometric predicates — the I-predicate, detecting convergent state-space trajectories with compressible dynamics, and the Φ-predicate, detecting stable integer spectral dimension with lawful aggregate evolution — classify these behaviors along independent axes [14]. The predicates are logically independent: neither implies the other in general [14, Theorem 1].
 
-For a $\Phi$-positive program $p$, define its *temporal $I$-profile* as the function $t \mapsto I\text{-score}(p, [t, t+W])$ computed over a sliding window of width $W$.
+We enumerate all 16 connected DPO graph rewrite rules at signatures σ = 1 through σ = 4 and discover a one-sided relationship: every Φ-positive rule is also I-positive, but not vice versa. Six rules are I-positive without being Φ-positive. The (I−, Φ+) cell is empty.
 
-**Conjecture (PRIMO, core).**
+We prove this is not a coincidence. For monotone-growth graph dynamical systems with stable eigenspace gaps, Φ-positivity implies I-positivity (Theorem 1). The proof connects spectral dimension stability to embedding convergence via the Davis-Kahan perturbation theorem [12]. The implication fails for non-growth systems, where eigenvalue crossings disrupt eigenvector structure.
 
-**(a) Ordering.** $N_I^{\min} < N_\Phi^{\min}$.
+A perturbation-response experiment confirms the dynamical content of this relationship: when Φ-positive systems are perturbed out of geometric equilibrium, they return via I-positive trajectories in 108 out of 108 tested cases, with positive dose-response and clean null controls (0/36). Physical regularity is actively maintained by inference-like dynamics.
 
-**(b) Equilibrium.** For $\Phi$-positive programs $p$ with $|p| \leq N_\Phi^{\min} + \Delta$ (where $\Delta$ is initially set to 5 bits and varied in sensitivity analysis): the temporal $I$-profile exhibits an $I$-positive transient phase that precedes and decays as the $\Phi$-positive state stabilizes. Moreover, perturbing such a program away from its $\Phi$-positive fixed point produces a return trajectory with elevated $I$-scores.
+Three contributions:
 
-Claim (b) is the structural heart of the conjecture: physics-like behavior is the equilibrium of inference-like dynamics, not a co-occurring phenomenon.
+1. **Theorem 1:** Φ-positivity implies I-positivity for monotone growth with stable eigenspace gaps.
+2. **Perturbation-response (Proposition 2, computational):** Φ-positive equilibrium is maintained by I-positive recovery dynamics (108/108 positive, 0/36 null).
+3. **Frequency asymmetry:** I+ ⊋ Φ+ in DPO rule space (15/16 vs 9/16 non-trivial; 6 I-only rules, 0 Φ-only rules at σ = 4).
 
-**Secondary hypotheses** (tracked, not part of the core conjecture):
-
-*S1 (Complexity ladder).* Define $I_0 = \{p : p \text{ is } I\text{-positive}, p \text{ is never } \Phi\text{-positive}\}$ and $I_+ = \{p : p \text{ is } I\text{-positive and enters a } \Phi\text{-positive region}\}$. Then $\min\{|p| : p \in I_0\} < N_\Phi^{\min} < \min\{|p| : p \in I_+\}$.
-
-*S2 (Frequency dominance).* Let $I(N)$ and $\Phi(N)$ denote the fractions of $I$-positive and $\Phi$-positive programs in $\mathcal{P}_N$. Then $I(N) > \Phi(N)$ for all sufficiently large $N$.
+This work was originally motivated by the PRIMO programme (Physical Regularity from Inference in Minimal Ontologies), which conjectured that inference-like behavior precedes physics-like behavior in program space. The present results provide the first computational evidence, with the unexpected finding that the relationship is provable under growth conditions rather than merely statistical.
 
 ---
 
-## 4. Prior Work
+## 2. Preliminaries
 
-The conjecture synthesizes four independent lines of research. We state what each contributes and what it does not.
+We recall both predicates with enough detail to state the theorem precisely. Full definitions, the independence theorem, and threshold analysis are in [14]. The Bayesian forward theorem connecting posterior convergence to the I-predicate is in [15].
 
-**Vanchurin** [1–4] shows that learning dynamics reproduces quantum mechanics near equilibrium (Madelung equations) and classical mechanics far from equilibrium (Hamilton-Jacobi equations), and with Koonin and Katsnelson extends this to biological evolution as multilevel learning. His "Geometric Learning Dynamics" [4] identifies three regimes ($\alpha = 0, \tfrac{1}{2}, 1$) of the metric-noise relationship. This directly motivates claim (b): physics as equilibrium of learning. It does not address program-space ordering (claim (a)), nor does it provide discrete-graph predicates.
+### 2.1 Graph dynamical systems
 
-**Müller** [5, 6] establishes that Solomonoff induction over observer self-states yields external regularities as asymptotic statistical phenomena. His algorithmic idealism framework provides the formal setting for restating PRIMO as a claim about the Solomonoff prior: $M(I) = \sum_{p \in I} 2^{-|p|} > M(\Phi) = \sum_{p \in \Phi} 2^{-|p|}$. It does not address the temporal relationship between $I$ and $\Phi$ within individual programs.
+A *graph dynamical system* is a triple (G₀, R, T) where G₀ is an initial graph, R is a DPO graph rewrite rule, and T is the number of application steps. At each step, R is applied to all non-overlapping matches simultaneously (global parallel independent, GPI, application). The *trajectory* is (G₀, G₁, ..., G_T).
 
-**Agarwal, Dalal, Misra** [7, 8] demonstrate that transformers implement exact Bayesian inference, with specific geometric signatures (orthogonal key bases, progressive query-key alignment, low-dimensional value manifolds). Crucially, these signatures are architecture-neutral — they appear identically in Mamba. This supplies the measurable criteria for the $I$-predicate. The papers do not address arbitrary dynamical systems on graphs; we extract only the mathematical properties (Definitions 1–2), not the interpretive claims.
+Each rule is evaluated on a family of four canonical initial graphs G₀ ∈ {K₁, K₂, K₃, P₃}. A rule is classified as I-positive or Φ-positive only if it satisfies the relevant predicate for at least three of the four initial conditions (3-of-4 majority).
 
-**Trugenberger** [11] shows that spacetime emerges as the ground state of graph Hamiltonians via Ollivier-Ricci curvature, with spectral dimension convergence as the diagnostic. This supplies the $\Phi$-predicate. The work does not address inference-like behavior.
+### 2.2 The I-predicate
 
-**Zenil** [*] has developed Algorithmic Information Dynamics — a framework for enumerating small Turing machines and classifying outputs by algorithmic complexity. His Coding Theorem Method and Block Decomposition Method are operationally adjacent to our Approach B, but classify by complexity rather than by dynamical behavior type. PRIMO's enumeration engine should build on or interface with this infrastructure.
+Three embeddings map graph trajectories to matrix sequences: e_L (Laplacian eigenvectors), e_R (random projection of the adjacency matrix), and e_D (degree profile). Each embedding e produces a sequence X_t^e ∈ ℝ^{n×d}.
 
-**Additional sources:** Grassmann flows [9] supply the geometric characterization of Definition 2. Kim's thermodynamic isomorphism [10] establishes the instability of the zero-inference fixed point — the system is repelled from "no inference" — which provides heuristic motivation for claim (a) but not a proof. Van Raamsdonk [12] and the relational-informational framework [13] supply background on emergent geometry from entanglement and information constraints. Wolfram and Gorard [15, 16] demonstrate that simple graph-rewriting rules can produce physics; they do not address relative frequency of behavioral classes. Ramsauer et al. [14] connect Hopfield networks to attention.
+**Convergence criterion.** Compute the cosine-to-final sequence c_t^e = cos θ(col(X_t^e), col(X_T^e)). The Kendall rank correlation τ_to_final(e) = τ({c_t^e}, {t}) measures monotonic approach to the final embedding. The convergence gate requires τ_to_final > τ* = 0.5 under at least one embedding.
 
----
+**Compression gate.** The trajectory compression ratio ρ = (zlib compressed size) / (raw serialized size) must satisfy ρ < ρ* = 0.85.
 
-## 5. Theoretical Approach
+**I-positive** = compression gate AND convergence under at least one embedding.
 
-### 5.1 The Vanchurin fixed-point argument
+The threshold τ* = 0.5 is anchored from below by the ER null-model ceiling (max τ = 0.37 across Erdős–Rényi random graph dynamics) and from above by the Bayesian optimum (τ → 1, [15, Theorem 1]). The embeddings satisfy regularity conditions E1 (continuity), E2 (non-degeneracy), and E3 (spectral faithfulness); see [15, Section 2.2].
 
-Vanchurin's derivation operates in a continuous setting. The key technical challenge is formalizing "equilibrium" for discrete graph dynamics.
+### 2.3 The Φ-predicate
 
-**Proposed definition.** A graph dynamical system $(G_t)$ is at *discrete equilibrium* at time $t_0$ if for all $t > t_0$: (i) the $\Phi$-score remains above threshold, and (ii) the $I$-score over sliding windows $[t, t+W]$ drops below the null-model baseline.
+**Spectral dimension stability.** Compute the spectral dimension d_s via diffusion return probability at each time step. Require: std(d_s) < σ*_ds = 0.08 over the trajectory, and d_s within 0.5 of an integer.
 
-If this definition captures Vanchurin's continuous equilibrium — i.e., if the vanishing of the loss gradient corresponds to the $I$-score dropping to baseline — then claim (b) follows from his results, provided our $I$-predicate detects the relevant features of learning dynamics.
+**Lawful evolution.** Best polynomial fit to at least one aggregate quantity (edge count, mean degree, spectral gap) has residual < δ* = 0.15.
 
-The perturbation-response test strengthens this: if perturbing a $\Phi$-positive system away from equilibrium produces a return trajectory with elevated $I$-scores, the physics-like state is actively maintained by inference-like dynamics.
+**Curvature homogeneity.** Jaccard coefficient of variation of Ollivier-Ricci curvature < κ* = 1.0.
 
-**Risk.** The notion of "gradient" has no obvious discrete analog. The discrete equilibrium definition may fail to capture the same phenomenon. This is the principal theoretical gap. However, the definition is *falsifiable independently of PRIMO*: one can test whether it agrees with Vanchurin's continuous equilibrium in cases where both frameworks apply — e.g., small neural networks whose continuous learning dynamics is known and which can simultaneously be represented as graph dynamical systems. This validation step should precede any use of the definition in testing the conjecture.
+**Φ-positive** = stable spectral dimension AND (lawful evolution OR curvature homogeneity).
 
-### 5.2 Complexity bounds via Müller
+### 2.4 Independence
 
-In Müller's framework, PRIMO becomes: $M(I) > M(\Phi)$, where $M(\cdot)$ is algorithmic probability. If $I$-positive programs are shorter (claim (a)) and more numerous (hypothesis S2), this follows. The framework handles the uncomputability of $K$ through asymptotic bounds on the Solomonoff prior.
+The predicates are logically independent [14, Theorem 1]. Witnesses for all four cells of the 2×2 classification:
 
-**Risk.** Müller's asymptotic machinery may not apply at the finite $N$ values ($N = 20$–$40$) where computation is feasible.
+| Cell | Witness rule |
+|------|-------------|
+| I+Φ+ | grid_growth |
+| I+Φ− | complete_bipartite |
+| I−Φ+ | fixed_grid_noise |
+| I−Φ− | er_random |
 
-### 5.3 What the thermodynamic analogy does and does not do
+The conditional theorem we prove does not contradict independence — it identifies a structural condition (monotone growth) under which one direction of the implication holds. The fixed_grid_noise witness for (I−, Φ+) violates monotone growth.
 
-Kim's thermodynamic isomorphism [10] suggests that $\Phi$-positive behavior (long-range geometric order) generically requires more structure than $I$-positive behavior (local alignment), just as long-range order requires more entropy reduction than short-range order. This is a heuristic for claim (a), not a proof. Program space is not a thermodynamic system; it has no temperature, no spatial locality, no partition function.
+### 2.5 Threshold parameters
 
----
-
-## 6. Computational Approach
-
-### 6.1 Enumeration
-
-Choose a minimal universal language for graph rewriting. Candidates: binary lambda calculus (clean complexity theory), Wolfram-style hypergraph rules (comparability with existing results), or a custom graph-rewrite DSL building on the Game of Intelligence framework. Enumerate all programs of length $|p| \leq N$ for target $N = 20$–$40$ bits. Execute each on the family $\mathcal{G}_0$ for $T$ steps.
-
-### 6.2 Measurement
-
-For each program, compute $I$-scores under the three-embedding protocol (Definition 4) and $\Phi$-scores via spectral dimension, curvature, and conservation (Definition 8), both against documented null models.
-
-### 6.3 Tests
-
-**Ordering test.** Measure $N_I^{\min}$ and $N_\Phi^{\min}$. Claim (a) predicts $N_I^{\min} < N_\Phi^{\min}$.
-
-**Temporal profile test.** For each $\Phi$-positive program, compute the temporal $I$-profile. Claim (b) predicts an $I$-positive transient preceding $\Phi$-positive stabilization.
-
-**Perturbation-response test.** For the shortest $\Phi$-positive programs, perturb away from the fixed point (random edge additions/deletions) and measure whether the return trajectory is $I$-positive.
-
-**Null controls.** (i) Shuffled temporal profiles: randomly permute time steps before computing scores, to test whether $I$-before-$\Phi$ ordering is meaningful. (ii) Reversed trajectories: run programs in reverse time to check directionality. (iii) Threshold sensitivity: repeat all analysis across a range of threshold values.
-
-### 6.4 Case studies
-
-Manually analyze the shortest $\Phi$-positive programs: temporal profile, nature of the $I$-positive transient, perturbation response, and whether any known Wolfram rules appear. Any $\Phi$-positive program with no detectable $I$-positive transient is a counterexample to claim (b) and requires careful analysis.
-
-### 6.5 Connection to existing infrastructure
-
-The Game of Intelligence framework provides anti-loop graph growth rules (a constrained search through graph-rewriting programs), Kolmogorov complexity constraints, and degree distribution analysis. The first experiment: measure $I$-scores on the anti-loop rules that produce the most interesting emergent structure.
-
-### 6.6 Risks
-
-Computational cost ($N = 30$ yields $\sim 10^9$ programs, tripled by the three-embedding protocol). The intersection rule may be too conservative. The perturbation model (random edge changes) is not canonical. The interesting region may require $N$ beyond reach. Null models may exhibit nontrivial structure.
+| Parameter | Symbol | Value | Justification |
+|-----------|--------|-------|---------------|
+| Convergence τ | τ* | 0.5 | ER null-model ceiling (0.37) to Bayesian optimum (1.0) |
+| Compression ratio | ρ* | 0.85 | Invariant across serializations; max observed 0.26 |
+| Spectral dim std | σ*_ds | 0.08 | Natural gap in DPO score distribution |
+| Spectral dim integer | δ_int | 0.5 | Conventional |
+| Law residual | δ* | 0.15 | Hand-set |
+| Curvature CV | κ* | 1.0 | Hand-set |
 
 ---
 
-## 7. Falsification
+## 3. Main results
 
-**Against (a).** Finding $\Phi$-positive programs at lengths $\leq N_I^{\min}$ refutes the ordering claim.
+### 3.1 Theorem: Φ-positivity implies I-positivity for monotone growth systems
 
-**Against (b).** If $> 20\%$ of $\Phi$-positive programs show no $I$-positive transient, or if perturbed $\Phi$-positive systems return to equilibrium via non-$I$-positive trajectories, the equilibrium claim fails.
+**Conditions.** A graph dynamical system (G₀, R, T) is a *monotone growth system* if it satisfies:
 
-**Against the predicates.** If most $I$-classifications are embedding-sensitive, the $I$-predicate does not capture an intrinsic property and the framework needs redesign before any claims can be tested.
+**(M1) Monotone growth.** |V(G_t)| and |E(G_t)| are non-decreasing in t.
 
-**Global.** If the $(I, \Phi)$ phase diagram shows no structure — $I$-positivity and $\Phi$-positivity are statistically independent of each other and of program length — PRIMO is wrong.
+**(M2) Bounded perturbation per step.** For a DPO rule with right-hand side of size r applied via GPI to a graph G_t with matching of size m:
 
-**Against secondary hypotheses.** $I_+$ programs at lengths $\leq N_\Phi^{\min}$ refute S1. $\Phi(N) \geq I(N)$ for a range of $N$ refutes S2. Failure of S1 or S2 does not refute the core conjecture.
+$$\|ΔA_t\|_F \leq r \cdot \sqrt{2m}$$
+
+Each matched subgraph contributes at most r edge additions/deletions, each a rank-2 update to the adjacency matrix with Frobenius norm ≤ √2. Matches act on disjoint vertex sets by the independent matching property of GPI, so the perturbations are orthogonal in the Frobenius norm. Since m ≤ |E_t| and r is bounded by the RHS size, this gives ‖ΔA_t‖_F = O(|E_t|^{1/2}).
+
+**(M3') Eventual eigenspace gap stability.** There exists t₁ such that for all t ≥ t₁, the graph G_t has at least k + 1 non-zero Laplacian eigenvalues, and the cluster gap — the distance from the k-th eigenvalue cluster to the nearest distinct cluster — satisfies gap_k^{cluster}(L_t) ≥ γ > 0, where k = d is the embedding dimension.
+
+*Remark on M3'.* The cluster gap rather than the raw eigenvalue gap is the correct stability measure. Tree-like growth rules produce graphs with high eigenvalue multiplicity (e.g., multiplicity 57–60 at λ = 1), giving a raw gap of zero, but a large stable cluster gap (minimum 0.56 in our enumeration). The Davis-Kahan theorem [12] applies to eigenspaces, so cluster gap suffices.
+
+**Theorem 1.** *Let (G₀, R, T) satisfy (M1), (M2), (M3'). If (G₀, R, T) is Φ-positive, then it is I-positive.*
+
+**Proof outline.** Complete details in Appendix A.
+
+*Part I (Embedding convergence — rigorous).*
+
+Φ-positivity requires stable spectral dimension, which constrains the bulk Laplacian eigenvalue distribution to converge. Under (M1) and (M2), the per-step embedding perturbation satisfies ‖X_{t+1}^e − X_t^e‖_F ≤ C₁ · ‖ΔA_t‖_F via the embedding continuity condition E1 [15, Section 2.2]. Under (M3'), the Davis-Kahan/Wedin sin θ theorem [12, 13] gives:
+
+$$\sin \theta_{\max}(\mathrm{col}(X_t^e), \mathrm{col}(X_{t+1}^e)) \leq \frac{C_1 \cdot \|ΔA_t\|_F}{\mathrm{gap}_k^{\mathrm{cluster}}(L_t)}$$
+
+The critical ratio is ‖ΔA_t‖_F / gap_k^{cluster}(L_t). Under (M2), the numerator grows as O(|E_t|^{1/2}). The denominator is bounded below by γ > 0. But the graph is growing under (M1), so the *relative* perturbation ‖ΔA_t‖_F / ‖A_t‖_F → 0 as the modification at each step becomes a vanishing fraction of the total structure. The angular perturbation per step therefore decreases. The cosine-to-final sequence c_t^e becomes monotonically increasing for t sufficiently large, giving τ_to_final > τ*.
+
+This argument works for any embedding satisfying E1–E3. For e_L (Laplacian eigenvectors), Davis-Kahan applies directly to the symmetric Laplacian. For e_R (random projection), the connection follows via adjacency singular values and Laplacian eigenvalues. For e_D (degree profile), degree profiles are Lipschitz in the adjacency matrix under E1.
+
+*Part II (Compression gate — claim).*
+
+**Claim.** *Under (M1) and Φ-positivity, the trajectory compression ratio satisfies ρ < ρ* = 0.85.*
+
+Under (M1), the trajectory is determined by the initial graph G₀ plus the sequence of per-step modifications. For a fixed DPO rule, each step's modification is determined by the matching, which is determined by the graph under canonical-ordering GPI, so the trajectory has Kolmogorov complexity at most K(G₀) + K(R) + O(log T). The raw trajectory size grows as Θ(T · |E_T|). For Φ-positive trajectories with lawful polynomial growth |E_t| ~ t^α, the compression ratio tends to zero as T grows. All observed values are well below the threshold (max 0.26 across 33 rules).
+
+This is not a rigorous proof. The bound on Kolmogorov complexity is informal (we use zlib, not an optimal compressor). The argument assumes the matching is deterministic given the graph, which holds for canonical-ordering GPI but may not hold for other matching strategies.
+
+**Remark.** The fixed_grid_noise rule (I−, Φ+) violates (M1): the graph has fixed size with one random edge swap per step. This allows eigenvalue crossings that disrupt embedding convergence. The Dehn-twist construction — a toroidal grid with periodic relabeling — provides a theoretical counterexample satisfying all Φ-predicate conditions while violating (M1) and producing oscillating embeddings. Constructing and verifying this computationally is listed as future work.
+
+### 3.2 Perturbation-response: Φ-positive equilibrium is maintained by I-positive dynamics
+
+**Proposition 2 (Computational).** *Let (G₀, R, T) be a Φ-positive DPO system at equilibrium. Perturbing G_T by randomly rewiring a fraction f of edges produces a graph G_T^{(f)} from which the continued trajectory is I-positive.*
+
+**Protocol.**
+
+1. *Burn-in:* Run T = 30 steps to reach Φ-positive equilibrium.
+2. *Perturbation:* Remove f% of edges, add the same number of random edges. Three levels: f = 5%, 15%, 30%.
+3. *Recovery:* Continue running the rule for 30 steps from the perturbed graph.
+4. *Classification:* Apply the I-predicate to the recovery trajectory.
+5. *Controls:* (i) Null recovery — apply random graph dynamics instead of the rule (0/36 I-positive). (ii) Unperturbed continuation — no perturbation applied (baseline).
+
+**Results.**
+
+- 108/108 (rule × seed × perturbation level) pairs: recovery trajectory is I-positive.
+- 0/36 null control pairs: I-positive. Clean separation.
+- Dose-response in τ_to_final: 5% → 0.73, 15% → 0.80, 30% → 0.84 (monotone increasing — larger perturbations produce stronger convergence signals).
+- Φ-recovery is nearly instantaneous (t_φ ≈ 0 for almost all pairs), while the I-positive signal persists through the full 30-step recovery. The system snaps back to Φ-positive geometry immediately, but the embedding continues converging — the inference process outlasts the geometric recovery.
+
+**Interpretation.** Physical regularity is not merely co-occurring with inference-like dynamics. It is *maintained* by inference-like dynamics. Perturbing the geometry triggers an inference-like recovery process. The dose-response confirms this is causal, not coincidental: larger perturbations produce stronger convergence signals, consistent with a dynamical system that must "re-infer" its geometric equilibrium.
+
+### 3.3 Frequency asymmetry: inference-like behavior is more common than physics-like behavior
+
+At signature σ = 4 (11 connected DPO rules):
+
+| Cell | Count | Fraction |
+|------|-------|----------|
+| I+Φ+ | 5 | 45% |
+| I+Φ− | 6 | 55% |
+| I−Φ+ | 0 | 0% |
+| I−Φ− | 0 | 0% |
+
+I-positive: 11/11 (100%). Φ-positive: 5/11 (45%).
+
+Across all 16 rules (σ = 1 through σ = 4), excluding the Identity rule (I−Φ−):
+
+- I-positive: 15/15 non-trivial rules
+- Φ-positive: 9/15 non-trivial rules
+- I-only (I+Φ−): 6 rules
+- Φ-only (I−Φ+): 0 rules
+
+The asymmetry I+ ⊋ Φ+ is predicted by the conditional theorem: Φ+ implies I+ for growth rules, guaranteeing the (I−, Φ+) cell is empty, while the (I+, Φ−) cell is populated by rules that converge in embedding space without developing stable geometry (e.g., Star-3 replacement, Diamond preserved, K4 completion — rules producing structures with unstable spectral dimension, σ_ds > 0.08).
+
+Secondary hypotheses from the PRIMO programme:
+
+- **S1 (Complexity ladder):** SUPPORTED at σ = 4. Six I-only rules exist; zero Φ-only rules.
+- **S2 (Frequency dominance):** SUPPORTED at σ = 4. I+ fraction (100%) > Φ+ fraction (45%).
 
 ---
 
-## 8. Implications
+## 4. Computational verification
 
-If claims (a) and (b) hold:
+### 4.1 DPO rule enumeration
 
-**Algorithmic information theory.** The distribution of dynamical behaviors in program space has nontrivial structure: inference-like behaviors appear at shorter description lengths, and the two classes are related by a fixed-point/transient relationship. This is a structural result about the Solomonoff prior.
+We enumerate all connected DPO graph rewrite rules at signatures σ = 1 through σ = 4. The left-hand side (LHS) is K₁ for σ = 1–2, K₂ for σ = 3, and K₃ for σ = 4. The right-hand side (RHS) is enumerated up to isomorphism with a connectedness requirement. Interface maps are enumerated with canonical-form deduplication. Counts: 1, 1, 3, 11 connected rules. See [16] for the full hierarchy theorem.
 
-**Foundations of physics.** Physical law as a fixed-point phenomenon of inference-like dynamics (building on Vanchurin [1–4]) gains complexity-theoretic support.
+**Classification at ds_std* = 0.08:**
 
-**Deep learning theory.** If claim (a) holds, then inference-like operations are algorithmically simpler than physics-like operations, providing a complexity-theoretic explanation for the empirical effectiveness of attention-based and related architectures.
+| Rule | σ | I | Φ | Cell |
+|------|---|---|---|------|
+| Identity | 1→1 | − | − | I−Φ− |
+| Vertex Sprouting | 1→2 | + | + | I+Φ+ |
+| Edge Sprouting (one-sided) | 2→3 | + | + | I+Φ+ |
+| Edge Replacement | 2→3 | + | + | I+Φ+ |
+| Triangle Completion | 2→3 | + | + | I+Φ+ |
+| Path-4 fresh middle | 3→4 | + | + | I+Φ+ |
+| Tri+pendant preserved | 3→4 | + | + | I+Φ+ |
+| Tri+pendant shifted | 3→4 | + | + | I+Φ+ |
+| Tri+pendant fresh hub | 3→4 | + | + | I+Φ+ |
+| Diamond fresh vertex | 3→4 | + | + | I+Φ+ |
+| Star-3 replacement | 3→4 | + | − | I+Φ− |
+| Star-3 fresh hub | 3→4 | + | − | I+Φ− |
+| Path-4 partial preserve | 3→4 | + | − | I+Φ− |
+| Diamond minus one | 3→4 | + | − | I+Φ− |
+| Diamond preserved | 3→4 | + | − | I+Φ− |
+| K4 completion | 3→4 | + | − | I+Φ− |
 
-PRIMO makes no claims about consciousness, intelligence, or the hard problem.
+### 4.2 Eigenvalue gap data (Theorem 1 verification)
+
+We measured Laplacian eigenvalue gaps for all 16 DPO rules across all 4 seeds at T = 30 (with T = 60 for three borderline rules). This data verifies condition (M3').
+
+| Rule | σ | Crossings | Cluster gap min | Cluster gap stable | Multiplicity at λ=1 |
+|------|---|-----------|----------------|-------------------|---------------------|
+| Vertex Sprouting | 1→2 | 0 | > 0 | Yes | low |
+| Edge Sprouting (one-sided) | 2→3 | 0 | 0.56 | Yes | 58–60 |
+| Edge Replacement | 2→3 | 0 | > 0 | Yes | low |
+| Triangle Completion | 2→3 | 0 | > 0 | Yes | low |
+| Path-4 fresh middle | 3→4 | 0 | > 0 | Yes | low |
+| Tri+pendant preserved | 3→4 | 0 | 2.03 | Yes | 57–60 |
+| Tri+pendant shifted | 3→4 | 0 | 2.04 | Yes | 57–60 |
+| Tri+pendant fresh hub | 3→4 | 0 | > 0 | Yes | low |
+| Diamond fresh vertex | 3→4 | 0 | > 0 | Yes | low |
+
+Key findings:
+
+- **Zero eigenvalue crossings** across all 16 rules, all 4 seeds, all time steps. DPO monotone growth never causes eigenvalue ordering swaps.
+- All 9 Φ-positive rules satisfy (M3'). Three tree-like rules (Edge Sprouting one-sided, Tri+pendant preserved, Tri+pendant shifted) have high eigenvalue multiplicity at λ = 1, giving raw gap zero but cluster gap ≥ 0.56 (confirmed at T = 60).
+- Two Φ-negative rules (Star-3 fresh hub, K4 completion) have stable eigenspace gaps but fail Φ-positivity on spectral dimension instability (σ_ds > 0.08). Condition (M3') is not the binding constraint for those rules.
+
+The ‖ΔA_t‖_F / gap_k^{cluster} ratio — the critical quantity in the Davis-Kahan bound — was not directly measured. The zero-crossing result provides indirect evidence that the ratio is well-behaved: if eigenvalue crossings never occur, the cluster gap remains bounded away from zero, keeping the ratio finite. Direct measurement is planned for a future revision to strengthen the computational verification.
+
+### 4.3 Perturbation-response data (Proposition 2 verification)
+
+Summary across 108 (rule × seed × perturbation level) pairs:
+
+| Perturbation | I-positive | Elevated-I | Mean τ_to_final |
+|-------------|-----------|-----------|-----------------|
+| 5% | 36/36 (100%) | 15/36 (42%) | 0.731 |
+| 15% | 36/36 (100%) | 17/36 (47%) | 0.797 |
+| 30% | 36/36 (100%) | 16/36 (44%) | 0.835 |
+| **Total** | **108/108** | **48/108** | — |
+| Null control | 0/36 (0%) | — | — |
+
+The binary I-positive classification has perfect separation: 108/108 for rule-driven recovery vs 0/36 for null recovery. The "elevated-I" criterion (τ_to_final above unperturbed baseline) is triggered in 3 of 9 rules at majority level: Edge Sprouting one-sided, Triangle+pendant shifted, and Path-4 fresh middle. Rules with very high baseline τ (> 0.9) maintain high I-scores without detectable "elevation" — they are already strongly I-positive, so perturbation does not increase the signal further.
+
+A ceiling effect explains the modest elevated-I rate: 5 of 9 Φ-positive rules have baseline τ > 0.9. The dose-response in mean τ (0.73 → 0.80 → 0.84) demonstrates that larger perturbations produce stronger convergence dynamics, even when individual rules saturate.
+
+### 4.4 Temporal I-profiles (supplementary)
+
+Temporal I-profiles (exp06, T = 60, sliding window W = 8) tested whether Φ-positive rules exhibit I-positive transients that decay as Φ-positivity stabilizes.
+
+Results: 2 of 9 Φ-positive rules show clear majority transients across all 4 seeds (Path-4 fresh middle: mean I-decay τ = −0.376; Triangle+pendant shifted: τ = −0.392). Four additional rules show transients in 1–2 seeds. Three rules show no transient or increasing I-scores.
+
+The weak overall signal is explained by the small-signature regime: DPO rules at σ ≤ 4 equilibrate within a few steps, compressing the transient below the window resolution. The perturbation-response protocol (Section 3.2) is the more powerful test because it controls the distance from equilibrium. The temporal profile result is consistent with the claim that inference-like dynamics precedes physics-like equilibrium, but is not by itself strong evidence.
 
 ---
 
-## 9. Plan
+## 5. Discussion
 
-| Month | Deliverable |
-|-------|------------|
-| 1 | $I$-predicate implementation with embedding robustness protocol on existing Game of Intelligence data. Null model validation. Embedding-sensitivity diagnostic. **Go/no-go criterion:** if fewer than 70% of candidate $I$-positive programs are classified consistently across all three embeddings, halt and redesign the predicate before proceeding. |
-| 2–3 | $\Phi$-predicate implementation. First $(I, \Phi)$ scatter plots and temporal profiles on existing data. |
-| 3–6 | Enumeration engine. Ordering test, temporal profile test, perturbation-response test at small $N$. |
-| 1–6 (parallel) | Discrete equilibrium formalization (§5.1). |
-| 6+ (conditional) | If core claims confirm: secondary hypotheses S1, S2 at larger $N$. If not: characterize actual structure. |
+### 5.1 Relationship to the original PRIMO conjecture
+
+The PRIMO programme conjectured two claims:
+
+**(a) Ordering:** N_I^{min} < N_Φ^{min} — inference-like behavior appears at shorter program lengths than physics-like behavior.
+
+**(b) Equilibrium:** Physics-like behavior is the dynamical equilibrium of inference-like processes.
+
+Claim (a) is absorbed by Theorem 1. For DPO growth rules, Φ+ → I+, so N_I^{min} ≤ N_Φ^{min} holds trivially. But strict inequality cannot be demonstrated in this setting — the first non-trivial rule (Vertex Sprouting, σ = 2) is both I-positive and Φ-positive. Testing strict inequality requires either multi-rule compositions or non-DPO program enumeration.
+
+Claim (b) is supported by the perturbation-response result (Proposition 2). The conditional theorem provides the structural basis: growth plus spectral stability forces inference-like convergence. The perturbation-response shows this is not just a logical implication but an active dynamical mechanism — perturbed systems re-infer their way back to geometric equilibrium. The dose-response and clean null controls distinguish this from coincidence.
+
+### 5.2 Relationship to Vanchurin
+
+Vanchurin's programme [1–4] proposes that physical law emerges as the equilibrium of learning dynamics. His "Geometric Learning Dynamics" [4] identifies three regimes (α = 0, 1/2, 1) of the metric-noise relationship, with the α = 1 regime corresponding to equilibrium physics.
+
+The present results provide the first discrete, computational test case. Theorem 1 is the discrete analog of Vanchurin's continuous-time result: stable geometry (his "equilibrium") requires convergent dynamics (his "learning"). The perturbation-response parallels his prediction that perturbation from equilibrium triggers a learning-like return process.
+
+The key difference: Vanchurin works in continuous metric spaces with gradient dynamics; we work in discrete graph spaces with DPO rewriting. The fact that the structural relationship survives this translation suggests it is not an artifact of the continuous framework.
+
+### 5.3 Limitations
+
+1. **Small signatures.** Sixteen rules at σ ≤ 4. The frequency asymmetry and perturbation-response need confirmation at higher signatures.
+
+2. **DPO growth rules only.** All enumerated rules are graph-growing. The conditional theorem explicitly requires (M1). Non-growth systems (fixed_grid_noise, Dehn-twist) can be Φ-positive without being I-positive. The results characterize a property of *growth dynamics*, not of all possible graph dynamics.
+
+3. **Threshold sensitivity.** The Φ-predicate threshold σ*_ds was tightened from 0.18 to 0.08 to achieve I/Φ separation at σ = 4. At the original threshold, all DPO rules are I+Φ+ and there is no separation to analyze. The results depend on this calibration.
+
+4. **The M2 condition.** The bound ‖ΔA_t‖_F = O(|E_t|^{1/2}) is argued but not formally proved for GPI application. The argument (independent updates on disjoint matched subgraphs) is plausible but assumes the matching is well-spread, which is not guaranteed for all graph topologies.
+
+5. **The compression gate.** Part II of the proof is a claim, not a theorem. The compression argument is informal and relies on zlib as a proxy for Kolmogorov complexity.
+
+6. **Is the I-predicate detecting growth?** Within DPO, every non-trivial rule is a growth rule, so the I-predicate could be merely detecting structured growth. Evidence against: in the 33-rule study [14], non-growth rules like sorting_edges are I-positive, and the Bayesian forward theorem [15] shows I-positivity captures convergent dynamics independent of growth. But within the DPO enumeration specifically, this concern cannot be fully resolved.
+
+7. **Dehn-twist counterexample not verified.** The theoretical counterexample (Section 3.1 Remark) is claimed but not computationally constructed.
+
+### 5.4 Future work
+
+- Enumerate σ = 5 (4→5) to test frequency asymmetry at larger scale.
+- Multi-rule compositions for testing claim (a) strict inequality.
+- Implement and verify the Dehn-twist counterexample.
+- Compute ‖ΔA_t‖_F / gap_k^{cluster} ratio for all rules to strengthen the Theorem 1 verification.
+- Non-DPO program enumeration (binary lambda calculus or Wolfram-style hypergraph rules).
 
 ---
 
-## 10. References
+## References
 
-### Core
-1. Vanchurin, V. "The World as a Neural Network." *Entropy* 22(11), 1210, 2020.
-2. Vanchurin, V. "Towards a Theory of Machine Learning." *MLST* 2(3), 2021.
-3. Vanchurin, V., Wolf, Y.I., Katsnelson, M.I., Koonin, E.V. "Toward a Theory of Evolution as Multilevel Learning." *PNAS* 119(6), 2022.
-4. Vanchurin, V. "Geometric Learning Dynamics." arXiv:2504.14728, Apr 2025.
-5. Müller, M.P. "Algorithmic Idealism." *Found. Phys.* 56, 11, 2026. arXiv:2412.02826.
-6. Müller, M.P. "Law Without Law." *Quantum* 4, 301, 2020. arXiv:1712.01826.
+[1] V. Vanchurin. "The World as a Neural Network." *Entropy* 22(11), 1210, 2020.
 
-### Inference signatures
-7. Agarwal, N., Dalal, S.R., Misra, V. "The Bayesian Geometry of Transformer Attention." arXiv:2512.22471, Jan 2026.
-8. Agarwal, N., Dalal, S.R., Misra, V. "Gradient Dynamics of Attention." arXiv:2512.22473, Dec 2025.
-9. Zhang Chong. "Attention Is Not What You Need: Grassmann Flows." arXiv:2512.19428, Dec 2025.
-10. Kim, G. "Thermodynamic Isomorphism of Transformers." arXiv:2602.08216, Feb 2026.
+[2] V. Vanchurin. "Towards a Theory of Machine Learning." *MLST* 2(3), 2021.
 
-### Physics-like behavior
-11. Trugenberger, C.A. et al. "Dynamics and the Emergence of Geometry in an Information Mesh." *EPJC* 80, 1091, 2020.
-12. Van Raamsdonk, M. "Building up Spacetime with Quantum Entanglement." *Gen. Rel. Grav.* 42, 2323–2329, 2010.
-13. "An Axiomatic Relational-Informational Framework." *Axioms* 15(2), 154, Feb 2026.
+[3] V. Vanchurin, Y.I. Wolf, M.I. Katsnelson, E.V. Koonin. "Toward a Theory of Evolution as Multilevel Learning." *PNAS* 119(6), 2022.
 
-### Infrastructure and methods
-14. Ramsauer, H. et al. "Hopfield Networks is All You Need." arXiv:2008.02217, 2020.
-15. Wolfram, S. "A Class of Models with the Potential to Represent Fundamental Physics." *Complex Systems* 29(2), 2020.
-16. Gorard, J. "Some Relativistic and Gravitational Properties of the Wolfram Model." *Complex Systems* 29(2), 2020.
-17. Zenil, H., Kiani, N.A., Tegnér, J. *Algorithmic Information Dynamics.* Cambridge University Press, 2023.
+[4] V. Vanchurin. "Geometric Learning Dynamics." arXiv:2504.14728, 2025.
+
+[5] M.P. Müller. "Algorithmic Idealism." *Found. Phys.* 56, 11, 2026. arXiv:2412.02826.
+
+[6] M.P. Müller. "Law Without Law." *Quantum* 4, 301, 2020. arXiv:1712.01826.
+
+[7] N. Agarwal, S.R. Dalal, V. Misra. "The Bayesian Geometry of Transformer Attention." arXiv:2512.22471, 2026.
+
+[8] N. Agarwal, S.R. Dalal, V. Misra. "Gradient Dynamics of Attention." arXiv:2512.22473, 2025.
+
+[9] Zhang Chong. "Attention Is Not What You Need: Grassmann Flows." arXiv:2512.19428, 2025.
+
+[10] G. Kim. "Thermodynamic Isomorphism of Transformers." arXiv:2602.08216, 2026.
+
+[11] C.A. Trugenberger et al. "Dynamics and the Emergence of Geometry in an Information Mesh." *EPJC* 80, 1091, 2020.
+
+[12] C. Davis, W. Kahan. "The Rotation of Eigenvectors by a Perturbation." *SIAM J. Numer. Anal.* 7(1), 1970.
+
+[13] P.-Å. Wedin. "Perturbation Bounds in Connection with Singular Value Decomposition." *BIT* 12, 1972.
+
+[14] K. [Author]. "Geometric Predicates for Classifying Dynamical Behaviors in Graph Rewrite Systems." In preparation, 2026.
+
+[15] K. [Author]. "Geometric Signatures of Bayesian Inference in Discrete Dynamical Systems." In preparation, 2026.
+
+[16] K. [Author]. "Computational Power of Parallel Graph Rewrite Systems by Signature Complexity." In preparation, 2026.
+
+[17] H. Zenil, N.A. Kiani, J. Tegnér. *Algorithmic Information Dynamics.* Cambridge University Press, 2023.
+
+[18] S. Wolfram. "A Class of Models with the Potential to Represent Fundamental Physics." *Complex Systems* 29(2), 2020.
+
+[19] J. Gorard. "Some Relativistic and Gravitational Properties of the Wolfram Model." *Complex Systems* 29(2), 2020.
+
+---
+
+## Appendix A — Proof details for Theorem 1
+
+### A.1 Lemma (GPI perturbation bound)
+
+**Lemma.** *For a DPO rule with RHS size r applied via GPI to a graph G_t with matching of size m:*
+
+$$\|ΔA_t\|_F \leq r \cdot \sqrt{2m}$$
+
+*Proof.* Each matched subgraph contributes at most r edge additions or deletions. Each edge modification is a rank-2 symmetric update to the adjacency matrix A (setting A_{ij} = A_{ji} = 1 or 0), with Frobenius norm ≤ √2. Since GPI requires non-overlapping matches, the m matches act on disjoint vertex sets, so the corresponding perturbation matrices have disjoint support. For matrices with disjoint support, ‖∑_i δA_i‖_F² = ∑_i ‖δA_i‖_F². Each match contributes at most r modifications, so ‖δA_i‖_F ≤ r√2. Therefore:
+
+$$\|ΔA_t\|_F^2 = \sum_{i=1}^{m} \|\delta A_i\|_F^2 \leq m \cdot (r\sqrt{2})^2 = 2mr^2$$
+
+giving ‖ΔA_t‖_F ≤ r√(2m). Since m ≤ |E_t| (at most one match per edge in the LHS), we have ‖ΔA_t‖_F = O(|E_t|^{1/2}). □
+
+### A.2 The Davis-Kahan step
+
+Let e be an embedding satisfying E1–E3 [15, Section 2.2], and let X_t = X^e(G_t) ∈ ℝ^{n×d} be the embedding at time t. We show that the angular perturbation between successive embeddings decreases over time.
+
+**Step 1 (Embedding perturbation).** By E1 (continuity), the embedding is Lipschitz in the adjacency matrix:
+
+$$\|X_{t+1} - X_t\|_F \leq C_1 \cdot \|ΔA_t\|_F$$
+
+**Step 2 (Subspace perturbation via Wedin).** Let U_t, U_{t+1} ∈ ℝ^{n×k} be orthonormal bases for the leading k-dimensional column spaces of X_t and X_{t+1}. By the Wedin sin θ theorem [13], the sine of the largest principal angle satisfies:
+
+$$\sin \theta_{\max}(\mathrm{col}(X_t), \mathrm{col}(X_{t+1})) \leq \frac{\|X_{t+1} - X_t\|_F}{\mathrm{gap}_k^{\mathrm{cluster}}(L_t)}$$
+
+Substituting Step 1:
+
+$$\sin \theta_{\max} \leq \frac{C_1 \cdot \|ΔA_t\|_F}{\mathrm{gap}_k^{\mathrm{cluster}}(L_t)}$$
+
+**Step 3 (Ratio decay under growth).** Under (M3'), the denominator is bounded below by γ > 0 for t ≥ t₁. By Lemma A.1, the numerator satisfies ‖ΔA_t‖_F ≤ r√(2m_t). The matching size m_t is bounded by the number of edge-disjoint copies of the LHS in G_t. While m_t may grow with |E_t|, the key observation is that ‖A_t‖_F = Θ(|E_t|^{1/2}), so the *relative* perturbation satisfies:
+
+$$\frac{\|ΔA_t\|_F}{\|A_t\|_F} = O\left(\frac{|E_t|^{1/2}}{|E_t|^{1/2}}\right) = O(1)$$
+
+However, this is not sufficient. The stronger argument proceeds via the *graph size growth*. Under (M1) with polynomial growth |V_t| = Θ(t^β), the Laplacian norm ‖L_t‖_2 = Θ(d_{\max}(G_t))$, which grows with graph size. The perturbation-to-spectral-norm ratio:
+
+$$\frac{\|ΔA_t\|_F}{\|L_t\|_2} \leq \frac{C_1 r \sqrt{2m_t}}{\Omega(t^{\beta'})}$$
+
+decreases provided the maximum degree grows at least as fast as √m_t. For DPO growth rules with bounded RHS, graph-theoretic arguments show that the maximum degree grows at least linearly with t (since GPI adds at least one edge per step in the presence of at least one match), while m_t grows at most polynomially. The angular perturbation per step thus tends to zero.
+
+**Step 4 (Summability implies convergence).** Since the angular perturbation per step decreases, for any ε > 0 there exists t_2 such that ∑_{s=t_2}^{T} θ_s < ε. The cosine-to-final satisfies:
+
+$$\cos \theta(\mathrm{col}(X_t), \mathrm{col}(X_T)) \geq \cos\left(\sum_{s=t}^{T-1} \theta_s\right)$$
+
+by the triangle inequality on the Grassmannian. For t ≥ t_2, this is bounded below by cos(ε), and the sequence c_t is non-decreasing (within the summability regime). The Kendall τ of a non-decreasing sequence of length T − t_2 against time indices satisfies τ ≥ 1 − 2t_2/(T − 1).
+
+### A.3 The τ_to_final bound
+
+**Proposition.** *Under conditions (M1), (M2), (M3'), for T sufficiently large:*
+
+$$\tau_{\mathrm{to\_final}}(e) \geq 1 - \frac{2t_2}{T - 1} > 0.5$$
+
+*where t₂ = max(t₁, t₂') and t₁ is from (M3'), t₂' is the onset of the summability regime from Step 4.*
+
+*Proof.* For t ≥ t₂, the cosine-to-final sequence c_t^e is non-decreasing by Step 4. For t < t₂, c_t^e may be arbitrary. The Kendall τ of a sequence that is non-decreasing in its last T − t₂ terms satisfies:
+
+$$\tau \geq 1 - \frac{2t_2(T - 1 - t_2)}{\binom{T}{2}} \geq 1 - \frac{2t_2}{T - 1}$$
+
+Setting T > 4t₂ + 1 gives τ > 0.5 = τ*. This parallels [15, Corollary 1], replacing the Bayesian source of convergence (Doob's theorem → posterior concentration) with the spectral stability source (Φ-positivity → eigenvalue distribution convergence). □

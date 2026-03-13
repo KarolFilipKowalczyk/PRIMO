@@ -28,7 +28,7 @@ Requires Python 3.10+, numpy, scipy, networkx, matplotlib. GPU acceleration (opt
 - Papers 1–3: complete markdown drafts in `papers/`
 - Rule catalog: verified at signatures 1→1, 1→2, 2→3, 3→4 (1, 1, 3, 11 connected rules)
 - 33-rule diagnostic: classifications established in `reference/primo_diagnostic_output_v5.txt`
-- PRIMO conjecture: draft v6 in `papers/primo_conjecture.md`
+- Paper 4: draft v7 (results paper) in `papers/primo_conjecture.md`
 - `primo/`: all 6 library files (backend, rules, trajectories, predicates, monitor, run_utils)
 - `exp01`: 33-rule validation — all rules match reference at original thresholds
 - `exp02`: Example B analysis — canonical I-negative (0/4), robustness 18/20 I-positive, adaptive 4/4 I-positive
@@ -104,7 +104,7 @@ See `CLAUDE.md` for the full five-phase plan from bootstrap to submission.
 | 1 | Geometric Predicates for Classifying Dynamical Behaviors in Graph Rewrite Systems | Entropy | Draft complete |
 | 2 | Geometric Signatures of Bayesian Inference in Discrete Dynamical Systems | JMLR | Draft complete |
 | 3 | Computational Power of Parallel Graph Rewrite Systems by Signature Complexity | Theoretical CS | Draft complete |
-| 4 | PRIMO: Primacy of Inference over Physics in the Space of Minimal Programs | TBD | Draft v6, awaiting experimental results |
+| 4 | Physical Regularity Implies Inference-Like Dynamics in Graph Rewrite Systems | TBD | Draft v7, results paper |
 
 ## License
 
