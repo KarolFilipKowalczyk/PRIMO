@@ -279,7 +279,7 @@ The PRIMO programme conjectured two claims:
 
 **(b) Equilibrium:** Physics-like behavior is the dynamical equilibrium of inference-like processes.
 
-Claim (a) is absorbed by Conjecture 1. For DPO growth rules, Φ+ → I+, so N_I^{min} ≤ N_Φ^{min} holds trivially. But strict inequality cannot be demonstrated in this setting — the first non-trivial rule (Vertex Sprouting, σ = 2) is both I-positive and Φ-positive. Testing strict inequality requires either multi-rule compositions or non-DPO program enumeration.
+Claim (a) is absorbed by Conjecture 1. For DPO growth rules, Φ+ → I+, so N_I^{min} ≤ N_Φ^{min} holds trivially. But strict inequality cannot be demonstrated in this setting — the first non-trivial rule (Vertex Sprouting, σ = 2) is both I-positive and Φ-positive. Testing strict inequality requires either multi-rule compositions or non-DPO program enumeration. The signature level σ is a faithful proxy for program complexity: K(ρ) = Θ(σ²) for DPO rules [16, Proposition 14], so the σ-level ordering is monotone with the K(ρ)-level ordering up to the square root.
 
 Claim (b) is supported by the perturbation-response result (Proposition 2). Conjecture 1 provides the structural basis: growth plus spectral stability forces inference-like convergence. The perturbation-response shows this is not just a logical implication but an active dynamical mechanism — perturbed systems re-infer their way back to geometric equilibrium. The dose-response and clean null controls distinguish this from coincidence.
 

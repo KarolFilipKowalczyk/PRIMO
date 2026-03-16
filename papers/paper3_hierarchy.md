@@ -503,6 +503,18 @@ The interesting content of the complexity bridge is internal to the formalism: t
 
 **Corollary (Signature monotonicity).** *The sequence of minimum description lengths $|S_l(f)|$ for a fixed function $f$ is non-increasing in $l$: $|S_{l+1}(f)| \leq |S_l(f)| + C_l$. Combined with the strict separations (some functions require level $l+1$ and are not computable at level $l$), this gives a quantitative hierarchy: higher levels are strictly more expressive and every function at a lower level has a slightly longer description at the higher level.*
 
+**Proposition 14 (Description length of DPO rules).** *For any DPO rule $\rho$ at signature $\sigma \to (\sigma+1)$ in $\mathbf{Graph}_{\mathrm{inj}}$ with connected $L$ and $R$:*
+
+$$K(\rho) = \Theta(\sigma^2)$$
+
+*Specifically: (i) $K(\rho) \leq \sigma^2 + O(\sigma \log \sigma)$, and (ii) $K(\rho) \geq \sigma^2/2 - O(\sigma)$ for a positive fraction of all rules at level $\sigma$.*
+
+*Proof.* (i) Encode $\rho = (L, R, \iota)$ canonically: $\binom{\sigma}{2}$ bits for the LHS adjacency, $\binom{\sigma+1}{2}$ bits for the RHS adjacency, $\sigma \lceil\log_2(\sigma+1)\rceil$ bits for the interface map, and $O(\log \sigma)$ bits for the header. Total: $\sigma^2 + O(\sigma \log \sigma)$ bits.
+
+(ii) The number of distinct rules at level $\sigma$ satisfies $N(\sigma) \geq c(\sigma) \cdot c(\sigma+1) \cdot (\sigma+1)!$, where $c(n) = 2^{\binom{n}{2}} \cdot (1 - o(1))$ is the number of connected labeled graphs on $n$ vertices (Erdős–Rényi 1959). So $N(\sigma) \geq 2^{\sigma^2 + O(\sigma \log \sigma)}$. By a counting argument, at most $2^{B+1} - 1$ objects can have Kolmogorov complexity $\leq B$. Setting $B = \sigma^2/2 - \sigma$, we get $2^{B+1} \ll N(\sigma)$, so most rules have $K(\rho) > \sigma^2/2 - \sigma$. $\square$
+
+*Remark.* Within-level variation in $K(\rho)$ is $O(\sigma \log \sigma)$ — sub-leading compared to the $\sigma^2$ inter-level gap. This justifies stating the PRIMO conjecture [14] at the level of $\sigma$ rather than individual $K(\rho)$: the within-level variation is noise relative to the between-level signal.
+
 ### 6.4 Connections to bounded-variable logics
 
 **Static correspondence.** The LHS size $l$ corresponds to the pebble count $k$ in Immerman's $k$-pebble game. A match of $L$ in $G$ is an injection from $l$ vertices to $G$ — a "pebble placement." Two graphs are $\mathcal{L}^l_{\infty\omega}$-equivalent (Duplicator wins the $l$-pebble game) iff they agree on all subgraph counts for patterns of size $\leq l$. Since the match count $|\{m : L \hookrightarrow G\}|$ for $|V(L)| = l$ is determined by $\mathcal{L}^l_{\infty\omega}$-equivalence class (Lovász 1967; Dell–Grohe–Rattan 2018):
