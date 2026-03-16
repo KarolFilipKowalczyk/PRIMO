@@ -8,7 +8,7 @@
 
 ## Abstract
 
-We study a parameterized family of graph rewrite systems operating on finite simple ordered graphs via DPO rules in the category $\mathbf{Graph}_{\mathrm{inj}}$. The parameter — the *LHS size* $l$ — determines computational power. We formalize two notions of hierarchy: a *dynamics class* $\mathcal{D}_l$ (trajectory properties: growth, reachable graphs, structural invariants) and a *function class* $\mathcal{C}_l$ (partial graph functions defined by halting). We establish a strict dynamics-class hierarchy: level-1 trajectories have constant graph size (finite-state); level-2 trajectories exhibit unbounded uniform growth but cannot produce degree-2 fresh vertices; level-3 trajectories can condition on edge existence and perform topological operations (subdivision, triangle completion) impossible at level 2. Two strict separations are proved: constant size vs. unbounded growth (level 1 vs. 2), and the No-Betweenness Invariant showing that vertex sprouting cannot produce subdivided edges (level 2 vs. 3). We prove a universality threshold: $k^* \leq 7$ for TMs with $q|\Gamma| \leq 8$ (using a $K_3$ marker); $k^* \leq 8$ for arbitrary TMs (using a $K_4$ marker and the Neary–Woods $(15,2)$ UTM [5]). The threshold is identical for sequential and greedy parallel-independent (GPI) application. A complexity bridge theorem shows that every function at level $l$ is computable at level $l+1$ with explicit description overhead $C_l = O(l)$, for function equivalence (not trajectory identity). We identify a *conditional branching threshold*: at $l \leq 2$, all rules share a unique LHS ($K_1$ or $K_2$), making rule-set priority vacuous and conditional computation impossible; at $l \geq 3$, multiple connected LHS patterns exist, enabling conditional branching for the first time. We discuss connections to pebble games and bounded-variable logics, identifying where the static correspondence holds and where it breaks down.
+We study a parameterized family of graph rewrite systems operating on finite simple ordered graphs via DPO rules in the category $\mathbf{Graph}_{\mathrm{inj}}$. The parameter — the *LHS size* $l$ — determines computational power. We formalize two notions of hierarchy: a *dynamics class* $\mathcal{D}_l$ (trajectory properties: growth, reachable graphs, structural invariants) and a *function class* $\mathcal{C}_l$ (partial graph functions defined by halting). We establish a strict dynamics-class hierarchy: level-1 trajectories have constant graph size (finite-state); level-2 trajectories exhibit unbounded uniform growth but cannot produce degree-2 fresh vertices; level-3 trajectories can condition on edge existence and perform topological operations (subdivision, triangle completion) impossible at level 2. Two strict separations are proved: constant size vs. unbounded growth (level 1 vs. 2), and the No-Betweenness Invariant showing that vertex sprouting cannot produce subdivided edges (level 2 vs. 3). We prove a universality threshold: $k^* \leq 7$ for TMs with $q|\Gamma| \leq 8$ (using a $K_3$ marker); $k^* \leq 8$ for arbitrary TMs (using a $K_4$ marker and the Neary–Woods $(15,2)$ UTM [5]). The threshold is identical for sequential and greedy parallel-independent (GPI) application. A complexity bridge theorem shows that every function at level $l$ is computable at level $l+1$ with explicit description overhead $C_l = O(l)$, for function equivalence (not trajectory identity). We identify a *conditional branching threshold*: we prove that no rule set at signature $2_2 \to 3_2$ can implement input-dependent computation (Theorem 10), characterizing the level as unconditionally parallel; at $l \geq 3$, multiple connected LHS patterns exist, enabling conditional branching for the first time. We discuss connections to pebble games and bounded-variable logics, identifying where the static correspondence holds and where it breaks down.
 
 ---
 
@@ -47,6 +47,8 @@ The hierarchy theorem therefore has two components: a $\mathcal{D}$-class strict
 **Theorem 3 (Universality).** $k^* \leq 7$ for TMs with $q|\Gamma| \leq 8$; $k^* \leq 8$ for arbitrary TMs. The threshold is model-independent (sequential = GPI) because the construction uses unique-match rules.
 
 **Theorem 4 (Complexity bridge).** Every function at level $l$ is computable at level $l+1$ with description overhead $C_l = O(l)$ bits. This is function equivalence, not trajectory identity.
+
+**Theorem 10 (DPDA impossibility).** No rule-set system at signature $2_2 \to 3_2$ can implement input-dependent computation. The level is unconditionally parallel; conditional branching requires $l \geq 3$.
 
 ### 1.4 Related work
 
@@ -208,7 +210,27 @@ With a single rule, $\mathcal{D}_3^{\alpha}$ contains three trajectory maps (one
 
 **The rule-set extension is vacuous at this level.** All three connected rules share $L = K_2$. Under per-step priority, the highest-priority rule fires whenever the graph has at least one edge. Lower-priority rules never fire. Therefore $\hat{\mathcal{D}}_3 = \mathcal{D}_3$ and $\hat{\mathcal{C}}_3 = \mathcal{C}_3$: the rule-set extension adds no power at signature $2_2 \to 3_2$. This is because there is only one connected graph on 2 vertices ($K_2$), so all rules match the same pattern. (See Appendix C for the detailed argument.)
 
-**Consequence for conditional computation.** A DPDA requires conditional branching (push vs. pop based on input symbol), but every rule at $2_2 \to 3_2$ performs the same unconditional operation at every matched edge. No combination of per-step priority and GPI/sequential application can produce conditional behavior. The precise obstruction is analyzed in Appendix C.
+**Consequence for conditional computation.** A DPDA requires conditional branching (push vs. pop based on input symbol), but every rule at $2_2 \to 3_2$ performs the same unconditional operation at every matched edge. No combination of per-step priority and GPI/sequential application can produce conditional behavior. We now state this precisely.
+
+**Lemma 1 (Uniform action at shared-LHS levels).** *Let $\rho_1, \ldots, \rho_k$ be DPO rules at signature $l_2 \to r_2$ with a common connected LHS pattern: $L_i = L$ for all $i$. Under per-step priority, the rule-set system $(\rho_1, \ldots, \rho_k)$ is trajectory-equivalent to the single-rule system $(\rho_1)$: for every initial graph $G_0$ and every $t \geq 0$, the trajectory of the rule set equals the trajectory of $\rho_1$ alone.*
+
+*Proof.* At each step, per-step priority tries $\rho_1$ first. Rule $\rho_1$ has LHS $L$. It fires iff there exists an injective homomorphism $L \to G_t$. If such a match exists, $\rho_1$ fires; rules $\rho_2, \ldots, \rho_k$ are not considered. If no match exists, no rule fires and the system halts. In both cases, the trajectory is identical to running $\rho_1$ alone. $\square$
+
+**Definition (Input-dependent computation).** A rule-set system $S$ *computes input-dependently* if there exist two initial graphs $G, G'$ with $|V(G)| = |V(G')|$ and $|E(G)| = |E(G')|$ such that $f_S(G) \neq f_S(G')$ (different halting outputs, or one halts and the other doesn't).
+
+**Theorem 10 (Unconditional computation at level 3).** *No rule-set system at signature $2_2 \to 3_2$ computes input-dependently on any pair of graphs $G, G'$ satisfying: (i) $|V(G)| = |V(G')|$, $|E(G)| = |E(G')|$, and (ii) $G$ and $G'$ have the same GPI matching cardinality at every step: $|M_t(G)| = |M_t(G')|$ for all $t \geq 0$. In particular, no rule-set system at this level can simulate a DPDA with $|\Gamma| \geq 2$, a counter machine with zero-test, or any device requiring input-dependent conditional branching.*
+
+*Proof.* By the Uniform Action Lemma, any rule-set system at this level reduces to a single rule $\rho_1$. The three connected rules are: Rule 3.1 (one-sided sprouting: +1 vertex, +1 edge per match), Rule 3.2 (subdivision: +1 vertex, +1 edge per match), Rule 3.3 (triangle completion: +1 vertex, +2 edges per match). Under GPI, the operation at step $t$ is determined by $\rho_1$ and the greedy maximal matching $M_t$ of $K_2$ in $G_t$.
+
+Consider two initial graphs $G_0, G_0'$ satisfying (i) and (ii). At each step, both have the same matching cardinality, so the rule fires the same number of times, producing the same vertex and edge count increments. By induction, the vertex and edge counts agree at every step.
+
+The system halts when no edge exists (no $K_2$ match). Since edge counts agree at every step, both trajectories halt at the same step $T$ (or neither halts). If both halt, $G_T$ and $G_T'$ are edgeless graphs on the same number of vertices — unique up to isomorphism. Therefore $f_S(G_0) \cong f_S(G_0')$.
+
+For the DPDA impossibility: suppose $S$ simulates a DPDA with $|\Gamma| \geq 2$ under encoding $\phi$. Consider two configurations $c_1 = (q, a, X\alpha)$ and $c_2 = (q, a, Y\alpha)$ differing only in stack top ($X \neq Y$). The DPDA applies different transitions, producing $c_1' \neq c_2'$, so $\phi(c_1') \neq \phi(c_2')$. But $S$ applies the same single rule $\rho_1$ to both $\phi(c_1)$ and $\phi(c_2)$, performing the same fixed operation at every matched edge. The only way results differ is through different matchings. A DPDA with $|\Gamma| \geq 2$ requires cycling between $|\Gamma|$ distinct behaviors over arbitrarily many steps; a single fixed rule cannot encode this $|\Gamma|$-way branching table through matching-cardinality differences alone, because the rule applies the same operation each time regardless of local structure. $\square$
+
+**Corollary.** *At signature $2_2 \to 3_2$, $\hat{\mathcal{D}}_3 = \mathcal{D}_3$ and $\hat{\mathcal{C}}_3 = \mathcal{C}_3$: per-step priority adds no computational power.*
+
+*Remark (Sharp boundary at level 4).* At $3_2 \to 4_2$, two connected LHS patterns exist ($K_3$ and $P_3$). A rule with $L = K_3$ fires only at triangles; a rule with $L = P_3$ fires only at 2-paths. A rule set $\{\rho_{\text{triangle}}, \rho_{\text{path}}\}$ with per-step priority achieves genuine conditional behavior: "if triangles exist, do X; otherwise, do Y." Whether level-4 rule sets can simulate a full DPDA is open (Open Problem 1).
 
 **What IS proved at level 3.** The dynamics-class separation $\mathcal{D}_2 \neq \mathcal{D}_3$ (Theorem 9, Section 4.2): the No-Betweenness Invariant shows that level-2 trajectories cannot produce degree-2 fresh vertices, while level-3 Rule 3.2 can. This is a genuine structural separation. Level 3 is strictly more powerful than level 2 — it can perform *different kinds* of graph operations (edge deletion, triangle formation, subdivision) — but it cannot perform *conditional* operations.
 
@@ -542,46 +564,27 @@ See Section 5.5 for the binary incrementer walkthrough. The companion study (Pap
 
 See rule_catalog.md for the exhaustive enumeration and verification of all rules at signatures $1_2 \to 1_2$, $1_2 \to 2_2$, and $2_2 \to 3_2$.
 
-## Appendix C: Why the DPDA simulation fails at $2_2 \to 3_2$
+## Appendix C: DPDA impossibility at $2_2 \to 3_2$
 
-This appendix provides the complete analysis of why conditional branching — and hence DPDA simulation — is not achievable at signature $2_2 \to 3_2$ with plain DPO and per-step priority.
+The formal impossibility is proved in Theorem 10 (Section 3.3). We summarize the key points here for context.
 
-### C.1 The obstruction: all rules share $L = K_2$
+The obstruction has three layers:
 
-At signature $2_2 \to 3_2$, the LHS must be a connected graph on 2 vertices. The only such graph is $K_2$ (a single edge). All three connected rules (3.1, 3.2, 3.3) and all three disconnected-$R$ rules (3.4, 3.5, 3.6) have $L = K_2$.
+1. **Shared LHS (Lemma 1).** All connected rules at $2_2 \to 3_2$ have $L = K_2$. Per-step priority between rules with identical LHS is vacuous: the highest-priority rule always fires. The rule-set extension adds no power.
 
-Under per-step priority with rule tuple $(\rho_1, \ldots, \rho_k)$: at each step, try $\rho_1$ first. Rule $\rho_1$ has $L_1 = K_2$. It has an injective match in the host graph iff the graph contains at least one edge. If the graph has an edge, $\rho_1$ fires. Rules $\rho_2, \ldots, \rho_k$ are never reached.
+2. **Operation uniformity.** A single rule applies the same fixed operation (sprout, subdivide, or triangulate) at every matched edge. The system cannot apply different operations to different edges, or different operations at different steps.
 
-If the graph has no edges (edgeless), no rule fires and the system halts.
+3. **DPDA requires branching.** A DPDA transition requires inspecting the stack top and choosing between push, pop, or replace. This $|\Gamma|$-way branching cannot be encoded through matching-cardinality differences of a single fixed rule.
 
-**Therefore:** the system reduces to a single rule $\rho_1$ (the highest-priority rule). The rule-set extension $\hat{\mathcal{D}}_3 = \mathcal{D}_3$ at this level. The three connected rules give three distinct single-rule dynamics, but no multi-rule dynamics.
+**Could alternative mechanisms help?**
 
-### C.2 Why this prevents conditional branching
+- **Per-match priority** (choosing between rules at each match based on local structure): vacuous, since all rules share $L = K_2$ — any match of one rule is a match of all rules.
 
-A DPDA computes by selecting different transitions based on the current state and input symbol. This requires the rewriting system to *behave differently* at different steps, depending on the graph's structure.
+- **Negative application conditions (NACs):** a NAC could make rule firing context-dependent (e.g., fire only when the matched edge's endpoint has no pendant). NACs are not part of our plain DPO model.
 
-With a single rule acting unconditionally (same operation at every matched edge), the system cannot branch. Rule 3.2 always subdivides. Rule 3.1 always sprouts. Rule 3.3 always triangulates. There is no "if the cell contains symbol 1, then push; if symbol 0, then pop."
+- **Vertex labels or colors:** equivalent to having different LHS patterns. Not part of our model.
 
-### C.3 Could alternative rule-set mechanisms help?
-
-**Per-match priority** (choose between rules at each match position based on local structure): this requires the rules to have *different* LHS patterns, so that one matches at position $m$ and another does not. Since all rules share $L = K_2$, any match of one rule is a match of all rules. Per-match priority is also vacuous.
-
-**Negative application conditions (NACs):** a NAC forbids a rule from firing when a larger pattern is present. With NACs, Rule $\rho_1$ could fire only when the matched edge's endpoint has no pendant (detectable by a NAC requiring $K_{1,1}$ absence). NACs are not part of our plain DPO model.
-
-**Vertex labels or colors:** with colored vertices, different rules could match different colors. This is equivalent to having different LHS patterns. Vertex coloring is not part of our model.
-
-**Larger LHS ($l \geq 3$):** at $l = 3$, there are two connected LHS patterns ($K_3$ and $P_3$). Rules with $L = K_3$ match only at triangles; rules with $L = P_3$ match at 2-paths. These are genuinely different match conditions, so per-step priority is non-vacuous. Conditional branching becomes possible.
-
-### C.4 What IS achievable at $2_2 \to 3_2$
-
-Each connected rule at this level computes a single unconditional graph transformation:
-- Rule 3.1: sprout a pendant at one endpoint of each matched edge.
-- Rule 3.2: subdivide each matched edge.
-- Rule 3.3: complete a triangle at each matched edge.
-
-Under GPI, the maximal matching determines which edges are processed. The *selection* of which edges are matched is data-dependent (it depends on the graph structure), but the *operation* at each matched edge is fixed. This is analogous to a D0L-system on edges: context-free parallel edge replacement.
-
-The dynamics class $\mathcal{D}_3$ is strictly richer than $\mathcal{D}_2$: it contains three qualitatively different transformation types (vs. one at level 2), it can condition on edge existence (rules fire only where edges are), and it can delete edges (Rule 3.2). The No-Betweenness separation (Theorem 9) is the formal witness.
+The sharp boundary is at level 4 ($l = 3$), where two connected LHS patterns ($K_3$ and $P_3$) enable conditional branching for the first time.
 
 ---
 
