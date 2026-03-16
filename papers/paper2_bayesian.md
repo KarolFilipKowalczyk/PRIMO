@@ -1,7 +1,7 @@
 # Geometric Signatures of Bayesian Inference in Discrete Dynamical Systems
 
 **Karol**
-AIRON Games / Faculty of Mathematics, Informatics and Mechanics, University of Warsaw
+AIRON Games
 
 March 2026
 

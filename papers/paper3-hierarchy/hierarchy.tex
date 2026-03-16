@@ -1,0 +1,756 @@
+\documentclass{../shared/primo}
+\usepackage{../shared/primo-macros}
+
+\title{Computational Power of Parallel Graph Rewrite Systems\\by Signature Complexity}
+\shorttitle{Computational Power by Signature Complexity}
+\author{Karol Filip Kowalczyk}
+\affiliation{AIRON Games}
+\email{k.kowalczyk@airon.games}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study a parameterized family of graph rewrite systems operating on finite simple ordered graphs via DPO rules in the category $\Graphinj$. The parameter---the \emph{LHS size} $l$---determines computational power. We formalize two notions of hierarchy: a \emph{dynamics class} $\Dclass{l}$ (trajectory properties: growth, reachable graphs, structural invariants) and a \emph{function class} $\Cclass{l}$ (partial graph functions defined by halting). We establish a strict dynamics-class hierarchy: level-1 trajectories have constant graph size (finite-state); level-2 trajectories exhibit unbounded uniform growth but cannot produce degree-2 fresh vertices; level-3 trajectories can condition on edge existence and perform topological operations (subdivision, triangle completion) impossible at level~2. Two strict separations are proved: constant size vs.\ unbounded growth (level~1 vs.~2), and the No-Betweenness Invariant showing that vertex sprouting cannot produce subdivided edges (level~2 vs.~3). We prove a universality threshold: $\kstar \leq 7$ for TMs with $q|\Gamma| \leq 8$ (using a $\Kn{3}$ marker); $\kstar \leq 8$ for arbitrary TMs (using a $\Kn{4}$ marker and the Neary--Woods $(15,2)$ UTM~\cite{neary2009four}). The threshold is identical for sequential and greedy parallel-independent (GPI) application. A complexity bridge theorem shows that every function at level $l$ is computable at level $l+1$ with explicit description overhead $C_l = O(l)$, for function equivalence (not trajectory identity). We identify a \emph{conditional branching threshold}: we prove that no rule set at signature $2_2 \to 3_2$ can implement input-dependent computation (Theorem~\ref{thm:unconditional}), characterizing the level as unconditionally parallel; at $l \geq 3$, multiple connected LHS patterns exist, enabling conditional branching for the first time. We discuss connections to pebble games and bounded-variable logics, identifying where the static correspondence holds and where it breaks down.
+\end{abstract}
+
+%% ═══════════════════════════════════════════════════════
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{The question}
+
+How does the computational power of a graph rewriting system depend on the size of its rewrite rules? We formalize this question for DPO rules on finite simple ordered graphs, with two application models (sequential and greedy parallel-independent), and give precise answers.
+
+\subsection{Conceptual framing: dynamical systems vs.\ computing devices}
+
+Before stating results, we resolve a foundational question. A single rule $\rho$ applied iteratively from a fixed initial graph $G_0$ produces a single deterministic trajectory. This is a dynamical system. To obtain a hierarchy of computational classes, we formalize two notions.
+
+\textbf{Function class.} A system $\mathcal{S} = (\rho, \alpha)$ computes a partial function $f_{\mathcal{S}}: \mathcal{G} \rightharpoonup \mathcal{G}$:
+\[
+f_{\mathcal{S}}(G_0) = \begin{cases} G_T & \text{if the trajectory reaches a fixed point } G_T = G_{T+1}, \\ \bot & \text{otherwise.} \end{cases}
+\]
+The \emph{function class at level $l$} is $\Cclass{l}^{\alpha} = \{f_{\mathcal{S}} : \mathcal{S} \text{ has LHS size } l\}$.
+
+\textbf{Dynamics class.} The system $\mathcal{S}$ generates a trajectory map $\tau_{\mathcal{S}}: \mathcal{G} \to \mathcal{G}^{\omega}$ sending each initial graph to its (possibly infinite) trajectory. The \emph{dynamics class at level $l$} is $\Dclass{l}^{\alpha} = \{\tau_{\mathcal{S}} : \mathcal{S} \text{ has LHS size } l\}$. Trajectory properties---growth rates, periodicity, reachable graph families---are $\Dclass{l}$ properties.
+
+\textbf{Why both are needed.} At level~1, $\Cclass{1} = \{\text{id}\}$ (every graph is an immediate fixed point). At level~2, $\Cclass{2} = \{\bot\}$ (vertex sprouting never halts). The hierarchy between $\{\text{id}\}$ and $\{\bot\}$ is not informative. But $\Dclass{1}$ trajectories have constant graph size, while $\Dclass{2}$ trajectories exhibit unbounded growth---a genuine separation. Conversely, at the universality threshold, $\Cclass{\kstar}$ contains all Turing-computable graph functions---a function-class result.
+
+The hierarchy theorem therefore has two components: a $\mathcal{D}$-class strict hierarchy at all levels (by invariant arguments on trajectories), and a $\mathcal{C}$-class hierarchy at and above the universality threshold.
+
+\textbf{Rule-set extension.} We allow a \emph{finite ordered tuple} of rules $(\rho_1, \ldots, \rho_k)$ at a given signature level, with \emph{per-step priority}: at each step, apply the first rule $\rho_i$ (in the fixed ordering) that has at least one injective match in the current graph. That rule is applied under the chosen model (sequential or GPI). Lower-priority rules are not considered at that step. If no rule has a match, the system halts. Write $\Dhat{l}^{\alpha}$ and $\Chat{l}^{\alpha}$ for the extended classes.
+
+\textbf{Critical observation.} At signature $l_2 \to (l{+}1)_2$, if there is only one connected graph on $l$ vertices (which is the case for $l = 1$: $\Kn{1}$, and $l = 2$: $\Kn{2}$), then all rules at this level share the same LHS\@. Per-step priority between rules with identical LHS is vacuous: the highest-priority rule always fires whenever the graph contains a copy of~$L$. Therefore $\Chat{l} = \Cclass{l}$ and $\Dhat{l} = \Dclass{l}$ at levels~1 and~2. At level~3 ($l = 3$), there are two connected graphs on 3~vertices ($\Kn{3}$ and $\Pn{3}$), so rules can have different LHS patterns, and the rule-set extension genuinely adds power. See \cref{sec:level3} and \cref{app:dpda}.
+
+\subsection{Results}
+
+\begin{theorem}[Hierarchy]\label{thm:hierarchy}
+The dynamics class at each LHS size $l$ (with $r = l + 1$) forms a strict hierarchy. Adjacent levels are strictly separated.
+\end{theorem}
+
+\begin{theorem}[Strict separations]\label{thm:separations}
+Unbounded growth separates $\Dclass{1}$ from $\Dclass{2}$. Edge subdivision separates $\Dclass{2}$ from $\Dclass{3}$ (proved via a graph-theoretic invariant).
+\end{theorem}
+
+\begin{theorem}[Universality]\label{thm:universality}
+$\kstar \leq 7$ for TMs with $q|\Gamma| \leq 8$; $\kstar \leq 8$ for arbitrary TMs. The threshold is model-independent (sequential $=$ GPI) because the construction uses unique-match rules.
+\end{theorem}
+
+\begin{theorem}[Complexity bridge]\label{thm:bridge}
+Every function at level $l$ is computable at level $l+1$ with description overhead $C_l = O(l)$ bits. This is function equivalence, not trajectory identity.
+\end{theorem}
+
+\begin{theorem}[Unconditional computation at level~3]\label{thm:unconditional}
+No rule-set system at signature $2_2 \to 3_2$ can implement input-dependent computation. The level is unconditionally parallel; conditional branching requires $l \geq 3$.
+\end{theorem}
+
+\subsection{Related work}
+
+\textbf{Graph transformation.} Our model is a restriction of the DPO approach (Ehrig, Ehrig, Prange, Taentzer 2006) to simple undirected graphs with fixed signature. We use the standard formalism and notation from \emph{Fundamentals of Algebraic Graph Transformation}~\cite{ehrig2006fundamentals} throughout.
+
+\textbf{L-systems.} Our level-1 (context-free vertex replacement) is the graph-theoretic analogue of D0L-systems~\cite{rozenberg1980mathematical}. Level~2 (edge-conditioned) introduces context-sensitivity analogous to IL-systems. The rule-set extension corresponds to DT0L.
+
+\textbf{MSO-definable transductions (Courcelle).} Matching a fixed $k$-vertex pattern is first-order definable. Selecting a maximal independent match set is MSO-definable. The iterated application of an MSO-definable transduction gives a natural upper bound on our formalism's power. For bounded-treewidth graphs, Courcelle's theorem~\cite{courcelle1990monadic,courcelle2012graph} implies decidability of MSO-definable properties, which constrains what our rules can decide on such graphs.
+
+\textbf{Pebble games and finite model theory.} The LHS vertex count plays a role analogous to the pebble count in Immerman's $k$-pebble game~\cite{immerman1982upper}. We make the correspondence precise in \cref{sec:logic} (static case) and identify where it breaks down (dynamic case).
+
+\textbf{Small UTMs.} The universality construction uses the Neary--Woods $(15,2)$ UTM~\cite{neary2009four}, a standard-model universal Turing machine with 15~states and 2~symbols.
+
+\subsection{Organization}
+
+\Cref{sec:defs}: Formal model. \Cref{sec:lower}: Lower hierarchy levels. \Cref{sec:separations}: Separations. \Cref{sec:universality}: Universality. \Cref{sec:bridge}: Complexity bridge and logic. \Cref{sec:illustration}: Illustration. \Cref{sec:open}: Open problems.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Definitions}
+\label{sec:defs}
+
+\subsection{Ordered graphs}
+
+A \emph{graph} is a pair $G = (V, E)$ where $V \subset \mathbb{N}$ is a finite set of vertices carrying the canonical total order inherited from $\mathbb{N}$, and $E \subseteq \binom{V}{2}$ is a set of undirected edges (no loops, no parallel edges). Write $\mathcal{G}$ for the class of all such graphs.
+
+\textbf{On labels and ordering.} Our graphs carry an order on vertices. This is necessary for the deterministic tie-breaking in both application models (sequential and GPI). The order is not a ``label'' in the graph-grammar sense (it carries no semantic content beyond determining the evaluation schedule), but it does affect trajectories: different orderings on the same abstract graph may produce different GPI trajectories. We note this explicitly:
+
+\textbf{Convention.} All results about the \emph{computational class} at a given level (i.e., the set of computable graph functions) are stated for the canonical ordering. We do not claim that the results are independent of ordering choice; this independence is an open question for GPI (and is trivially true for sequential application when all matches of $L$ in $G$ are automorphic, which holds at $1_2 \to 2_2$).
+
+\subsection{Signatures and the restriction \texorpdfstring{$r = l+1$}{r = l+1}}
+
+A \emph{signature} is a pair $(l, r)$ with $1 \leq l \leq r$. The hierarchy is indexed by $l$ alone, with $r = l + 1$ fixed. This restriction is justified:
+
+\begin{proposition}[Justification of $r = l+1$]\label{prop:rl1}
+\leavevmode
+\begin{enumerate}
+\item[\textup{(i)}] \emph{$r = l$ (no fresh vertices).} A rule with $r = l$ adds no new vertices. Since it also cannot delete vertices (see \cref{sec:application}), $|V(G_t)| = |V(G_0)|$ for all $t$. The state space is $2^{\binom{n}{2}}$ (the set of all graphs on $n$ vertices), which is finite. The system is a finite automaton regardless of $l$. Thus all levels with $r = l$ collapse to finite-state, making the parameter $l$ irrelevant.
+\item[\textup{(ii)}] \emph{$r = l + j$ for $j \geq 2$ (multiple fresh vertices per match).} The computational power is dominated by the LHS size $l$ (which controls the bandwidth of information the rule \emph{reads}), not the number of fresh vertices $j = r - l$ (which controls the bandwidth of information the rule \emph{writes}). Formally: any rule at signature $l_2 \to (l{+}j)_2$ can be decomposed into $j$ sequential applications of rules at signature $l_2 \to (l{+}1)_2$ (each adding one fresh vertex), provided the intermediate rules are chosen appropriately.
+\end{enumerate}
+\end{proposition}
+
+\textbf{What is genuinely lost.} At a fixed level $l$, rules with $r = l + 2$ can create \emph{two} fresh vertices per match, which may allow more complex \emph{single-step} operations (e.g., inserting a path of length~2 in one step rather than two). This affects the efficiency (number of steps) but not the computational class (set of computable functions). A formal proof of this for all~$l$ is deferred to future work; for the specific levels we analyze ($l = 1, 2$), the claim is verified directly.
+
+\subsection{Rewrite rules (DPO formalism)}
+
+We use the standard Double Pushout (DPO) approach in the category $\Graphinj$ of graphs with injective morphisms~\cite{ehrig2006fundamentals}.
+
+A \emph{rewrite rule} is a span $\rho: L \xleftarrow{l_K} K \xrightarrow{r_K} R$ where $L$, $K$, $R$ are graphs and $l_K$, $r_K$ are injective graph morphisms. The graph $K$ is the \emph{interface}: it specifies which parts of $L$ are preserved in $R$.
+
+\textbf{Our restriction.} In this paper, $l_K$ is always a bijection on vertices: $V(K) = V(L)$ (equivalently, $l_K$ is the inclusion---all LHS vertices are in the interface). This means:
+\begin{itemize}
+\item \textbf{No vertex deletion.} Every vertex of $L$ is preserved in $R$. Vertices may only be added ($|V(R)| \geq |V(L)|$).
+\item \textbf{Edge deletion is possible.} An edge $(u,v) \in E(L)$ is deleted if $(r_K(l_K^{-1}(u)), r_K(l_K^{-1}(v))) \notin E(R)$.
+\item \textbf{Edge creation is possible.} An edge in $R$ between preserved vertices (not corresponding to an $L$-edge) or involving a fresh vertex is created.
+\end{itemize}
+
+We may therefore represent a rule equivalently as a triple $\rho = (L, R, \iota)$ where $\iota = r_K \circ l_K^{-1}: V(L) \hookrightarrow V(R)$ is the injective interface map. This is the notation used in the rest of the paper.
+
+\subsection{Rule application}
+\label{sec:application}
+
+Given rule $\rho = (L \leftarrow K \rightarrow R)$, host graph $G$, and injective match $m: L \hookrightarrow G$, the DPO application constructs:
+\[
+\begin{array}{ccccc}
+L & \xleftarrow{l_K} & K & \xrightarrow{r_K} & R \\
+\downarrow^{m} & & \downarrow^{m_K} & & \downarrow^{m_R} \\
+G & \xleftarrow{} & D & \xrightarrow{} & H
+\end{array}
+\]
+where $D$ is the pushout complement and $H$ is the pushout (result graph).
+
+\begin{proposition}[Application conditions are vacuous]\label{prop:vacuous}
+Under our restriction ($l_K$ bijective on vertices, $m$ injective):
+\begin{enumerate}
+\item[\textup{(i)}] The dangling condition is vacuously satisfied. Since $V(K) = V(L)$, we have $m(V(L)) \setminus m(V(K)) = \emptyset$.
+\item[\textup{(ii)}] The identification condition is vacuously satisfied. Since $m$ is injective, no merging occurs.
+\item[\textup{(iii)}] Consequently, the pushout complement $D$ always exists. DPO application is always defined for any injective match of our rules.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+Direct from the definitions. See \cite{ehrig2006fundamentals}, Theorem~3.11.
+\end{proof}
+
+\begin{remark}[No vertex deletion]
+The graph can only grow or stay the same in vertex count. For the universality construction, this is not a limitation: TM simulation requires moving a head marker by \emph{rewiring edges}, not by deleting and recreating vertices. The vertex count grows monotonically (one fresh vertex per step at the head position, used as workspace). We verify this explicitly in \cref{sec:universality}.
+\end{remark}
+
+\subsection{Application models}
+
+\begin{definition}[Sequential step]
+Given $G$, $\rho$, select the lexicographically first injective match $m: L \hookrightarrow G$ (ordering matches by the tuple $(m(v_1), \ldots, m(v_l))$ in the canonical vertex order of $L$). Apply $\rho$ at $m$. If no match exists, $G' = G$.
+\end{definition}
+
+\begin{definition}[GPI step]\label{def:gpi}
+Enumerate all injective matches of $L$ in $G$ in lexicographic order. Greedily select: include $m_i$ if $m_i(V(L)) \cap \bigcup_{j < i, m_j \text{ selected}} m_j(V(L)) = \emptyset$. Apply $\rho$ simultaneously at all selected matches. By \cref{prop:vacuous}, all applications are well-defined. By vertex-disjointness, the applications are parallel-independent (in the sense of DPO theory: the pushout complements and pushouts commute).
+\end{definition}
+
+\textbf{Notation.} $G \xrightarrow{\rho}_{\text{seq}} G'$ and $G \xrightarrow{\rho}_{\text{GPI}} G'$.
+
+\subsection{Graph functions, dynamics, and computational classes}
+
+\begin{definition}[Graph function]
+A system $\mathcal{S} = (\rho, \alpha)$ computes the partial graph function $f_{\mathcal{S}}: \mathcal{G} \rightharpoonup \mathcal{G}$ defined by: $f_{\mathcal{S}}(G_0) = G_T$ if the trajectory reaches a fixed point $G_T = G_{T+1}$; $f_{\mathcal{S}}(G_0) = \bot$ otherwise.
+\end{definition}
+
+\begin{definition}[Trajectory map]
+$\tau_{\mathcal{S}}: \mathcal{G} \to \mathcal{G}^{\omega}$ sends $G_0$ to the sequence $(G_0, G_1, G_2, \ldots)$.
+\end{definition}
+
+\begin{definition}[Classes]
+$\Cclass{l}^{\alpha} = \{f_{\mathcal{S}} : \mathcal{S} \text{ at level } l\}$ (function class). $\Dclass{l}^{\alpha} = \{\tau_{\mathcal{S}} : \mathcal{S} \text{ at level } l\}$ (dynamics class). Extended classes $\Chat{l}^{\alpha}$, $\Dhat{l}^{\alpha}$ use rule sets with per-step priority.
+\end{definition}
+
+\subsection{Sequential--GPI relationship}
+
+\begin{proposition}\label{prop:seqgpi}
+\leavevmode
+\begin{enumerate}
+\item[\textup{(i)}] \emph{Unique-match agreement.} If $|\mathcal{M}_t| = 1$ at every step, sequential and GPI trajectories coincide.
+\item[\textup{(ii)}] \emph{GPI advantage.} For some $(\rho, G_0)$, GPI reaches graphs unreachable by sequential. Example: vertex sprouting on $\Kn{2}$ (\cref{sec:level2}).
+\item[\textup{(iii)}] \emph{Identical $\kstar$.} The universality construction uses unique-match rules. Hence $\kstar$ is model-independent.
+\end{enumerate}
+\end{proposition}
+
+\begin{proof}
+(i)~Trivial: the greedy selection of a single match equals the first match. (ii)~Vertex sprouting on $\Kn{2}$: sequential sprouts at vertex~0 only ($\Pn{3}$); GPI sprouts at both ($\Kn{2}$ plus two pendants). These are non-isomorphic. (iii)~Follows from~(i) and the construction in \cref{sec:universality}.
+\end{proof}
+
+\subsection{Rule catalog}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lrl}
+\toprule
+Signature & Connected $R$ & Rules \\
+\midrule
+$1_2 \to 1_2$ & 1 & Identity (trivial) \\
+$1_2 \to 2_2$ & 1 & Vertex sprouting \\
+$2_2 \to 3_2$ & 3 & One-sided sprouting; Subdivision; Triangle completion \\
+\bottomrule
+\end{tabular}
+\caption{Connected rules at the first three signature levels.}
+\label{tab:catalog}
+\end{table}
+
+If $R$-connectivity is dropped: 1, 2, and 6 rules respectively. See \cref{app:catalog} for the exhaustive catalog.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Lower levels of the hierarchy}
+\label{sec:lower}
+
+\subsection{Level 1: finite-state}
+\label{sec:level1}
+
+\begin{theorem}\label{thm:level1}
+$\Cclass{1}^{\alpha}$ consists entirely of finite-state graph functions (for either~$\alpha$). That is, the trajectory is eventually periodic, with period and transient bounded by $2^{\binom{n}{2}}$ where $n = |V(G_0)|$.
+\end{theorem}
+
+\begin{proof}
+At signature $1_2 \to 1_2$, $l = r = 1$, so no fresh vertices are created and no vertices are deleted. Hence $|V(G_t)| = |V(G_0)| = n$ for all~$t$. The system evolves on the finite state space of all simple graphs on vertex set $V(G_0)$ (which has $2^{\binom{n}{2}}$ elements). Since the dynamics is a deterministic function on a finite set, the trajectory is eventually periodic.
+
+In fact, at this signature the only connected $L$ and $R$ are $\Kn{1}$ (the isolated vertex), and the only interface map is the identity. The rule is trivially the identity: $G_t = G_0$ for all~$t$. Every graph is a fixed point. The computational class $\Cclass{1}^{\alpha}$ is therefore the singleton $\{\text{id}\}$.
+\end{proof}
+
+\begin{remark}
+The class $\Chat{1}^{\alpha}$ (rule sets) is also finite-state, since rule sets at $1_2 \to 1_2$ are all identity rules (with $R$ connected). The level is computationally trivial regardless of extension.
+\end{remark}
+
+\subsection{Level 2: the single context-free rule}
+\label{sec:level2}
+
+\begin{theorem}\label{thm:level2}
+The class $\Cclass{2}^{\textup{GPI}}$ (single connected rule at $1_2 \to 2_2$) is the singleton $\{$vertex-sprouting function$\}$. Under GPI, the function maps $G_0$ to the unique trajectory $(G_0, G_1, G_2, \ldots)$ where $G_{t+1}$ is obtained by attaching a fresh pendant to every vertex of $G_t$. This trajectory never reaches a fixed point: $f_\mathcal{S}(G_0) = \bot$ for all $G_0$. Under sequential application, $f_\mathcal{S}(G_0) = \bot$ likewise.
+\end{theorem}
+
+\begin{proof}
+There is exactly one connected rule at $1_2 \to 2_2$: $L = \Kn{1}$, $R = \Kn{2}$, $\iota(0) = 0$. This matches every vertex (every graph contains $\Kn{1}$). Under GPI, all vertices are matched simultaneously (single-vertex matches are always vertex-disjoint). Each matched vertex sprouts a pendant. The graph grows at every step: $|V(G_{t+1})| > |V(G_t)|$. No fixed point is ever reached.
+
+Under sequential application: one vertex sprouts per step. Again, $|V(G_{t+1})| = |V(G_t)| + 1$. No fixed point. Since there is only one rule, $\Cclass{2}^{\alpha} = \{f_{\text{sprout}}\}$ where $f_{\text{sprout}}$ is everywhere undefined (divergent).
+\end{proof}
+
+\textbf{The generation invariant.} Define the \emph{generation} of a vertex~$v$: $\text{gen}(v) = 0$ if $v \in V(G_0)$; $\text{gen}(v) = t$ if $v$ was created at step~$t$. Under GPI sprouting:
+
+\begin{proposition}[Structural invariant]\label{prop:structural}
+The graph $G_t$ is determined up to isomorphism by $G_0$ and $t$. Every generation-$t$ vertex is a pendant attached to exactly one vertex of generation $< t$. The generation structure forms a forest: each vertex of generation $\geq 1$ has exactly one parent of lower generation.
+\end{proposition}
+
+\begin{proof}
+Induction on $t$. At step $t$, every vertex in $G_{t-1}$ sprouts one pendant. The fresh vertices form generation $t$; each connects to exactly one parent (its match vertex). The operation is uniform, so the result depends only on the structure of $G_{t-1}$, which by induction depends only on $G_0$ and $t-1$.
+\end{proof}
+
+\subsection{Level 3: edge-conditioned computation}
+\label{sec:level3}
+
+At $2_2 \to 3_2$, $L = \Kn{2}$. Rules match edges. This is the first level with topological context: the rule fires only where edges exist, unlike level~2 which fires at every vertex.
+
+With a single rule, $\Dclass{3}^{\alpha}$ contains three trajectory maps (one per connected rule): one-sided sprouting, subdivision, and triangle completion of matched edges. Each is a single deterministic operation producing a characteristic growth pattern.
+
+\textbf{The rule-set extension is vacuous at this level.} All three connected rules share $L = \Kn{2}$. Under per-step priority, the highest-priority rule fires whenever the graph has at least one edge. Lower-priority rules never fire. Therefore $\Dhat{3} = \Dclass{3}$ and $\Chat{3} = \Cclass{3}$: the rule-set extension adds no power at signature $2_2 \to 3_2$. This is because there is only one connected graph on 2~vertices ($\Kn{2}$), so all rules match the same pattern. (See \cref{app:dpda} for the detailed argument.)
+
+\textbf{Consequence for conditional computation.} A DPDA requires conditional branching (push vs.\ pop based on input symbol), but every rule at $2_2 \to 3_2$ performs the same unconditional operation at every matched edge. No combination of per-step priority and GPI/sequential application can produce conditional behavior. We now state this precisely.
+
+\begin{lemma}[Uniform action at shared-LHS levels]\label{lem:uniform}
+Let $\rho_1, \ldots, \rho_k$ be DPO rules at signature $l_2 \to r_2$ with a common connected LHS pattern: $L_i = L$ for all~$i$. Under per-step priority, the rule-set system $(\rho_1, \ldots, \rho_k)$ is trajectory-equivalent to the single-rule system $(\rho_1)$: for every initial graph $G_0$ and every $t \geq 0$, the trajectory of the rule set equals the trajectory of $\rho_1$ alone.
+\end{lemma}
+
+\begin{proof}
+At each step, per-step priority tries $\rho_1$ first. Rule $\rho_1$ has LHS $L$. It fires iff there exists an injective homomorphism $L \to G_t$. If such a match exists, $\rho_1$ fires; rules $\rho_2, \ldots, \rho_k$ are not considered. If no match exists, no rule fires and the system halts. In both cases, the trajectory is identical to running $\rho_1$ alone.
+\end{proof}
+
+\begin{definition}[Input-dependent computation]\label{def:inputdep}
+A rule-set system $S$ \emph{computes input-dependently} if there exist two initial graphs $G, G'$ with $|V(G)| = |V(G')|$ and $|E(G)| = |E(G')|$ such that $f_S(G) \neq f_S(G')$ (different halting outputs, or one halts and the other does not).
+\end{definition}
+
+\begin{theorem}[Unconditional computation at level~3]\label{thm:unconditional-body}
+No rule-set system at signature $2_2 \to 3_2$ computes input-dependently on any pair of graphs $G, G'$ satisfying: \textup{(i)}~$|V(G)| = |V(G')|$, $|E(G)| = |E(G')|$, and \textup{(ii)}~$G$ and $G'$ have the same GPI matching cardinality at every step: $|M_t(G)| = |M_t(G')|$ for all $t \geq 0$. In particular, no rule-set system at this level can simulate a DPDA with $|\Gamma| \geq 2$, a counter machine with zero-test, or any device requiring input-dependent conditional branching.
+\end{theorem}
+
+\begin{proof}
+By the Uniform Action Lemma (\cref{lem:uniform}), any rule-set system at this level reduces to a single rule $\rho_1$. The three connected rules are: Rule~3.1 (one-sided sprouting: $+1$ vertex, $+1$ edge per match), Rule~3.2 (subdivision: $+1$ vertex, $+1$ edge per match), Rule~3.3 (triangle completion: $+1$ vertex, $+2$ edges per match). Under GPI, the operation at step~$t$ is determined by $\rho_1$ and the greedy maximal matching $M_t$ of $\Kn{2}$ in $G_t$.
+
+Consider two initial graphs $G_0, G_0'$ satisfying (i) and~(ii). At each step, both have the same matching cardinality, so the rule fires the same number of times, producing the same vertex and edge count increments. By induction, the vertex and edge counts agree at every step.
+
+The system halts when no edge exists (no $\Kn{2}$ match). Since edge counts agree at every step, both trajectories halt at the same step~$T$ (or neither halts). If both halt, $G_T$ and $G_T'$ are edgeless graphs on the same number of vertices---unique up to isomorphism. Therefore $f_S(G_0) \cong f_S(G_0')$.
+
+For the DPDA impossibility: suppose $S$ simulates a DPDA with $|\Gamma| \geq 2$ under encoding $\phi$. Consider two configurations $c_1 = (q, a, X\alpha)$ and $c_2 = (q, a, Y\alpha)$ differing only in stack top ($X \neq Y$). The DPDA applies different transitions, producing $c_1' \neq c_2'$, so $\phi(c_1') \neq \phi(c_2')$. But $S$ applies the same single rule $\rho_1$ to both $\phi(c_1)$ and $\phi(c_2)$, performing the same fixed operation at every matched edge. A DPDA with $|\Gamma| \geq 2$ requires cycling between $|\Gamma|$ distinct behaviors over arbitrarily many steps; a single fixed rule cannot encode this $|\Gamma|$-way branching table through matching-cardinality differences alone.
+\end{proof}
+
+\begin{corollary}
+At signature $2_2 \to 3_2$, $\Dhat{3} = \Dclass{3}$ and $\Chat{3} = \Cclass{3}$: per-step priority adds no computational power.
+\end{corollary}
+
+\begin{remark}[Sharp boundary at level~4]
+At $3_2 \to 4_2$, two connected LHS patterns exist ($\Kn{3}$ and $\Pn{3}$). A rule with $L = \Kn{3}$ fires only at triangles; a rule with $L = \Pn{3}$ fires only at 2-paths. A rule set $\{\rho_{\text{triangle}}, \rho_{\text{path}}\}$ with per-step priority achieves genuine conditional behavior: ``if triangles exist, do~X; otherwise, do~Y.'' Whether level-4 rule sets can simulate a full DPDA is open (Open Problem~1).
+\end{remark}
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Strict separations}
+\label{sec:separations}
+
+\subsection{Level 1 vs.\ Level 2: unbounded growth}
+
+\begin{theorem}[$\mathcal{D}$-class separation]\label{thm:sep12}
+$\Dclass{1} \neq \Dclass{2}$. Every trajectory in $\Dclass{1}$ has constant vertex count. Every trajectory in $\Dclass{2}$ from a non-empty initial graph has unbounded vertex count.
+\end{theorem}
+
+\begin{proof}
+At level~1, $|V(G_t)| = |V(G_0)|$ for all~$t$ (\cref{thm:level1}). At level~2, the trajectory from any non-empty $G_0$ satisfies $|V(G_t)| \to \infty$ (vertex sprouting adds vertices at every step). The property ``the trajectory exhibits unbounded vertex growth'' is present in $\Dclass{2}$ and absent from $\Dclass{1}$.
+\end{proof}
+
+\subsection{Level 2 vs.\ Level 3: edge subdivision}
+
+This is the substantive separation.
+
+\begin{definition}
+The \emph{one-step GPI subdivision function} $\mathrm{Sub}_1: \mathcal{G} \to \mathcal{G}$ maps $G$ to the graph obtained by applying Rule~3.2 under GPI: every edge in the greedy maximal matching is subdivided (replaced by a 2-path through a fresh vertex).
+\end{definition}
+
+\begin{theorem}[$\mathcal{D}$-class separation]\label{thm:sep23}
+$\Dclass{2} \neq \Dclass{3}$. $\mathrm{Sub}_1$ is realizable in $\Dclass{3}$ (by Rule~3.2). No trajectory in $\Dclass{2}$ from any initial graph $G_0$ with $|E(G_0)| \geq 1$ ever produces $\mathrm{Sub}_1(G_0)$.
+\end{theorem}
+
+\begin{proof}[Proof of realizability]
+Rule~3.2 at $2_2 \to 3_2$ matches an edge and subdivides it. Under GPI, a maximal matching of edges is selected; all are subdivided simultaneously. The result is $\mathrm{Sub}_1(G_0)$.
+\end{proof}
+
+\begin{proof}[Proof of impossibility at level~2]
+We prove a structural invariant.
+\end{proof}
+
+\begin{lemma}[No-Betweenness Invariant]\label{lem:betweenness}
+Let $(G_0, G_1, G_2, \ldots)$ be the trajectory of Rule~2.1 (vertex sprouting) under either sequential or GPI application, from any initial graph $G_0$. For every $t \geq 1$ and every vertex $w$ created at step~$t$:
+\[
+|N_{G_t}(w) \cap V(G_{t-1})| = 1.
+\]
+That is, every fresh vertex is adjacent to exactly one previously existing vertex (its parent). No fresh vertex is ever adjacent to two or more vertices of $V(G_{t-1})$.
+\end{lemma}
+
+\begin{proof}
+By inspection of Rule~2.1: $L = \Kn{1}$ (no edges), $R = \Kn{2}$ (one edge between vertex~0 and fresh vertex~1), $\iota(0) = 0$. Application at match $m(0) = v$: the fresh vertex $w$ is connected to $v$ by the single edge $\{v, w\}$ created in $R$. No other edges are created (the rule creates exactly one edge per match). No existing edges are modified.
+
+Under GPI: multiple vertices matched simultaneously. Vertex $v_i$ sprouts pendant $w_i$. The pendant $w_i$ is adjacent to $v_i$ only. Crucially, $w_i$ is \emph{not} adjacent to $w_j$ for $i \neq j$ (the rule creates no edges between fresh vertices of distinct matches), and \emph{not} adjacent to $v_j$ for $j \neq i$ (the rule creates an edge only between the matched vertex and its pendant).
+
+Therefore: $N_{G_t}(w_i) \cap V(G_{t-1}) = \{v_i\}$, giving $|N_{G_t}(w_i) \cap V(G_{t-1})| = 1$.
+\end{proof}
+
+\textbf{Completion of \cref{thm:sep23}.} Edge subdivision of $G_0$ at any edge $\{u, v\} \in E(G_0)$ creates a fresh vertex $w$ with $N(w) \supseteq \{u, v\}$, so $|N(w) \cap V(G_0)| \geq 2$. By \cref{lem:betweenness}, this cannot occur in any trajectory at level~2. Therefore $\mathrm{Sub}_1(G_0) \neq G_t$ for any~$t$. \qed
+
+\begin{remark}[Generalization]
+\Cref{lem:betweenness} says: at level~2, every fresh vertex has \emph{creation degree}~1 (pendant upon creation). At level~3, Rule~3.2 creates vertices with creation degree~2 (connected to both endpoints of the subdivided edge). Rule~3.3 also creates degree-2 vertices (connected to both endpoints of the matched edge). This structural observation---\emph{creation degree increases with signature level}---suggests a general separation technique.
+\end{remark}
+
+\begin{conjecture}[Creation-Degree Separation]
+At level $l$ (signature $l_2 \to (l{+}1)_2$), the maximum creation degree of a fresh vertex is $\min(l, r{-}1)$. At level $l+1$, fresh vertices with creation degree $l+1$ can be produced. The function ``create a vertex of degree $l+1$ among previously existing vertices'' separates level~$l$ from level~$l+1$.
+\end{conjecture}
+
+\subsection{Higher separations}
+
+For $l \geq \kstar$: all levels are Turing-complete, so no separation exists.
+
+For $3 \leq l < \kstar$: each level is sub-universal but potentially capable of conditional branching ($l \geq 3$ provides multiple LHS patterns). The separation $l$ vs.~$l+1$ follows if we can exhibit a function computable at $l+1$ but not~$l$. The Creation-Degree Conjecture would give this for all levels, but a proof requires formalizing the creation-degree bound as a function of~$l$, which we leave open.
+
+Between level $\kstar - 1$ (sub-universal) and level $\kstar$ (Turing-complete): the separation is immediate---any Turing-computable function not in the sub-universal class witnesses it.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Universality}
+\label{sec:universality}
+
+\subsection{Overview}
+
+We construct a rule set at signature $7_2 \to 8_2$ that simulates an arbitrary Turing machine. The construction uses per-step priority between rules with \emph{different LHS edge patterns} (but the same vertex count $l = 7$). Different edge patterns in the LHS encode different match conditions, giving the conditional branching needed for TM simulation. This is the mechanism that is unavailable at level~2 (where $L = \Kn{2}$ is the unique connected 2-vertex graph).
+
+\textbf{Why $l = 7$ and not less.} The LHS must simultaneously contain:
+\begin{itemize}
+\item The current tape cell $c_i$ (1~vertex),
+\item The pendant $p_i$ of $c_i$, for symbol reading (1~vertex),
+\item The head marker, a $\Kn{3}$ subgraph encoding the TM state (3~vertices),
+\item Both neighboring cells $c_{i-1}$ and $c_{i+1}$, for bidirectional movement (2~vertices).
+\end{itemize}
+Total: $1 + 1 + 3 + 2 = 7$ vertices.
+
+\subsection{Tape encoding}
+
+\textbf{Cells.} Each tape cell is a single vertex $c_i$. The tape is a path: $c_0 \text{-} c_1 \text{-} c_2 \text{-} \cdots \text{-} c_n$. A left sentinel $s$ is connected to $c_0$ (acting as $c_{-1}$). A right sentinel $s_R$ is connected to $c_n$ (acting as $c_{n+1}$).
+
+\textbf{Pendants.} Every cell $c_i$ has a pendant vertex $p_i$ connected by edge $\{c_i, p_i\}$. The pendant is always present regardless of the tape symbol.
+
+\textbf{Symbol encoding.} The symbol at cell $c_i$ is encoded by a ``leaning'' edge:
+\begin{itemize}
+\item Symbol~1: edge $\{c_{i-1}, p_i\}$ exists (the pendant ``leans left'' toward the predecessor cell).
+\item Symbol~0: edge $\{c_{i-1}, p_i\}$ does not exist (the pendant connects only to $c_i$).
+\end{itemize}
+
+\textbf{Head marker.} A triangle $\Kn{3}$ on vertices $\{m_1, m_2, m_3\}$, attached to the current cell $c_i$ by edge $\{c_i, m_1\}$. The marker is the unique triangle in the host graph (the tape path and pendants contain no triangles), ensuring exactly one match per step.
+
+\textbf{State encoding.} TM state is encoded by the marker's internal edge pattern:
+\begin{itemize}
+\item State $q_0$ (active): all three edges $\{m_1,m_2\}$, $\{m_2,m_3\}$, $\{m_1,m_3\}$ present ($\Kn{3}$).
+\item State $q_1$ (halt): edge $\{m_2,m_3\}$ removed (marker is a path, not a triangle).
+\end{itemize}
+For TMs with more states, a larger marker ($\Kn{4}$ with $2^{\binom{4}{2}} = 64$ edge patterns) suffices. For the binary incrementer (2~states, 2~symbols), $\Kn{3}$ with 2 distinguishable patterns is enough.
+
+\subsection{The explicit DPO rules (binary incrementer)}
+\label{sec:bininc}
+
+The binary incrementer has transitions: $(q_0, 1) \to (q_0, 0, R)$ and $(q_0, 0) \to (q_1, 1, L)$.
+
+\textbf{LHS canonical labeling (7 vertices):}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{ccl}
+\toprule
+LHS vertex & Role & Notation \\
+\midrule
+0 & Left neighbor $c_{i-1}$ & $c_L$ \\
+1 & Current cell $c_i$ & $c$ \\
+2 & Pendant $p_i$ & $p$ \\
+3 & Marker vertex $m_1$ & $m_1$ \\
+4 & Marker vertex $m_2$ & $m_2$ \\
+5 & Marker vertex $m_3$ & $m_3$ \\
+6 & Right neighbor $c_{i+1}$ & $c_R$ \\
+\bottomrule
+\end{tabular}
+\caption{LHS vertex assignment for the binary incrementer construction.}
+\label{tab:lhs}
+\end{table}
+
+\textbf{Base edges} (present in both rules' LHS):
+\[
+E_{\text{base}} = \bigl\{\{0,1\},\; \{1,2\},\; \{1,3\},\; \{1,6\},\; \{3,4\},\; \{4,5\},\; \{3,5\}\bigr\}.
+\]
+
+\textbf{Rule $\rho_A$: transition $(q_0, 1) \to (q_0, 0, R)$.} Write~0, move right, stay $q_0$.
+
+$L_A$: vertices $\{0,\ldots,6\}$, edges $E_{\text{base}} \cup \{\{0,2\}\}$. The edge $\{0,2\} = \{c_L, p\}$ is the symbol-1 indicator. Total: 8 edges, connected.
+
+$R_A$: vertices $\{0,\ldots,7\}$ (vertex~7 $=$ fresh), edges:
+\[
+\bigl\{\{0,1\},\; \{1,2\},\; \{1,6\},\; \{3,4\},\; \{4,5\},\; \{3,5\},\; \{6,3\},\; \{1,7\}\bigr\}.
+\]
+Interface map $\iota_A$: identity on $\{0,\ldots,6\}$.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lll}
+\toprule
+LHS edge & Status in $R_A$ & Meaning \\
+\midrule
+$\{0,1\}$ & preserved & tape left \\
+$\{1,2\}$ & preserved & pendant stays \\
+$\{1,3\}$ & \textbf{deleted} & detach marker from $c$ \\
+$\{1,6\}$ & preserved & tape right \\
+$\{3,4\}$ & preserved & marker $\Kn{3}$ \\
+$\{4,5\}$ & preserved & marker $\Kn{3}$ \\
+$\{3,5\}$ & preserved & marker $\Kn{3}$ \\
+$\{0,2\}$ & \textbf{deleted} & write 0 (remove symbol indicator) \\
+---      & $\{6,3\}$ created & attach marker to $c_R$ \\
+---      & $\{1,7\}$ created & fresh pendant on $c$ (workspace) \\
+\bottomrule
+\end{tabular}
+\caption{Edge changes for Rule~$\rho_A$.}
+\label{tab:ruleA}
+\end{table}
+
+\textbf{Rule $\rho_B$: transition $(q_0, 0) \to (q_1, 1, L)$.} Write~1, move left, enter halt state.
+
+$L_B$: vertices $\{0,\ldots,6\}$, edges $E_{\text{base}}$ (no $\{0,2\}$ edge---symbol~0). Total: 7 edges, connected.
+
+$R_B$: vertices $\{0,\ldots,7\}$ (vertex~7 $=$ fresh), edges:
+\[
+\bigl\{\{0,1\},\; \{1,2\},\; \{1,6\},\; \{3,4\},\; \{3,5\},\; \{0,2\},\; \{0,3\},\; \{0,7\}\bigr\}.
+\]
+Interface map $\iota_B$: identity on $\{0,\ldots,6\}$.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lll}
+\toprule
+LHS edge & Status in $R_B$ & Meaning \\
+\midrule
+$\{0,1\}$ & preserved & tape left \\
+$\{1,2\}$ & preserved & pendant stays \\
+$\{1,3\}$ & \textbf{deleted} & detach marker from $c$ \\
+$\{1,6\}$ & preserved & tape right \\
+$\{3,4\}$ & preserved & marker edge \\
+$\{4,5\}$ & \textbf{deleted} & state $q_0 \to q_1$ (break $\Kn{3}$) \\
+$\{3,5\}$ & preserved & marker edge \\
+---      & $\{0,2\}$ created & write 1 (add symbol indicator) \\
+---      & $\{0,3\}$ created & attach marker to $c_L$ (move left) \\
+---      & $\{0,7\}$ created & fresh pendant on $c_L$ (workspace) \\
+\bottomrule
+\end{tabular}
+\caption{Edge changes for Rule~$\rho_B$.}
+\label{tab:ruleB}
+\end{table}
+
+\textbf{Priority.} $\rho_A > \rho_B$ (try $\rho_A$ first at each step). Since $L_A$ requires edge $\{0,2\}$ while $L_B$ does not:
+\begin{itemize}
+\item Symbol~1 (edge $\{c_L, p\}$ present): $\rho_A$ matches. $\rho_A$ fires.
+\item Symbol~0 (edge $\{c_L, p\}$ absent): $\rho_A$ fails. $\rho_B$ matches. $\rho_B$ fires.
+\item State $q_1$ (marker not $\Kn{3}$): neither matches ($\Kn{3}$ edges required by both). Halt.
+\end{itemize}
+
+\subsection{Tape extension}
+
+Each TM step is simulated in one rewriting step for interior cells and at most two rewriting steps when the head reaches a tape boundary. This constant-factor slowdown does not affect the computability result. For the binary incrementer on a finite pre-allocated tape, boundary extension is not needed: the computation uses at most $n + 1$ cells for an $n$-cell input.
+
+\subsection{Verified walkthrough: binary incrementer on $[1,1,0]$}
+\label{sec:walkthrough}
+
+\textbf{Initial graph.} Tape $[1,1,0]$ = binary $011$ = $3$. Head at $c_0$, state $q_0$.
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{cl}
+\toprule
+Vertex & Role \\
+\midrule
+0 & Sentinel $s$ ($= c_{-1}$) \\
+1 & Cell $c_0$ \\
+2 & Pendant $p_0$ \\
+3 & Cell $c_1$ \\
+4 & Pendant $p_1$ \\
+5 & Cell $c_2$ \\
+6 & Pendant $p_2$ \\
+7 & Marker $m_1$ \\
+8 & Marker $m_2$ \\
+9 & Marker $m_3$ \\
+10 & Right sentinel $s_R$ ($= c_3$) \\
+\bottomrule
+\end{tabular}
+\caption{Vertex assignments for the binary incrementer walkthrough.}
+\label{tab:walkthrough-vertices}
+\end{table}
+
+Initial edges: Tape: $\{0,1\}$, $\{1,3\}$, $\{3,5\}$, $\{5,10\}$. Pendants: $\{1,2\}$, $\{3,4\}$, $\{5,6\}$. Symbol~1 at $c_0$: $\{0,2\}$ ($s$-to-$p_0$ leaning edge). Symbol~1 at $c_1$: $\{1,4\}$ ($c_0$-to-$p_1$ leaning edge). Symbol~0 at $c_2$: no leaning edge. Marker $\Kn{3}$: $\{7,8\}$, $\{8,9\}$, $\{7,9\}$. Head at $c_0$: $\{1,7\}$.
+
+\textbf{Step 1.} Head at $c_0$. Match $\rho_A$: $0 \mapsto s = 0$, $1 \mapsto c_0 = 1$, $2 \mapsto p_0 = 2$, $3 \mapsto m_1 = 7$, $4 \mapsto m_2 = 8$, $5 \mapsto m_3 = 9$, $6 \mapsto c_1 = 3$. All required edges present. \textbf{$\rho_A$ fires.} Delete $\{1,7\}$ (detach marker), delete $\{0,2\}$ (write~0). Create $\{3,7\}$ (attach marker to $c_1$), create $\{1,11\}$ (fresh pendant, vertex~11).
+
+\emph{After step~1:} Tape $[0,1,0]$. Head at $c_1$. State $q_0$.
+
+\textbf{Step 2.} Head at $c_1$. Match $\rho_A$: need $\{0,2\} = \{1, 4\}$. Symbol~1 at $c_1$ means $\{c_0, p_1\} = \{1, 4\}$ exists. \textbf{$\rho_A$ fires.} Delete $\{3,7\}$ (detach), delete $\{1,4\}$ (write~0). Create $\{5,7\}$ (attach to $c_2$), $\{3,12\}$ (fresh pendant, vertex~12).
+
+\emph{After step~2:} Tape $[0,0,0]$. Head at $c_2$. State $q_0$.
+
+\textbf{Step 3.} Head at $c_2$. Check $\rho_A$: need $\{0,2\} = \{3, 6\}$. Symbol~0 at $c_2$: edge $\{c_1, p_2\} = \{3, 6\}$ does NOT exist. \textbf{$\rho_A$ fails.} Try $\rho_B$: all base edges present. \textbf{$\rho_B$ fires.} Delete $\{5,7\}$ (detach), delete $\{8,9\}$ (state $\to q_1$). Create $\{3,6\}$ (write~1), $\{3,7\}$ (attach marker to $c_1$), $\{3,13\}$ (fresh pendant, vertex~13).
+
+\emph{After step~3:} Tape $[0,0,1]$. Head at $c_1$. State $q_1$ (marker edges: $\{7,8\}$, $\{7,9\}$, missing $\{8,9\}$).
+
+\textbf{Step 4.} Head at $c_1$. Check $\rho_A$: requires $\Kn{3}$ on marker, but edge $\{8,9\}$ absent. \textbf{$\rho_A$ fails.} Check $\rho_B$: also requires $\Kn{3}$. \textbf{$\rho_B$ fails.} No match. \textbf{HALT.}
+
+\textbf{Result:} Tape $[0,0,1]$ = binary $100$ = $4$. Computation $3 + 1 = 4$. \checkmark
+
+\subsection{General universality}
+
+\begin{theorem}[Universality]\label{thm:universality-body}
+$\kstar \leq 7$ for TMs with $q|\Gamma| \leq 8$; $\kstar \leq 8$ for arbitrary TMs. Specifically: a rule set of $2q|\Gamma|$ rules at signature $7_2 \to 8_2$ (using a $\Kn{3}$ marker) simulates any TM with $q$ states and alphabet $\Gamma$ satisfying $q|\Gamma| \leq 8$. For larger TMs, use a $\Kn{4}$ marker ($2^6 = 64$ edge patterns), increasing the LHS to 8~vertices and the signature to $8_2 \to 9_2$. The construction uses:
+\begin{itemize}
+\item Cell encoding: 1 vertex per cell, 1 pendant per cell, symbol via leaning edge.
+\item Head marker: $\Kn{3}$ (or $\Kn{4}$ for $> 8$ state-symbol configurations).
+\item Both tape neighbors in LHS for bidirectional movement.
+\item Per-step priority between rules with different LHS edge patterns for conditional branching.
+\item Unique-match property: $\Kn{3}$ (resp.\ $\Kn{4}$) appears only in the marker.
+\end{itemize}
+
+Any Turing machine can be simulated by a binary-alphabet TM with at most a polynomial overhead in time and a constant-factor overhead in tape~\cite{arora2009computational}. The Neary--Woods $(15,2)$ UTM~\cite{neary2009four}---a standard-model universal Turing machine with 15~states and 2~symbols---gives $q|\Gamma| = 30$, which exceeds~8 and requires a $\Kn{4}$ marker (signature $8_2 \to 9_2$, giving $\kstar \leq 8$). For TMs with $q|\Gamma| \leq 8$ (which suffice for any specific computation, though not for a single UTM), $\Kn{3}$ gives $\kstar \leq 7$.
+
+The threshold $\kstar$ is identical for sequential and GPI application (\cref{prop:seqgpi}(i)): the unique-match property ensures a single match per step.
+\end{theorem}
+
+\begin{proof}
+The explicit construction for the binary incrementer (\cref{sec:bininc}) demonstrates the mechanism. The walkthrough (\cref{sec:walkthrough}) verifies correctness on a concrete input. The generalization to arbitrary TMs replaces the two rules $\rho_A, \rho_B$ with a family of rules: one rule per (state, symbol) pair, each with the appropriate LHS edge pattern (encoding the symbol being read) and RHS edge pattern (encoding the symbol written, the direction moved, and the new state). Per-step priority orders these rules, with more specific LHS patterns (more edges) having higher priority. The construction is standard given the encoding; the key contribution is the encoding itself (leaning-edge symbol, $\Kn{3}$ marker, 7-vertex LHS window).
+\end{proof}
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Complexity bridge and logic connections}
+\label{sec:bridge}
+
+\subsection{Signature complexity}
+
+\begin{definition}
+$\sigma(f) = \min\{l : f \in \Cclass{l}^{\alpha}\}$ (or $\Chat{l}^{\alpha}$ under rule-set extension). This is well-defined for any computable graph function and equals $\kstar$ for Turing-complete functions.
+\end{definition}
+
+\subsection{Complexity bridge}
+
+\begin{theorem}[Complexity bridge]\label{thm:bridge-body}
+For all $l \geq 1$, every rule $\rho$ at signature $l_2 \to (l{+}1)_2$ can be simulated by a rule $\rho'$ at signature $(l{+}1)_2 \to (l{+}2)_2$ such that:
+\begin{enumerate}
+\item[\textup{(a)}] Function equivalence: $f_{(\rho', \alpha)}(G_0) = f_{(\rho, \alpha)}(G_0)$ for all $G_0$ in a cofinite subset of $\mathcal{G}$ (specifically, all graphs where every vertex in any match of $L$ has degree $\geq 1$).
+\item[\textup{(b)}] Description overhead: the rule $\rho'$ can be specified from $\rho$ using $C_l = O(l)$ additional bits.
+\end{enumerate}
+\end{theorem}
+
+\begin{proof}
+\emph{Construction.} Given $\rho = (L, R, \iota)$, choose $v \in V(L)$. Define $L' = L + \{v'\}$ with edge $\{v, v'\}$ (so $|V(L')| = l + 1$, and $L'$ is connected). Define $R' = R + \{v', w\}$ with edge $\{\iota(v), w\}$ (so $|V(R')| = l + 2$, and $R'$ is connected if $R$ is). The interface map: $\iota'(u) = \iota(u)$ for $u \in V(L)$; $\iota'(v') = v'$. Fresh vertex: $w$.
+
+\emph{Function equivalence.} A match of $L'$ in $G$ is an injective morphism mapping $L$ to some subgraph of $G$ AND mapping $v'$ to a neighbor of $m(v)$ outside the match of $L$. This exists whenever $m(v)$ has a neighbor not in $m(V(L))$, which holds for all vertices of degree $\geq l$ in any graph with $|V(G)| > l$. For such graphs, every match of $L$ extends to a match of $L'$, so the set of ``active'' positions is the same.
+
+The local rewrite at each match position is: apply $\rho$ (same effect on the $L$ portion) plus create a pendant $w$ attached to $\iota(v)$. The pendant $w$ is workspace that does not interact with other parts of the graph. The computed function is the same (the additional pendant does not affect halting or the graph structure at fixed point, modulo the pendants---which can be stripped by convention).
+
+\emph{Overhead.} Specifying $\rho'$ from $\rho$ requires: choice of $v$ ($\lceil \log_2 l \rceil$ bits), adjacency of $v'$ in $L'$ ($l$ bits), adjacency of $v', w$ in $R'$ ($l + 1$ bits). Total: $C_l = O(l)$.
+\end{proof}
+
+\subsection{Relationship to Kolmogorov complexity}
+\label{sec:kolmogorov}
+
+The interesting content of the complexity bridge is internal to the formalism: the signature ordering is monotone with description complexity. This is a statement about the specific GPI formalism as a programming language, not a Kolmogorov-complexity result (the invariance theorem gives the reverse inequality trivially for any formalism).
+
+\begin{corollary}[Signature monotonicity]
+The sequence of minimum description lengths $|S_l(f)|$ for a fixed function $f$ is non-increasing in $l$: $|S_{l+1}(f)| \leq |S_l(f)| + C_l$. Combined with the strict separations (some functions require level $l+1$ and are not computable at level~$l$), this gives a quantitative hierarchy: higher levels are strictly more expressive and every function at a lower level has a slightly longer description at the higher level.
+\end{corollary}
+
+\begin{proposition}[Description length of DPO rules]\label{prop:description}
+For any DPO rule $\rho$ at signature $\sigma \to (\sigma{+}1)$ in $\Graphinj$ with connected $L$ and $R$:
+\[
+K(\rho) = \Theta(\sigma^2).
+\]
+Specifically: \textup{(i)} $K(\rho) \leq \sigma^2 + O(\sigma \log \sigma)$, and \textup{(ii)} $K(\rho) \geq \sigma^2/2 - O(\sigma)$ for a positive fraction of all rules at level~$\sigma$.
+\end{proposition}
+
+\begin{proof}
+(i)~Encode $\rho = (L, R, \iota)$ canonically: $\binom{\sigma}{2}$ bits for the LHS adjacency, $\binom{\sigma+1}{2}$ bits for the RHS adjacency, $\sigma \lceil\log_2(\sigma+1)\rceil$ bits for the interface map, and $O(\log \sigma)$ bits for the header. Total: $\sigma^2 + O(\sigma \log \sigma)$ bits.
+
+(ii)~The number of distinct rules at level $\sigma$ satisfies $N(\sigma) \geq c(\sigma) \cdot c(\sigma+1) \cdot (\sigma+1)!$, where $c(n) = 2^{\binom{n}{2}} \cdot (1 - o(1))$ is the number of connected labeled graphs on $n$ vertices (Erd\H{o}s--R\'enyi 1959). So $N(\sigma) \geq 2^{\sigma^2 + O(\sigma \log \sigma)}$. By a counting argument, at most $2^{B+1} - 1$ objects can have Kolmogorov complexity $\leq B$. Setting $B = \sigma^2/2 - \sigma$, we get $2^{B+1} \ll N(\sigma)$, so most rules have $K(\rho) > \sigma^2/2 - \sigma$.
+\end{proof}
+
+\begin{remark}
+Within-level variation in $K(\rho)$ is $O(\sigma \log \sigma)$---sub-leading compared to the $\sigma^2$ inter-level gap. This justifies stating the PRIMO conjecture~\cite{kowalczyk2026predicates} at the level of $\sigma$ rather than individual $K(\rho)$: the within-level variation is noise relative to the between-level signal.
+\end{remark}
+
+\subsection{Connections to bounded-variable logics}
+\label{sec:logic}
+
+\textbf{Static correspondence.} The LHS size $l$ corresponds to the pebble count $k$ in Immerman's $k$-pebble game~\cite{immerman1982upper}. A match of $L$ in $G$ is an injection from $l$ vertices to $G$---a ``pebble placement.'' Two graphs are $\mathcal{L}^l_{\infty\omega}$-equivalent (Duplicator wins the $l$-pebble game) iff they agree on all subgraph counts for patterns of size $\leq l$. Since the match count $|\{m : L \hookrightarrow G\}|$ for $|V(L)| = l$ is determined by $\mathcal{L}^l_{\infty\omega}$-equivalence class (Lov\'asz 1967~\cite{lovasz1967operations}; Dell--Grohe--Rattan 2018~\cite{dell2018lovasz}):
+
+\begin{proposition}\label{prop:pebble}
+If $G \equiv_{\mathcal{L}^l_{\infty\omega}} H$, then for any rule $\rho$ at level~$l$, the number of matches of $L$ in $G$ equals the number of matches of $L$ in $H$.
+\end{proposition}
+
+This means the $l$-pebble equivalence is a sufficient condition for two graphs to ``look the same'' to any level-$l$ rule at a single step.
+
+\textbf{Dynamic breakdown.} Over multiple steps, the correspondence fails: a level-$l$ rule applied for $t$ steps effectively ``scans'' $O(t \cdot l)$ vertices, accumulating information in the graph's evolving structure. The system's discriminating power after $t$ steps exceeds $\mathcal{L}^l_{\infty\omega}$. A precise characterization would require a \emph{temporal bounded-variable logic}---something like $l$-variable logic with a constructive least-fixed-point operator, restricted to operations realizable by DPO rules.
+
+\textbf{Courcelle's MSO transductions.} Checking whether a fixed pattern $L$ has an injective match in $G$ is first-order definable (a sentence with $l$ existentially quantified vertex variables). Selecting a maximal independent match set is MSO-definable. The iterated GPI application of a fixed rule is therefore an iterated MSO-definable transduction. Courcelle's theory~\cite{courcelle1994monadic,courcelle2012graph} provides general tools (closure under composition, decidability on bounded-treewidth graphs) that may yield upper bounds on our formalism's power. Specifically: if a class of graphs has bounded treewidth, then all MSO-definable properties of its elements are decidable. Our lower-level rules produce graphs of bounded treewidth (level-2 sprouting produces trees), so Courcelle's theorem applies and gives decidability of trajectory properties---consistent with the ``finite-state-like'' behavior at low levels.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Computational illustration}
+\label{sec:illustration}
+
+See \cref{sec:walkthrough} for the binary incrementer walkthrough. The companion study~\cite{kowalczyk2026predicates} evaluates Rule~3.2 (subdivision) on initial graphs $\Kn{1}$, $\Kn{2}$, $\Kn{3}$, $\Pn{3}$ and classifies it as $\Ipos$ and $\Phipos$. The theoretical hierarchy places this rule at the first level with topological context ($l = 2$), consistent with the empirical observation that complex dynamical behavior requires context-sensitivity (the L-system analogy: context-free D0L produces regular behavior; context-dependent IL produces complex behavior).
+
+\textbf{Rule count reconciliation.} This paper catalogs 5 connected rules across 3 signature levels. The companion study's ${\sim}8{,}000$ count arises from: (i)~signatures $l_2 \to r_2$ with $r \neq l+1$ (including $2_2 \to 2_2$, $1_2 \to 3_2$, $3_2 \to 4_2$, etc.); (ii)~disconnected $R$; (iii)~rule instances on specific initial graphs from $\mathcal{G}_0 = \{\Kn{1}, \Kn{2}, \Kn{3}, \Pn{3}\}$ (multiplying by~4); (iv)~higher signatures. The theoretical hierarchy depends only on LHS size and the $r = l+1$ convention.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Open problems}
+\label{sec:open}
+
+\begin{enumerate}
+\item \textbf{Conditional branching threshold.} At what LHS size does conditional branching first become possible? At $l = 2$, all rules share $L = \Kn{2}$ and no conditional behavior is achievable (\cref{app:dpda}). At $l = 7$, the universality construction implements conditional branching via different LHS edge patterns. What happens at $l = 3, 4, 5, 6$? At $l = 3$, there are two connected LHS patterns ($\Kn{3}$ and $\Pn{3}$), so rules can have genuinely different match conditions. Can conditional branching at $l = 3$ simulate counter machines? DPDAs?
+
+\item \textbf{Tighten $\kstar$.} Current: $\kstar \leq 7$ (with $\Kn{3}$ marker, for TMs with $q|\Gamma| \leq 8$) or $\kstar \leq 8$ (with $\Kn{4}$ marker, for arbitrary TMs via the Neary--Woods UTM). Can the LHS be reduced to 6~vertices? A lower bound on $\kstar$ would require proving that no rule set at signature $6_2 \to 7_2$ can simulate an arbitrary TM.
+
+\item \textbf{Sequential vs.\ GPI\@.} At sub-universal levels, is GPI strictly more powerful? Characterize when trajectories coincide (confluence conditions).
+
+\item \textbf{Justify $r = l+1$ formally.} Prove that for all $l$ and $j \geq 2$, $\Cclass{}^{\alpha}(l, l+j) = \Cclass{}^{\alpha}(l, l+1)$ (multi-step iteration at $r = l+1$ covers the same class as single-step at $r = l+j$).
+
+\item \textbf{Descriptive complexity.} Find logic $\mathcal{L}_l$ matching level-$l$ GPI power.
+
+\item \textbf{Creation-degree separation.} Formalize the conjecture that level $l$ cannot create vertices of degree $> l-1$ among existing vertices, and prove it for all~$l$.
+
+\item \textbf{Ordering independence.} Prove or disprove: the computational class $\Cclass{l}^{\text{GPI}}$ is independent of the vertex ordering on the host graph.
+
+\item \textbf{Hyperedge generalization.} Extend to arity-$a$ hyperedges. How does $(l, r, a)$ affect the hierarchy?
+\end{enumerate}
+
+
+%% ═══════════════════════════════════════════════════════
+\appendix
+
+\section{Notation}
+\label{app:notation}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{ll}
+\toprule
+Symbol & Meaning \\
+\midrule
+$l_2 \to r_2$ & Signature \\
+$\rho = (L, R, \iota)$ & Rule with interface map \\
+$\Cclass{l}^{\alpha}$ & Function class (halting-based) \\
+$\Dclass{l}^{\alpha}$ & Dynamics class (trajectory-based) \\
+$\Chat{l}^{\alpha}, \Dhat{l}^{\alpha}$ & Extended classes (rule sets, per-step priority) \\
+$f_{\mathcal{S}}$ & Graph function of system $\mathcal{S}$ \\
+$\tau_{\mathcal{S}}$ & Trajectory map of system $\mathcal{S}$ \\
+$\kstar$ & Universality threshold ($\leq 7$ or $\leq 8$) \\
+\bottomrule
+\end{tabular}
+\caption{Summary of notation.}
+\label{tab:notation}
+\end{table}
+
+\section{Complete rule catalog}
+\label{app:catalog}
+
+See the repository file \texttt{rule\_catalog.md} for the exhaustive enumeration and verification of all rules at signatures $1_2 \to 1_2$, $1_2 \to 2_2$, and $2_2 \to 3_2$.
+
+\section{DPDA impossibility at \texorpdfstring{$2_2 \to 3_2$}{2\_2 -> 3\_2}}
+\label{app:dpda}
+
+The formal impossibility is proved in \cref{thm:unconditional-body}. We summarize the key points here for context.
+
+The obstruction has three layers:
+\begin{enumerate}
+\item \textbf{Shared LHS (\cref{lem:uniform}).} All connected rules at $2_2 \to 3_2$ have $L = \Kn{2}$. Per-step priority between rules with identical LHS is vacuous: the highest-priority rule always fires. The rule-set extension adds no power.
+
+\item \textbf{Operation uniformity.} A single rule applies the same fixed operation (sprout, subdivide, or triangulate) at every matched edge. The system cannot apply different operations to different edges, or different operations at different steps.
+
+\item \textbf{DPDA requires branching.} A DPDA transition requires inspecting the stack top and choosing between push, pop, or replace. This $|\Gamma|$-way branching cannot be encoded through matching-cardinality differences of a single fixed rule.
+\end{enumerate}
+
+\textbf{Could alternative mechanisms help?}
+\begin{itemize}
+\item \textbf{Per-match priority} (choosing between rules at each match based on local structure): vacuous, since all rules share $L = \Kn{2}$---any match of one rule is a match of all rules.
+\item \textbf{Negative application conditions (NACs):} a NAC could make rule firing context-dependent. NACs are not part of our plain DPO model.
+\item \textbf{Vertex labels or colors:} equivalent to having different LHS patterns. Not part of our model.
+\end{itemize}
+
+The sharp boundary is at level~4 ($l = 3$), where two connected LHS patterns ($\Kn{3}$ and $\Pn{3}$) enable conditional branching for the first time.
+
+
+%% ═══════════════════════════════════════════════════════
+\begin{acknowledgments}
+This work is part of the PRIMO research programme. Code and data are available at \url{https://github.com/KarolFilipKowalczyk/PRIMO}.
+\end{acknowledgments}
+
+\bibliographystyle{plain}
+\bibliography{../shared/primo}
+
+\end{document}

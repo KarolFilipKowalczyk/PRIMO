@@ -1,0 +1,488 @@
+\documentclass{../shared/primo}
+\usepackage{../shared/primo-macros}
+
+\title{Geometric Signatures of Bayesian Inference\\in Discrete Dynamical Systems}
+\shorttitle{Geometric Signatures of Bayesian Inference}
+\author{Karol Filip Kowalczyk}
+\affiliation{AIRON Games}
+\email{k.kowalczyk@airon.games}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We introduce the I-predicate, a formal test for inference-like behavior in discrete dynamical systems on graphs, assembled from geometric criteria---progressive alignment to the final embedded state (measured via Kendall rank correlation), dimensional reduction, and data compression---measured under independent graph embeddings. We prove that any graph dynamical system whose embedded state trajectory converges to the posterior distribution of a well-defined latent variable model must satisfy the I-predicate (Theorem~\ref{thm:forward}), with consecutive alignment rate bounded by the per-step information gain and participation ratio decreasing as $O(|\Theta|/t)$. The bound on progressive alignment follows from the Davis--Kahan/Wedin $\sin\theta$ theorem applied through the chain: posterior concentration (Doob) $\to$ graph convergence (smoothness of the encoding) $\to$ embedding convergence (regularity condition E1) $\to$ subspace alignment (spectral gap condition from E3). We also prove a partial converse: systems whose spectral gap evolution violates a quantitative monotonicity condition cannot satisfy the I-predicate (Theorem~\ref{thm:obstruction}). As computational illustration, we construct four graph dynamical systems and verify that the I-predicate correctly classifies all four, including a betweenness-centrality contraction mapping that converges without Bayesian structure and is classified I-negative.
+\end{abstract}
+
+%% ═══════════════════════════════════════════════════════
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Motivation}
+
+Recent work by Agarwal, Dalal, and Misra~\cite{agarwal2026bayesian,agarwal2025gradient} has revealed that transformer neural networks implement exact Bayesian posterior updating, and that this manifests as specific geometric signatures in the network's internal representations: progressive alignment of key-query subspaces, dimensional reduction of value manifolds, and directional flow on the Grassmannian. Zhang Chong~\cite{zhang2025grassmann} and the same authors have shown that these signatures appear identically in Mamba---a state-space model that uses no attention mechanism at all. This architecture-independence suggests the signatures may be properties of Bayesian inference itself, not of any particular computational substrate.
+
+This raises a natural question: under what formal conditions does a discrete dynamical system on graphs provably exhibit these geometric signatures? And can the signatures be assembled into a robust predicate---a formal test---that detects inference-like behavior in systems far removed from neural networks?
+
+\subsection{Contributions}
+
+\begin{enumerate}
+\item \textbf{The I-predicate.} We define a formal predicate for inference-like behavior (Definitions~\ref{def:gds}--\ref{def:ipos-b}, \cref{sec:framework}), assembled from geometric criteria measured under two independent embedding methods.
+
+\item \textbf{Forward theorem.} We define precisely what it means for a graph dynamical system to ``implement Bayesian posterior updating'' (\cref{def:bayesian}) and prove that any such system satisfies the I-predicate (\cref{sec:forward}).
+
+\item \textbf{Spectral gap obstruction (partial converse).} We prove that systems whose spectral gap sequence violates a monotonicity condition cannot be $\Ipos$ under the Laplacian embedding (\cref{sec:converse}).
+
+\item \textbf{Discrimination examples.} We construct four graph dynamical systems and verify that the I-predicate correctly classifies all four (\cref{sec:examples}).
+\end{enumerate}
+
+\subsection{Scope and non-claims}
+
+We do not claim that graph dynamical systems ``think,'' ``learn,'' or ``reason.'' The I-predicate detects specific measurable geometric properties; whether those properties constitute ``inference'' in any deeper sense is an interpretive question that this paper does not address.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Framework}
+\label{sec:framework}
+
+\subsection{Graph dynamical systems}
+
+\begin{definition}[Graph dynamical system]\label{def:gds}
+A graph dynamical system is a triple $(G_0, R, T)$ where $G_0$ is an initial graph, $R$ is a deterministic graph rewrite rule, and $T \in \mathbb{N}$ is a time horizon. The trajectory is the sequence $(G_0, G_1, \ldots, G_T)$ where $G_{t+1} = R(G_t)$.
+\end{definition}
+
+\textbf{Initial condition protocol.} Each system is executed from a family of four canonical initial graphs $G_0 \in \{\Kn{1}, \Kn{2}, \Kn{3}, \Pn{3}\}$. A system is classified as $\Ipos$ only if it satisfies the I-predicate for at least three of the four initial graphs.
+
+\subsection{Embeddings and regularity conditions}
+
+\begin{definition}[Embedding]\label{def:embedding}
+An embedding is a map $e: \{\text{graphs}\} \to \mathbb{R}^{n \times d}$ assigning to each graph $G$ a matrix $X^e(G)$ whose rows correspond to nodes and columns to latent dimensions.
+\end{definition}
+
+\textbf{Standard embedding family.} We fix two independent embedding methods $\mathcal{E} = \{e_L, e_R\}$:
+\begin{itemize}
+\item $e_L$ \textbf{(Laplacian eigenvectors).} The columns of $X^{e_L}(G)$ are the $d$ leading eigenvectors of the graph Laplacian $L(G) = D - A$.
+\item $e_R$ \textbf{(Random projection).} $X^{e_R}(G) = A(G) \cdot M$ where $A(G)$ is the adjacency matrix and $M \in \mathbb{R}^{n \times d}$ is a fixed random Gaussian matrix.
+\end{itemize}
+
+\textbf{Conditions E1--E3 (Embedding regularity).}
+\begin{itemize}
+\item \textbf{E1 (Continuity).} If $G$ and $G'$ differ by a single edge, then $\|X^e(G) - X^e(G')\|_F \leq C_1$.
+\item \textbf{E2 (Non-degeneracy).} For any non-isomorphic graphs $G, G'$, the column spaces $\col(X^e(G))$ and $\col(X^e(G'))$ are distinct points on the Grassmannian.
+\item \textbf{E3 (Spectral faithfulness).} The singular value distribution of $X^e(G)$ is Lipschitz in the spectral distribution of the graph Laplacian of~$G$.
+\end{itemize}
+
+Verification: Laplacian eigenvectors satisfy E1 by Weyl's inequality~\cite{weyl1912asymptotische}, E2 by spectral characterization, and E3 by construction. Random projection satisfies E1 by the Johnson--Lindenstrauss lemma~\cite{johnson1984extensions}, E2 with probability~1, and E3 by concentration of projected singular values. See \cref{app:regularity}.
+
+\subsection{The I-predicate}
+
+\begin{definition}[Bayesian geometric signature]\label{def:bgs}
+Let $X_T^e$ denote the embedding of the final graph. Define the cosine-to-final sequence as
+\[
+c_t^e = \cos\theta\bigl(\col(X_t^e),\; \col(X_T^e)\bigr)
+\]
+for $t = 0, \ldots, T{-}1$. A trajectory satisfies \emph{progressive alignment} under embedding $e$ if the Kendall rank correlation $\taufinal(e) = \tau(\{c_t^e\}, \{t\})$ exceeds $\taustar = 0.5$. The trajectory satisfies \emph{dimensional reduction} if $\PR(X_{t+1}^e - X_t^e)$ is monotonically non-increasing in $t$.
+\end{definition}
+
+\begin{definition}[Compression criterion]\label{def:compression-b}
+The trajectory satisfies the compression criterion if its lossless compression ratio $\compratio < 0.85$.
+\end{definition}
+
+\begin{definition}[$\Ipos$]\label{def:ipos-b}
+A system is $\Ipos$ if: (i)~it satisfies the compression criterion, AND (ii)~it satisfies the Bayesian geometric signature under at least one embedding in $\mathcal{E}$, AND (iii)~under no embedding does $\taufinal$ fall below $-\taustar$ (anti-convergence guard). The system must satisfy the initial condition protocol.
+\end{definition}
+
+\subsection{Bayesian graph dynamical systems}
+
+\begin{definition}[Bayesian graph dynamical system]\label{def:bayesian}
+A graph dynamical system $(G_0, R, T)$ implements Bayesian posterior updating with respect to a latent variable model $(\Theta, \{P_\theta\}, \pi_0)$ if there exists:
+\begin{itemize}
+\item A finite parameter space $\Theta$ with prior $\pi_0$,
+\item A likelihood model $P_\theta(G_t \mid G_{t-1})$ for each $\theta \in \Theta$,
+\item An encoding map $\phi: \Delta(\Theta) \to \{\text{graphs}\}$,
+\end{itemize}
+such that for all $t$: $G_t = \phi(\pi_t)$ where $\pi_t(\theta) \propto P_\theta(G_t \mid G_{t-1}) \cdot \pi_{t-1}(\theta)$, and the encoding $\phi$ satisfies:
+\begin{itemize}
+\item \textbf{Faithfulness:} $\phi$ is injective.
+\item \textbf{Smoothness:} If $\|\mu - \nu\|_{\mathrm{TV}} < \varepsilon$, then $\dedit(\phi(\mu), \phi(\nu)) \leq C_2 \cdot \varepsilon$.
+\end{itemize}
+\end{definition}
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Forward Theorem: Statement}
+\label{sec:statement}
+
+\subsection{Geometric quantities}
+
+\begin{itemize}
+\item \textbf{Consecutive subspace cosine:} $\cos\theta(\col(X_t^e), \col(X_{t+1}^e))$.
+\item \textbf{Cosine-to-final:} $c_t^e = \cos\theta(\col(X_t^e), \col(X_T^e))$.
+\item \textbf{Kendall $\tau$ to final:} $\taufinal(e) = \tau(\{c_t^e\}, \{t\})$.
+\item \textbf{Participation ratio:} $\PR(M) = (\sum \sigma_i)^2 / (n \cdot \sum \sigma_i^2)$.
+\item \textbf{Cumulative information gain:} $I_t = \sum_{s=1}^{t} \KL(\pi_s \| \pi_{s-1})$.
+\end{itemize}
+
+\subsection{Statement}
+
+\begin{theorem}[Forward theorem]\label{thm:forward}
+Let $(G_0, R, T)$ be a Bayesian graph dynamical system with respect to $(\Theta, \{P_\theta\}, \pi_0, \phi)$ in the sense of \cref{def:bayesian}, and let $e$ be an embedding satisfying E1--E3. Let $K = |\Theta|$ and let $G_\infty = \phi(\delta_{\theta^*})$ be the limit graph. Suppose the singular value gap $\gamma_0 = \gap(X^e(G_\infty)) > 0$.
+
+Then there exists a warm-up time $t_0 = \min\{t : I_t > \log(4C_1 C_2 K / \gamma)\}$ with $\gamma = \gamma_0/2$, such that for all $t \geq t_0$:
+
+\begin{enumerate}
+\item[\textup{(i)}] \textbf{Progressive alignment.}
+\[
+\cos\theta\bigl(\col(X_t^e),\; \col(X_{t+1}^e)\bigr) \geq 1 - C_3 \cdot e^{-2I_{t-1}}
+\]
+where $C_3 = 2C_1^2 C_2^2 (K{-}1)^2 / \gamma^2$.
+
+\item[\textup{(ii)}] \textbf{Dimensional reduction.}
+\[
+\PR(X_{t+1}^e - X_t^e) \leq C_4 \cdot K \cdot e^{-I_{t-1}} / n
+\]
+where $C_4 = 4C_2$ and $n$ is the number of nodes.
+\end{enumerate}
+\end{theorem}
+
+\begin{corollary}[$\taufinal$ convergence]\label{cor:tau}
+Under the hypotheses of \cref{thm:forward}, if $T > 4t_0 + 1$, then $\taufinal(e) \geq 1 - 2t_0 / (T - 1)$. In particular $\taufinal \to 1$ as $T \to \infty$.
+\end{corollary}
+
+\begin{corollary}[I-positivity]\label{cor:ipos}
+Any Bayesian graph dynamical system with sufficient cumulative information gain and sufficient time horizon satisfies the I-predicate under any embedding satisfying E1--E3, provided the trajectory compression ratio is below the threshold.
+\end{corollary}
+
+\begin{corollary}[Explicit I-positivity bound]\label{cor:explicit}
+Let $(G_0, R, T)$ be a Bayesian graph dynamical system with parameters $(\Theta, \{P_\theta\}, \pi_0, \phi)$. Let $K = |\Theta|$, and define the minimum discrimination rate
+\[
+D_0 = \min_{\theta \neq \theta^*} \KL(P_{\theta^*} \| P_\theta) > 0.
+\]
+Then the system is $\Ipos$ under any embedding satisfying E1--E3, provided:
+\[
+T > 4 \left(\frac{4C_1 C_2 (K{-}1)}{\gamma_0}\right)^{1/D_0} + 1.
+\]
+If additionally the per-step KL divergence is bounded below by $\delta_0 > 0$, the stronger bound holds:
+\[
+T > \frac{4}{\delta_0} \log\!\left(\frac{4C_1 C_2 (K{-}1)}{\gamma_0}\right) + 1.
+\]
+\end{corollary}
+
+\begin{proof}
+By \cref{lem:doob}, $I_t \geq D_0 \log t$ for $t$ sufficiently large. Therefore $t_0 \leq (4C_1 C_2 (K{-}1)/\gamma_0)^{1/D_0}$. By \cref{cor:ipos}, I-positivity holds for $T > 4t_0 + 1$, giving the first inequality. For the strong-signal case: $I_t \geq \delta_0 t$ gives $t_0 \leq (1/\delta_0) \log(4C_1 C_2(K{-}1)/\gamma_0)$, and $T > 4t_0 + 1$ gives the second inequality.
+\end{proof}
+
+\begin{remark}
+The dominant cost is poor identifiability: the exponent $1/D_0$ shows that hard-to-distinguish hypotheses produce exponentially longer warm-up. In the strong-signal regime ($\delta_0 > 0$), the bound becomes logarithmic in the model parameters.
+\end{remark}
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Forward Theorem: Proof}
+\label{sec:forward}
+
+\subsection{Notation}
+
+Throughout this proof, $(G_0, R, T)$ is a Bayesian graph dynamical system with respect to $(\Theta, \{P_\theta\}, \pi_0, \phi)$. We write $K = |\Theta|$, $\pi_t \in \Delta(\Theta)$ for the posterior at time~$t$, $G_t = \phi(\pi_t)$ for the encoded graph, and $X_t = X^e(G_t) \in \mathbb{R}^{n \times d}$ for the embedding under a fixed embedding $e$ satisfying E1--E3. We write $\sigma_j(M)$ for the $j$-th singular value of $M$ in decreasing order, $\col(M)$ for the column space, $\dGr(U, V)$ for the chordal distance on $\Gr(k, d)$, and $\thetamax(U, V)$ for the largest principal angle between subspaces $U, V$.
+
+\subsection{Step 1: Posterior concentration (Doob)}
+
+\begin{lemma}[Finite Doob consistency]\label{lem:doob}
+Let $\Theta$ be finite with $|\Theta| = K$, let $\pi_0$ be a prior with $\pi_0(\theta) > 0$ for all~$\theta$, and let $\theta^* \in \Theta$ be the true parameter. Then for all $t \geq 1$:
+\[
+\|\pi_t - \delta_{\theta^*}\|_{\mathrm{TV}} \leq (K - 1) \cdot e^{-I_t}
+\]
+where $I_t = \sum_{s=1}^{t} \KL(\pi_s \| \pi_{s-1})$ is the cumulative information gain.
+\end{lemma}
+
+\begin{proof}
+For each incorrect parameter $\theta \neq \theta^*$, the posterior satisfies $\pi_t(\theta) = \pi_0(\theta) \cdot \prod_{s=1}^{t} [P_\theta(G_s \mid G_{s-1}) / P_{\theta^*}(G_s \mid G_{s-1})]$. By the standard martingale argument relating cumulative log-likelihood ratios to cumulative KL divergence~\cite{doob1949application}, $\pi_t(\theta) \leq \pi_0(\theta) \cdot e^{-I_t}$ for each $\theta \neq \theta^*$. Summing over $\theta \neq \theta^*$ gives the bound.
+\end{proof}
+
+\begin{corollary}\label{cor:consecutive-tv}
+The consecutive TV distance satisfies $\|\pi_t - \pi_{t-1}\|_{\mathrm{TV}} \leq 2(K{-}1) \cdot e^{-I_{t-1}}$, by the triangle inequality through $\delta_{\theta^*}$.
+\end{corollary}
+
+\subsection{Step 2: Graph convergence}
+
+\begin{lemma}\label{lem:graph}
+Under the smoothness of $\phi$ (\cref{def:bayesian}), for all $t \geq 1$:
+\[
+\dedit(G_t, G_{t+1}) \leq C_2 \cdot \|\pi_t - \pi_{t+1}\|_{\mathrm{TV}} \leq 2C_2(K{-}1) \cdot e^{-I_{t-1}}.
+\]
+\end{lemma}
+
+\begin{proof}
+Direct from the smoothness condition and \cref{cor:consecutive-tv}.
+\end{proof}
+
+\subsection{Step 3: Embedding convergence}
+
+\begin{lemma}\label{lem:embedding}
+Under E1, for all $t \geq 1$:
+\[
+\|X_{t+1} - X_t\|_F \leq C_1 \cdot \dedit(G_t, G_{t+1}) \leq 2C_1 C_2 (K{-}1) \cdot e^{-I_{t-1}}.
+\]
+\end{lemma}
+
+\begin{proof}
+Each single-edge edit changes the embedding Frobenius norm by at most $C_1$ (E1). The edit distance counts the minimum number of single-edge operations, so iterating E1 and applying the triangle inequality gives $\|X^e(G') - X^e(G)\|_F \leq C_1 \cdot \dedit(G, G')$. Combined with \cref{lem:graph}.
+\end{proof}
+
+Write $\varepsilon_t = \|X_{t+1} - X_t\|_F$ for the embedding perturbation at step~$t$. By \cref{lem:embedding}, $\varepsilon_t \leq 2C_1 C_2 (K{-}1) \cdot e^{-I_{t-1}}$.
+
+\subsection{Step 4: Subspace alignment (Davis--Kahan)}
+
+\subsubsection{The singular value gap condition}
+
+\begin{proposition}[E3 implies gap non-collapse]\label{prop:gap}
+Let $G_\infty = \phi(\delta_{\theta^*})$ be the limit graph. If $e$ satisfies E2 and E3, then $\gap(X^e(G_\infty)) = \gamma_0 > 0$. Define $t_0 = \min\{t : I_t > \log(4C_1 C_2 (K{-}1)/\gamma_0)\}$. Then for all $t \geq t_0$:
+\[
+\gap(X_t) \geq \gamma := \gamma_0/2.
+\]
+\end{proposition}
+
+\begin{proof}
+By Weyl's inequality~\cite{weyl1912asymptotische}, $|\sigma_j(X_t) - \sigma_j(X^e(G_\infty))| \leq \|X_t - X^e(G_\infty)\|_F$ for each~$j$. By \cref{lem:embedding,lem:doob}, $\|X_t - X^e(G_\infty)\|_F \leq C_1 C_2 (K{-}1) e^{-I_t}$. The definition of $t_0$ ensures this is less than $\gamma_0/4$ for $t \geq t_0$. Since the gap can decrease by at most $2\|X_t - X^e(G_\infty)\|_F$, we get $\gap(X_t) \geq \gamma_0 - 2 \cdot \gamma_0/4 = \gamma_0/2$.
+\end{proof}
+
+\subsubsection{The Davis--Kahan/Wedin step}
+
+\textbf{Theorem (Wedin $\sin\theta$, applied form).} Let $M, \tilde{M} = M + E \in \mathbb{R}^{n \times d}$. Let $U, \tilde{U}$ be orthonormal bases for the leading $k$ left singular subspaces. If $\gap(M) > 0$:
+\[
+\sin\thetamax(\col(U), \col(\tilde{U})) \leq \|E\|_F / \gap(M).
+\]
+This is the rectangular-matrix generalization of the Davis--Kahan theorem~\cite{davis1970rotation} (Wedin 1972~\cite{wedin1972perturbation}; Stewart and Sun~\cite{stewart1990matrix}).
+
+\textbf{Application.} Set $M = X_t$ and $E = X_{t+1} - X_t$. For $t \geq t_0$:
+\[
+\sin\thetamax(\col(X_t), \col(X_{t+1})) \leq \varepsilon_t / \gamma.
+\]
+Using $\sqrt{1 - x} \geq 1 - x/2$:
+\[
+\cos\theta(\col(X_t), \col(X_{t+1})) \geq 1 - \varepsilon_t^2 / (2\gamma^2) \geq 1 - C_3 \cdot e^{-2I_{t-1}}.
+\]
+This establishes \cref{thm:forward}(i). \qed
+
+\subsection{Step 5: Dimensional reduction}
+
+\begin{lemma}[Rank of the embedding perturbation]\label{lem:rank}
+\leavevmode
+\begin{enumerate}
+\item[\textup{(a)}] Each single-edge edit contributes a rank-$\leq$-$2$ perturbation to $X^e(G)$.
+\item[\textup{(b)}] Therefore: $\rank(X_{t+1} - X_t) \leq 2 \cdot \dedit(G_t, G_{t+1}) \leq 4C_2(K{-}1) e^{-I_{t-1}}$.
+\end{enumerate}
+\end{lemma}
+
+\begin{proof}
+For $e_R$: $X^{e_R}(G) = A(G)M$. Adding edge $(u,v)$ changes $A$ by a rank-2 update, so $\Delta X = \Delta A \cdot M$ with $\rank(\Delta A) \leq 2$. For $e_L$: adding edge $(u,v)$ perturbs the Laplacian by a rank-1 matrix $(e_u - e_v)(e_u - e_v)^T$. The bound $\rank \leq 2d$ per single-edge edit holds for the $d$-eigenvector embedding.
+\end{proof}
+
+\textbf{The participation ratio bound.} By \cref{lem:rank}(b), for $t$ sufficiently large, $\PR(M) \leq \rank(M)/n$, so:
+\[
+\PR(X_{t+1} - X_t) \leq 4C_2(K{-}1) \cdot e^{-I_{t-1}} / n = C_4 \cdot K \cdot e^{-I_{t-1}} / n.
+\]
+This establishes \cref{thm:forward}(ii). \qed
+
+\subsection{Proof of Corollary~\ref{cor:tau}}
+
+Let $[V_t] \in \Gr(k, d)$ denote the Grassmannian point corresponding to $\col(X_t)$. Define $\delta_s = \dGr([V_s], [V_{s+1}])$. By the Wedin bound, $\delta_s \leq \sqrt{k} \cdot \varepsilon_s / \gamma \leq A \cdot e^{-I_{s-1}}$ where $A = 2\sqrt{k} \cdot C_1 C_2 (K{-}1)/\gamma$. Since $I_s$ is non-decreasing, $\delta_s$ is non-increasing for $s \geq t_0$.
+
+Define the tail sum $D_t = \sum_{s=t}^{T-1} \delta_s$. By the triangle inequality, $\dGr([V_t], [V_T]) \leq D_t$. The tail sum is strictly decreasing: $D_t - D_{t+1} = \delta_t > 0$. The cosine-to-final $c_t$ satisfies $c_t \geq 1 - D_t^2/k$, and since $D_t$ is strictly decreasing, the lower bound is strictly increasing for $t \geq t_0$.
+
+Bounding discordant pairs conservatively: each of the $t_0$ warm-up indices can form a discordant pair with each of the $T - t_0$ post-warm-up indices, giving at most $t_0 \cdot T$ discordant pairs out of $T(T-1)/2$ total. Thus:
+\[
+\taufinal \geq 1 - 2t_0 / (T - 1).
+\]
+For $T > 4t_0 + 1$, this gives $\taufinal > 0.5$. \qed
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Spectral Gap Obstruction (Partial Converse)}
+\label{sec:converse}
+
+\begin{theorem}[Spectral gap obstruction]\label{thm:obstruction}
+Let $(G_0, R, T)$ be a graph dynamical system. Denote by $\lambda_1(t) \leq \lambda_2(t) \leq \cdots \leq \lambda_n(t)$ the eigenvalues of the graph Laplacian $L(G_t)$. If there exists a subsequence $t_1 < t_2 < \cdots < t_m$ with $m > T/3$ such that $\lambda_2(t_{i+1}) < \lambda_2(t_i) - \delta$ for some $\delta > 0$, then $(G_0, R, T)$ is not $\Ipos$ under the Laplacian embedding $e_L$, provided the following non-degeneracy conditions hold:
+
+\textbf{(ND)} For each decrease step $t_i$, the eigenvalue $\lambda_2(t_i)$ is simple (multiplicity~1), and $\lambda_3(t_i) - \lambda_2(t_i) \geq g > 0$.
+
+\textbf{(ND')} The eigenvalue gap at the embedding boundary satisfies $\lambda_{d+2}(t) - \lambda_{d+1}(t) \geq g' > 0$ for all~$t$.
+\end{theorem}
+
+\begin{proof}
+The proof has three stages.
+
+\textbf{Stage~1 (Eigenvalue decrease $\to$ subspace rotation).} At a decrease step $t_i$ where $\lambda_2(t_{i+1}) < \lambda_2(t_i) - \delta$, the $d$-dimensional column space $V_i = \col(X^{e_L}_{t_i})$ is the eigenspace of the $d$ smallest non-trivial Laplacian eigenvalues. Under~(ND'), this eigenspace is separated from its complement by gap~$g'$. The eigenvalue $\lambda_2$ shifts by more than~$\delta$, so by the eigenspace perturbation bound~\cite{stewart1990matrix}:
+\[
+\sin\thetamax(V_i, V_{i+1}) \geq \frac{\delta}{\mathrm{spread}_{d+2}}
+\]
+where $\mathrm{spread}_{d+2} = \max_t(\lambda_{d+2}(t) - \lambda_2(t))$. Define $\eta_d = \delta / \mathrm{spread}_{d+2} > 0$.
+
+\textbf{Stage~2 (Path length exceeds chord length).} The $m > T/3$ decrease steps contribute total path length $\geq m \cdot \arcsin(\eta_d)$ on $\Gr(d, n)$. The diameter of $\Gr(d, n)$ is $\pi/2$. For $T$ sufficiently large that $(T/3) \cdot \arcsin(\eta_d) > \pi$, the path must reverse direction: the cosine-to-final $c_t$ cannot be monotonically increasing.
+
+\textbf{Stage~3 (Reversals kill $\taufinal$).} Each direction reversal produces a discordant pair. The minimum number of reversals is $\geq T \arcsin(\eta_d) / (3\pi) - 1$. Once the number of discordant pairs exceeds $T/4$, the Kendall~$\tau$ satisfies $\taufinal < 0.5 = \taustar$. The reversal count exceeds $T/4$ for $T > 3\pi / (4\arcsin(\eta_d)) + 3$, a finite constant.
+\end{proof}
+
+\begin{remark}
+Conditions (ND) and~(ND') are generically satisfied. For specific rule families (e.g., tree-growing rules with high multiplicity at $\lambda = 1$), (ND) may fail at position~2 but hold at the cluster level, as in~\cite{kowalczyk2026predicates}.
+\end{remark}
+
+\begin{remark}[Scope under the at-least-one rule]
+\Cref{thm:obstruction} shows non-I-positivity under $e_L$ only. Under \cref{def:ipos-b}'s at-least-one rule, the system could still be $\Ipos$ via $e_R$. If both obstructions fire simultaneously, the system is $\Ineg$.
+\end{remark}
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Computational Illustrations}
+\label{sec:examples}
+
+\subsection{Example A: Hidden Markov Model ($\Ipos$ by construction)}
+
+A 3-state HMM with known transition and emission matrices. The encoding $\phi$ maps the posterior to graph weights; faithfulness and smoothness hold because edge weights are linear in the posterior. \Cref{thm:forward} predicts $\taufinal = 1$, confirmed numerically.
+
+\subsection{Example B: Contraction mapping (convergent, non-Bayesian, $\Ineg$)}
+
+A graph on $n = 20$ nodes. Rewrite rule: at each step, remove the edge with maximum betweenness centrality and add an edge between the two nodes closest in graph distance. This contracts the graph toward a path or tree. Under the canonical specification, Example~B classifies as $\Ineg$ with score 2/4. The per-seed $\tau$ values are 0.50, 0.44, 0.00, and 0.50. The contraction mapping reaches its fixed point within 3--5~steps.
+
+\textbf{Diagnostic finding.} Grassmannian trajectory analysis reveals a discriminating structural feature: contraction trajectories have high \emph{straightness} (ratio of direct Grassmannian distance to total path length $\approx 0.5\text{--}0.8$), while genuinely $\Ipos$ rules show low straightness ($\approx 0.34\text{--}0.37$). This motivates a Grassmannian straightness gate for future predicate revisions (\cref{sec:discussion}).
+
+\subsection{Example C: Cellular automaton ($\Ineg$)}
+
+A 1D cellular automaton (Rule~110) lifted to a graph. Complex, Turing-complete dynamics. The spectral gap obstruction (\cref{thm:obstruction}) fires: the spectral gap oscillates irregularly.
+
+\subsection{Example D: Random rewiring (null model, $\Ineg$)}
+
+Start from $G(20, 0.3)$. At each step, perform one degree-preserving random edge swap. No progressive alignment ($\taufinal \approx 0$). This is the null model against which $\taustar$ is calibrated.
+
+\subsection{Summary}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lcccc}
+\toprule
+Example & Bayesian? & Convergent? & I-class & Gap obstruction? \\
+\midrule
+A (HMM) & Yes & Yes & $\Ipos$ & No (gap increases) \\
+B (Contraction) & No & Yes & $\Ineg$ & Possibly not \\
+C (CA Rule~110) & No & No & $\Ineg$ & Yes \\
+D (Random rewiring) & No & No & $\Ineg$ & Yes \\
+\bottomrule
+\end{tabular}
+\caption{Summary of the four discrimination examples.}
+\label{tab:examples}
+\end{table}
+
+Example~B is the critical test of predicate specificity. The I-predicate correctly classifies it as $\Ineg$ under the canonical specification, though the margin is thin and motivates the straightness gate discussed in \cref{sec:discussion}.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Architecture independence}
+
+The forward theorem holds for any system satisfying \cref{def:bayesian} regardless of graph topology or update mechanism. This is genuine architecture independence: the same geometric signatures emerge whether the ``hardware'' is a transformer, a Mamba block, or an HMM encoded as a graph. However, we do not claim the converse---that any $\Ipos$ system is necessarily Bayesian.
+
+\subsection{The I-predicate as a standalone contribution}
+
+The I-predicate provides a formal, measurable test for a specific class of dynamical behavior; built-in robustness via independent embeddings with an at-least-one rule and anti-convergence guard; and a continuous relaxation (the I-score) suitable for temporal profiling. The forward theorem validates the predicate in one direction; the discrimination examples probe its specificity.
+
+\subsection{Limitations}
+
+\textbf{Finite $\Theta$.} Extension to continuous $\Theta$ requires Bernstein--von Mises type arguments.
+
+\textbf{The encoding $\phi$.} The smoothness condition on $\phi$ is the least natural part of \cref{def:bayesian}. Graph encodings of belief states may be discontinuous when the topology changes discretely.
+
+\textbf{Laplacian sign ambiguity.} The eigenvector embedding $e_L$ has a sign/basis ambiguity for graphs with repeated Laplacian eigenvalues. The at-least-one rule is specifically designed for this; $e_R$ carries the classification alone in such cases.
+
+\subsection{The Grassmannian straightness signal}
+
+Example~B revealed that the I-predicate's discrimination between Bayesian convergence and generic contraction is thinner than desired. The straightness of the Grassmannian trajectory, defined as
+\[
+S = \dGr([V_0], [V_T]) \bigg/ \sum_{s=0}^{T-1} \dGr([V_s], [V_{s+1}]),
+\]
+discriminates: contraction mappings follow near-geodesic paths ($S \approx 0.5\text{--}0.8$) while genuinely inference-like systems follow winding paths ($S \approx 0.34\text{--}0.37$). Formalizing a straightness gate is future work.
+
+\subsection{Open problems}
+
+\begin{enumerate}
+\item \textbf{Tight characterization of I-positivity.} What is the exact class of systems that satisfy the I-predicate?
+\item \textbf{Continuous $\Theta$.} Extend \cref{thm:forward} to continuous parameter spaces.
+\item \textbf{Rate optimality.} Is the information-gain bound in \cref{thm:forward}(i) tight?
+\item \textbf{Computational complexity.} Given a graph rewrite rule $R$, how hard is it to determine whether $(G_0, R, T)$ admits a Bayesian certificate?
+\item \textbf{Dimensional reduction criterion.} Can strict monotonicity be relaxed to a Kendall $\tau$ formulation?
+\item \textbf{Straightness bound.} Prove that Bayesian systems produce Grassmannian trajectories with $S \leq 1 - f(K, C_1, C_2)$.
+\end{enumerate}
+
+
+%% ═══════════════════════════════════════════════════════
+\appendix
+
+\section{Verification of E1--E3 for Standard Embeddings}
+\label{app:regularity}
+
+\subsection{Laplacian eigenvectors}
+
+\textbf{E1.} Adding or removing a single edge $(u,v)$ perturbs the Laplacian by $\Delta L = \pm(e_u - e_v)(e_u - e_v)^T$, a rank-1 update with $\|\Delta L\|_2 \leq 2$. By Weyl's inequality~\cite{weyl1912asymptotische}, each eigenvalue shifts by at most~2. By the Davis--Kahan theorem~\cite{davis1970rotation}, each eigenvector shifts by at most $2/\min_j |\lambda_j - \lambda_{j'}|$. Summing over $d$ eigenvectors gives $\|\Delta X^{e_L}\|_F \leq C_1$.
+
+\textbf{E2.} Co-spectral graphs with identical eigenvector structure are rare and resolved by combining $e_L$ with $e_R$.
+
+\textbf{E3.} The singular values of $X^{e_L}(G)$ are all~1 (orthonormal eigenvectors). Spectral information is carried by which eigenvalues are selected.
+
+\subsection{Random projection}
+
+\textbf{E1.} $X^{e_R}(G) = A(G)M$. A single-edge change gives $\|\Delta X^{e_R}\|_F \leq \sqrt{2} \cdot \|M\|_2 = O(\sqrt{n})$.
+
+\textbf{E2.} $A \neq A'$ implies $AM \neq A'M$ with probability~1 over $M$.
+
+\textbf{E3.} Singular values of $AM$ concentrate around those of $A$ by the Johnson--Lindenstrauss guarantee~\cite{johnson1984extensions}.
+
+\section{Null Model Specification}
+\label{app:null}
+
+\textbf{Null model N1 (Degree-preserving random dynamics).} Given $G_0$ and $T$, generate a trajectory by performing one degree-preserving random edge swap at each step. The threshold $\taustar = 0.5$ is set above the observed maximum $\taufinal$ of $0.37$ across 20 independent ER trajectories.
+
+\section{Computational Details}
+\label{app:computational}
+
+All examples: $T = 30$, embedding dimension $d = 5$, compression via zlib level~9 on JSON-serialized edge lists. Initial graphs: $\Kn{1}$, $\Kn{2}$, $\Kn{3}$, $\Pn{3}$, each bootstrapped to $n = 20$ for Example~B. Reproducible with numpy seed~42.
+
+\section{Summary of Constants}
+\label{app:constants}
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lll}
+\toprule
+Symbol & Definition & Depends on \\
+\midrule
+$K = |\Theta|$ & Parameter space size & Model \\
+$C_1$ & Embedding continuity (E1) & max degree, $e$ \\
+$C_2$ & Encoding smoothness (\cref{def:bayesian}) & $\phi$ \\
+$\gamma_0 = \gap(X^e(G_\infty))$ & Limit singular value gap & $G_\infty$, $e$, $k$ \\
+$\gamma = \gamma_0/2$ & Working gap constant & $\gamma_0$ \\
+$C_3 = 2C_1^2 C_2^2 (K{-}1)^2/\gamma^2$ & Progressive alignment bound & $C_1, C_2, K, \gamma$ \\
+$C_4 = 4C_2$ & Dimensional reduction bound & $C_2$ \\
+$D_0$ & Minimum discrimination rate & Identifiability \\
+$t_0 \leq (4C_1 C_2(K{-}1)/\gamma_0)^{1/D_0}$ & Warm-up time & $C_1, C_2, K, \gamma_0, D_0$ \\
+$T > 4t_0 + 1$ & I-positivity threshold (\cref{cor:explicit}) & $t_0$ \\
+\bottomrule
+\end{tabular}
+\caption{Summary of constants used in the forward theorem.}
+\label{tab:constants}
+\end{table}
+
+The minimum discrimination rate $D_0$ is the standard Bayesian identifiability parameter. It is positive iff the model is identifiable.
+
+
+%% ═══════════════════════════════════════════════════════
+\begin{acknowledgments}
+This work is part of the PRIMO research programme. Code and data are available at \url{https://github.com/KarolFilipKowalczyk/PRIMO}.
+\end{acknowledgments}
+
+\bibliographystyle{plain}
+\bibliography{../shared/primo}
+
+\end{document}

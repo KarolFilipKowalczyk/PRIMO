@@ -1,6 +1,6 @@
 # Computational Power of Parallel Graph Rewrite Systems by Signature Complexity
 
-**Author:** Karol (AIRON Games / MIMUW)  
+**Author:** Karol (AIRON Games)
 **Date:** March 2026  
 **Target venue:** Theoretical Computer Science / Fundamenta Informaticae
 

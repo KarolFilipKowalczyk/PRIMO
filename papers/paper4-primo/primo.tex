@@ -1,0 +1,345 @@
+\documentclass{../shared/primo}
+\usepackage{../shared/primo-macros}
+
+\title{Physical Regularity Implies Inference-Like Dynamics\\in Graph Rewrite Systems}
+\shorttitle{Physical Regularity Implies Inference-Like Dynamics}
+\author{Karol Filip Kowalczyk}
+\affiliation{AIRON Games}
+\email{k.kowalczyk@airon.games}
+\date{March 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We enumerate all 16 connected DPO graph rewrite rules at signatures $\sigma = 1$ through $\sigma = 4$ and classify each by two independent geometric predicates: the I-predicate (convergent state-space trajectories with compressible dynamics) and the $\Phi$-predicate (stable integer spectral dimension with lawful aggregate evolution). Every $\Phipos$ rule is $\Ipos$, but six rules are $\Ipos$ without being $\Phipos$. We conjecture that this asymmetry is structural: for monotone-growth graph dynamical systems with stable eigenspace gaps, $\Phi$-positivity implies I-positivity (Conjecture~\ref{conj:main}), and provide complete computational verification on all 16~rules with zero eigenvalue crossings observed. A perturbation-response experiment confirms the dynamical content of this relationship---perturbed $\Phipos$ systems return to equilibrium via $\Ipos$ trajectories in 108 out of 108 tested cases, with positive dose-response and clean null controls.
+\end{abstract}
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Introduction}
+\label{sec:intro}
+
+Graph rewrite systems produce diverse dynamical behaviors. Two geometric predicates---the I-predicate, detecting convergent state-space trajectories with compressible dynamics, and the $\Phi$-predicate, detecting stable integer spectral dimension with lawful aggregate evolution---classify these behaviors along independent axes~\cite{kowalczyk2026predicates}. The predicates are logically independent: neither implies the other in general~\cite[Theorem~1]{kowalczyk2026predicates}.
+
+We enumerate all 16~connected DPO graph rewrite rules at signatures $\sigma = 1$ through $\sigma = 4$ and discover a one-sided relationship: every $\Phipos$ rule is also $\Ipos$, but not vice versa. Six rules are $\Ipos$ without being $\Phipos$. The ($\Ineg$, $\Phipos$) cell is empty.
+
+We conjecture this is not a coincidence. For monotone-growth graph dynamical systems with stable eigenspace gaps, $\Phi$-positivity implies I-positivity (Conjecture~\ref{conj:main}). The conjecture is supported by complete computational verification (zero eigenvalue crossings across all rules and seeds) and a partial proof connecting spectral dimension stability to embedding convergence via the Davis--Kahan perturbation theorem~\cite{davis1970rotation}.
+
+A perturbation-response experiment confirms the dynamical content of this relationship: when $\Phipos$ systems are perturbed out of geometric equilibrium, they return via $\Ipos$ trajectories in 108 out of 108 tested cases, with positive dose-response and clean null controls (0/36). Physical regularity is actively maintained by inference-like dynamics.
+
+Three contributions:
+\begin{enumerate}
+\item \textbf{Conjecture~\ref{conj:main}} (computationally verified): $\Phi$-positivity implies I-positivity for monotone growth with stable eigenspace gaps. Verified on all 16~DPO rules with zero exceptions.
+\item \textbf{Perturbation-response} (Proposition~\ref{prop:perturbation}, computational): $\Phipos$ equilibrium is maintained by $\Ipos$ recovery dynamics (108/108 positive, 0/36 null).
+\item \textbf{Frequency asymmetry:} $I^+ \supsetneq \Phi^+$ in DPO rule space (15/16 vs.\ 9/16 non-trivial; 6 I-only rules, 0 $\Phi$-only rules at $\sigma = 4$).
+\end{enumerate}
+
+This work was originally motivated by the PRIMO programme (Physical Regularity from Inference in Minimal Ontologies), which conjectured that inference-like behavior precedes physics-like behavior in program space. The present results provide the first computational evidence, with the unexpected finding that the relationship appears structural under growth conditions rather than merely statistical.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Preliminaries}
+\label{sec:prelim}
+
+We recall both predicates with enough detail to state the theorem precisely. Full definitions, the independence theorem, and threshold analysis are in~\cite{kowalczyk2026predicates}. The Bayesian forward theorem connecting posterior convergence to the I-predicate is in~\cite{kowalczyk2026bayesian}.
+
+\subsection{Graph dynamical systems}
+
+A \emph{graph dynamical system} is a triple $(G_0, R, T)$ where $G_0$ is an initial graph, $R$ is a DPO graph rewrite rule, and $T$ is the number of application steps. At each step, $R$ is applied to all non-overlapping matches simultaneously ($\GPI$ application). The \emph{trajectory} is $(G_0, G_1, \ldots, G_T)$.
+
+Each rule is evaluated on a family of four canonical initial graphs $G_0 \in \{\Kn{1}, \Kn{2}, \Kn{3}, \Pn{3}\}$. A rule is classified as $\Ipos$ or $\Phipos$ only if it satisfies the relevant predicate for at least three of the four initial conditions (3-of-4 majority).
+
+\subsection{The I-predicate}
+
+Three embeddings map graph trajectories to matrix sequences: $e_L$ (Laplacian eigenvectors), $e_R$ (random projection), and $e_D$ (degree profile). Each embedding $e$ produces a sequence $X_t^e \in \mathbb{R}^{n \times d}$.
+
+\textbf{Convergence criterion.} Compute the cosine-to-final sequence $c_t^e = \cos\theta(\col(X_t^e), \col(X_T^e))$. The Kendall rank correlation $\taufinal(e) = \tau(\{c_t^e\}, \{t\})$ measures monotonic approach to the final embedding. The convergence gate requires $\taufinal > \taustar = 0.5$ under at least one embedding.
+
+\textbf{Compression gate.} The trajectory compression ratio $\rho = \text{(zlib compressed)} / \text{(raw serialized)}$ must satisfy $\rho < \rhostar = 0.85$.
+
+\textbf{$\Ipos$} $=$ compression gate AND convergence under at least one embedding.
+
+\subsection{The $\Phi$-predicate}
+
+\textbf{Spectral dimension stability.} Compute $\sprdim$ via log-log regression on the cumulative Laplacian eigenvalue distribution~\cite{kowalczyk2026predicates}. Require: $\mathrm{std}(\sprdim) < \dsstar = 0.08$ over the trajectory, and $\sprdim$ within 0.5 of an integer.
+
+\textbf{Lawful evolution.} Best polynomial fit to at least one aggregate quantity has residual $< \lawstar = 0.15$.
+
+\textbf{Curvature homogeneity.} Jaccard coefficient of variation of Ollivier--Ricci curvature $< \kappastar = 1.0$.
+
+\textbf{$\Phipos$} $=$ stable spectral dimension AND (lawful evolution OR curvature homogeneity).
+
+\subsection{Independence}
+
+The predicates are logically independent~\cite[Theorem~1]{kowalczyk2026predicates}. Witnesses: grid\_growth ($\Ipos$, $\Phipos$), complete\_bipartite ($\Ipos$, $\Phineg$), fixed\_grid\_noise ($\Ineg$, $\Phipos$), er\_random ($\Ineg$, $\Phineg$). The conditional conjecture does not contradict independence---it identifies a structural condition (monotone growth) under which one direction of the implication holds. The fixed\_grid\_noise witness for ($\Ineg$, $\Phipos$) violates monotone growth.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Main results}
+\label{sec:results}
+
+\subsection{Conjecture: $\Phi$-positivity implies I-positivity for monotone growth systems}
+
+\textbf{Conditions.} A graph dynamical system $(G_0, R, T)$ is a \emph{monotone growth system} if it satisfies:
+
+\begin{itemize}
+\item[\textbf{(M1)}] \emph{Monotone growth.} $|V(G_t)|$ and $|E(G_t)|$ are non-decreasing in $t$.
+\item[\textbf{(M2)}] \emph{Bounded perturbation per step.} For a DPO rule with right-hand side of size $r$ applied via GPI to a graph $G_t$ with matching of size $m$:
+\[
+\|\Delta A_t\|_F \leq r \cdot \sqrt{2m}.
+\]
+\item[\textbf{(M3')}] \emph{Eventual eigenspace gap stability.} There exists $t_1$ such that for all $t \geq t_1$, the cluster gap satisfies $\gap^{\mathrm{cluster}}(L_t) \geq \gamma > 0$.
+\end{itemize}
+
+\begin{remark}[On M3']
+The cluster gap rather than the raw eigenvalue gap is the correct stability measure. Tree-like growth rules produce graphs with high eigenvalue multiplicity (e.g., multiplicity 57--60 at $\lambda = 1$), giving a raw gap of zero, but a large stable cluster gap (minimum 0.56 in our enumeration). The Davis--Kahan theorem~\cite{davis1970rotation} applies to eigenspaces, so cluster gap suffices.
+\end{remark}
+
+\begin{conjecture}[Conditional implication]\label{conj:main}
+Let $(G_0, R, T)$ satisfy \textup{(M1)}, \textup{(M2)}, \textup{(M3')}. If $(G_0, R, T)$ is $\Phipos$, then it is $\Ipos$.
+\end{conjecture}
+
+Conjecture~\ref{conj:main} is verified computationally on all 16~enumerated DPO growth rules at $\sigma = 1\text{--}4$, with zero exceptions (\cref{sec:verification}). A proof attempt via the Davis--Kahan perturbation theorem is given in \cref{app:proof}; it establishes the correct mechanism but the quantitative bound is loose.
+
+\textbf{Proof outline.}
+
+\emph{Part~I (Embedding convergence).} $\Phipos$ requires stable spectral dimension, which constrains the bulk Laplacian eigenvalue distribution to converge. Under (M1) and~(M2), the per-step embedding perturbation satisfies $\|X_{t+1}^e - X_t^e\|_F \leq C_1 \cdot \|\Delta A_t\|_F$ via embedding continuity~\cite{kowalczyk2026bayesian}. Under (M3'), the Davis--Kahan/Wedin $\sin\theta$ theorem~\cite{davis1970rotation,wedin1972perturbation} gives:
+\[
+\sin\thetamax(\col(X_t^e), \col(X_{t+1}^e)) \leq \frac{C_1 \cdot \|\Delta A_t\|_F}{\gap^{\mathrm{cluster}}(L_t)}.
+\]
+As the graph grows under (M1), the \emph{relative} perturbation $\|\Delta A_t\|_F / \|A_t\|_F \to 0$. The angular perturbation per step therefore decreases, and $c_t^e$ becomes monotonically increasing for $t$ sufficiently large, giving $\taufinal > \taustar$.
+
+\begin{remark}[Looseness of the Davis--Kahan bound]
+Direct measurement shows the mean ratio $\|\Delta A_t\|_F / \gap^{\mathrm{cluster}} \approx 11$ across $\Phipos$ rules, and only 3 of 9 rules show a decreasing ratio. The Davis--Kahan bound is loose---it permits large eigenvector rotations per step, yet zero rotations are observed. A tighter argument is needed to convert Conjecture~\ref{conj:main} into a theorem.
+\end{remark}
+
+\emph{Part~II (Compression gate).} By~\cite[Proposition~3]{kowalczyk2026predicates}, DPO trajectories with polynomial edge growth have compression ratio $\compratio = O(\log T / T^{\alpha+1})$, which tends to~0. Since $\Phipos$ under (M1) implies polynomial edge growth with $\alpha \geq 1$, the compression gate is satisfied for $T$ sufficiently large.
+
+\begin{remark}
+The fixed\_grid\_noise rule ($\Ineg$, $\Phipos$) violates (M1). The Dehn-twist construction---a $10 \times 10$ toroidal grid with periodic relabeling---is a verified ($\Ineg$, $\Phipos$) counterexample with $\sprdim = 2.58$, $\sigma_{\sprdim} = 0$, and all $\taufinal \leq 0$.
+\end{remark}
+
+\subsection{Perturbation-response: $\Phipos$ equilibrium is maintained by $\Ipos$ dynamics}
+
+\begin{proposition}[Computational]\label{prop:perturbation}
+Let $(G_0, R, T)$ be a $\Phipos$ DPO system at equilibrium. Perturbing $G_T$ by randomly rewiring a fraction $f$ of edges produces a graph $G_T^{(f)}$ from which the continued trajectory is $\Ipos$.
+\end{proposition}
+
+\textbf{Protocol.}
+\begin{enumerate}
+\item \emph{Burn-in:} Run $T = 30$ steps to reach $\Phipos$ equilibrium.
+\item \emph{Perturbation:} Remove $f\%$ of edges, add the same number of random edges. Three levels: $f = 5\%$, $15\%$, $30\%$.
+\item \emph{Recovery:} Continue running the rule for 30~steps from the perturbed graph.
+\item \emph{Classification:} Apply the I-predicate to the recovery trajectory.
+\item \emph{Controls:} (i)~Null recovery---apply random graph dynamics instead of the rule (0/36 $\Ipos$). (ii)~Unperturbed continuation---no perturbation applied (baseline).
+\end{enumerate}
+
+\textbf{Results.}
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lccc}
+\toprule
+Perturbation & $\Ipos$ & Elevated-I & Mean $\taufinal$ \\
+\midrule
+5\% & 36/36 (100\%) & 15/36 (42\%) & 0.731 \\
+15\% & 36/36 (100\%) & 17/36 (47\%) & 0.797 \\
+30\% & 36/36 (100\%) & 16/36 (44\%) & 0.835 \\
+\textbf{Total} & \textbf{108/108} & \textbf{48/108} & --- \\
+Null control & 0/36 (0\%) & --- & --- \\
+\bottomrule
+\end{tabular}
+\caption{Perturbation-response results across all $\Phipos$ rules.}
+\label{tab:perturbation}
+\end{table}
+
+The binary $\Ipos$ classification has perfect separation: 108/108 for rule-driven recovery vs.\ 0/36 for null recovery. The dose-response in mean $\tau$ ($0.73 \to 0.80 \to 0.84$) demonstrates that larger perturbations produce stronger convergence dynamics.
+
+\textbf{Interpretation.} Physical regularity is not merely co-occurring with inference-like dynamics. It is \emph{maintained} by inference-like dynamics. Perturbing the geometry triggers an inference-like recovery process. The dose-response confirms this is causal, not coincidental.
+
+\subsection{Frequency asymmetry}
+
+At signature $\sigma = 4$ (11~connected DPO rules):
+
+\begin{table}[ht]
+\centering
+\begin{tabular}{lcc}
+\toprule
+Cell & Count & Fraction \\
+\midrule
+($\Ipos$, $\Phipos$) & 5 & 45\% \\
+($\Ipos$, $\Phineg$) & 6 & 55\% \\
+($\Ineg$, $\Phipos$) & 0 & 0\% \\
+($\Ineg$, $\Phineg$) & 0 & 0\% \\
+\bottomrule
+\end{tabular}
+\caption{Classification at signature $\sigma = 4$.}
+\label{tab:sigma4}
+\end{table}
+
+Across all 16~rules ($\sigma = 1$ through $\sigma = 4$), excluding the Identity rule ($\Ineg$, $\Phineg$): $\Ipos$ 15/15 non-trivial rules; $\Phipos$ 9/15; I-only ($\Ipos$, $\Phineg$): 6~rules; $\Phi$-only ($\Ineg$, $\Phipos$): 0~rules.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Computational verification}
+\label{sec:verification}
+
+\subsection{DPO rule enumeration}
+
+We enumerate all connected DPO graph rewrite rules at signatures $\sigma = 1$ through $\sigma = 4$. Counts: 1, 1, 3, 11 connected rules. See~\cite{kowalczyk2026hierarchy} for the full hierarchy theorem.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lcccc}
+\toprule
+Rule & $\sigma$ & $I$ & $\Phi$ & Cell \\
+\midrule
+Identity & $1 \to 1$ & $-$ & $-$ & $\Ineg\Phineg$ \\
+Vertex Sprouting & $1 \to 2$ & $+$ & $+$ & $\Ipos\Phipos$ \\
+Edge Sprouting (one-sided) & $2 \to 3$ & $+$ & $+$ & $\Ipos\Phipos$ \\
+Edge Replacement & $2 \to 3$ & $+$ & $+$ & $\Ipos\Phipos$ \\
+Triangle Completion & $2 \to 3$ & $+$ & $+$ & $\Ipos\Phipos$ \\
+Path-4 fresh middle & $3 \to 4$ & $+$ & $+$ & $\Ipos\Phipos$ \\
+Tri+pendant preserved & $3 \to 4$ & $+$ & $+$ & $\Ipos\Phipos$ \\
+Tri+pendant shifted & $3 \to 4$ & $+$ & $+$ & $\Ipos\Phipos$ \\
+Tri+pendant fresh hub & $3 \to 4$ & $+$ & $+$ & $\Ipos\Phipos$ \\
+Diamond fresh vertex & $3 \to 4$ & $+$ & $+$ & $\Ipos\Phipos$ \\
+Star-3 replacement & $3 \to 4$ & $+$ & $-$ & $\Ipos\Phineg$ \\
+Star-3 fresh hub & $3 \to 4$ & $+$ & $-$ & $\Ipos\Phineg$ \\
+Path-4 partial preserve & $3 \to 4$ & $+$ & $-$ & $\Ipos\Phineg$ \\
+Diamond minus one & $3 \to 4$ & $+$ & $-$ & $\Ipos\Phineg$ \\
+Diamond preserved & $3 \to 4$ & $+$ & $-$ & $\Ipos\Phineg$ \\
+K4 completion & $3 \to 4$ & $+$ & $-$ & $\Ipos\Phineg$ \\
+\bottomrule
+\end{tabular}
+\caption{Classification of all 16 connected DPO rules at $\sigma \leq 4$.}
+\label{tab:enumeration}
+\end{table}
+
+\subsection{Eigenvalue gap data (Conjecture~\ref{conj:main} verification)}
+
+We measured Laplacian eigenvalue gaps for all 16~DPO rules across all 4~seeds at $T = 30$ (with $T = 60$ for three borderline rules). Key findings:
+\begin{itemize}
+\item \textbf{Zero eigenvalue crossings} across all 16~rules, all 4~seeds, all time steps. DPO monotone growth never causes eigenvalue ordering swaps.
+\item All 9~$\Phipos$ rules satisfy (M3'). Three tree-like rules have cluster gap $\geq 0.56$.
+\item Two $\Phineg$ rules also have stable eigenspace gaps but fail $\Phipos$ on spectral dimension instability ($\sigma_{\sprdim} > 0.08$). Condition (M3') is not the binding constraint.
+\end{itemize}
+
+The $\|\Delta A_t\|_F / \gap^{\mathrm{cluster}}$ ratio---the critical quantity in the Davis--Kahan bound---has mean $\approx 11$ across $\Phipos$ rules, and only 3 of 9 rules show a decreasing ratio over time. The Davis--Kahan bound is loose: it permits large eigenvector rotations, yet none are observed. This is why Conjecture~\ref{conj:main} remains a conjecture.
+
+\subsection{Perturbation-response data}
+
+See \cref{tab:perturbation}. The binary $\Ipos$ classification has perfect separation: 108/108 for rule-driven recovery vs.\ 0/36 for null recovery.
+
+\subsection{Temporal I-profiles}
+
+Temporal I-profiles ($T = 60$, sliding window $W = 8$) tested whether $\Phipos$ rules exhibit $\Ipos$ transients that decay as $\Phi$-positivity stabilizes. Results: 2 of 9 $\Phipos$ rules show clear majority transients across all 4~seeds. The weak overall signal is explained by the small-signature regime. The perturbation-response protocol (\cref{prop:perturbation}) is the more powerful test.
+
+
+%% ═══════════════════════════════════════════════════════
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Relationship to the original PRIMO conjecture}
+
+The PRIMO programme conjectured two claims:
+
+\textbf{(a)~Ordering:} $\NImin < \NPhimin$---inference-like behavior appears at shorter program lengths than physics-like behavior.
+
+\textbf{(b)~Equilibrium:} Physics-like behavior is the dynamical equilibrium of inference-like processes.
+
+Claim~(a) is absorbed by Conjecture~\ref{conj:main}. For DPO growth rules, $\Phi^+ \Rightarrow I^+$, so $\NImin \leq \NPhimin$ holds trivially. But strict inequality cannot be demonstrated in this setting---the first non-trivial rule (Vertex Sprouting, $\sigma = 2$) is both $\Ipos$ and $\Phipos$. The signature level $\sigma$ is a faithful proxy for program complexity: $K(\rho) = \Theta(\sigma^2)$ for DPO rules~\cite{kowalczyk2026hierarchy}.
+
+Claim~(b) is supported by the perturbation-response result (\cref{prop:perturbation}). Conjecture~\ref{conj:main} provides the structural basis; the perturbation-response shows this is not just a logical implication but an active dynamical mechanism.
+
+\subsection{Relationship to Vanchurin}
+
+Vanchurin's programme~\cite{vanchurin2020world,vanchurin2021theory,vanchurin2022evolution,vanchurin2025geometric} proposes that physical law emerges as the equilibrium of learning dynamics. The present results provide the first discrete, computational test case. Conjecture~\ref{conj:main} is the discrete analog of Vanchurin's continuous-time result: stable geometry requires convergent dynamics. The key difference: Vanchurin works in continuous metric spaces with gradient dynamics; we work in discrete graph spaces with DPO rewriting. The fact that the structural relationship survives this translation suggests it is not an artifact of the continuous framework.
+
+\subsection{Limitations}
+
+\begin{enumerate}
+\item \textbf{Small signatures.} Sixteen rules at $\sigma \leq 4$. The frequency asymmetry needs confirmation at higher signatures.
+\item \textbf{DPO growth rules only.} All enumerated rules are graph-growing. Non-growth systems can be $\Phipos$ without being $\Ipos$.
+\item \textbf{Threshold sensitivity.} The $\Phi$-predicate threshold $\dsstar$ was tightened from $0.18$ to $0.08$ to achieve I/$\Phi$ separation at $\sigma = 4$.
+\item \textbf{The Davis--Kahan gap.} The per-step bound is loose. Converting Conjecture~\ref{conj:main} to a theorem requires a tighter argument.
+\item \textbf{Is the I-predicate detecting growth?} Within DPO, every non-trivial rule is a growth rule. Evidence against: in the 33-rule study~\cite{kowalczyk2026predicates}, non-growth rules like sorting\_edges are $\Ipos$, and the Bayesian forward theorem~\cite{kowalczyk2026bayesian} shows I-positivity captures convergent dynamics independent of growth.
+\item \textbf{Dehn-twist counterexample.} A $10 \times 10$ toroidal grid with Dehn twist is $\Phipos$ ($\sprdim = 2.58$, $\sigma_{\sprdim} = 0$) and $\Ineg$ (all $\taufinal \leq 0$), confirming that (M1) is essential.
+\end{enumerate}
+
+\subsection{Future work}
+
+\begin{itemize}
+\item Enumerate $\sigma = 5$ ($4 \to 5$) to test frequency asymmetry at larger scale.
+\item Multi-rule compositions for testing claim~(a) strict inequality.
+\item Find a tight proof for Conjecture~\ref{conj:main}. Candidates: spectral convergence arguments, averaging arguments, or Lyapunov-function approaches.
+\item Non-DPO program enumeration (binary lambda calculus or Wolfram-style hypergraph rules~\cite{wolfram2020class,gorard2020relativistic}).
+\end{itemize}
+
+
+%% ═══════════════════════════════════════════════════════
+\appendix
+
+\section{Proof outline for Conjecture~\ref{conj:main}}
+\label{app:proof}
+
+\subsection{Lemma (GPI perturbation bound)}
+
+\begin{lemma}\label{lem:gpi}
+For a DPO rule with RHS size $r$ applied via GPI to a graph $G_t$ with matching of size $m$:
+\[
+\|\Delta A_t\|_F \leq r \cdot \sqrt{2m}.
+\]
+\end{lemma}
+
+\begin{proof}
+Each matched subgraph contributes at most $r$ edge modifications, each a rank-2 symmetric update with Frobenius norm $\leq \sqrt{2}$. Since GPI requires non-overlapping matches, the perturbation matrices have disjoint support. For matrices with disjoint support, $\|\sum_i \delta A_i\|_F^2 = \sum_i \|\delta A_i\|_F^2$. Each match contributes $\|\delta A_i\|_F \leq r\sqrt{2}$. Therefore $\|\Delta A_t\|_F^2 \leq m \cdot 2r^2$, giving $\|\Delta A_t\|_F \leq r\sqrt{2m}$. Since $m \leq |E_t|$, we have $\|\Delta A_t\|_F = O(|E_t|^{1/2})$.
+\end{proof}
+
+\subsection{The Davis--Kahan step}
+
+\textbf{Step~1 (Embedding perturbation).} By E1 (continuity):
+$\|X_{t+1} - X_t\|_F \leq C_1 \cdot \|\Delta A_t\|_F$.
+
+\textbf{Step~2 (Subspace perturbation via Wedin).} By the Wedin $\sin\theta$ theorem~\cite{wedin1972perturbation}:
+\[
+\sin\thetamax(\col(X_t), \col(X_{t+1})) \leq \frac{C_1 \cdot \|\Delta A_t\|_F}{\gap^{\mathrm{cluster}}(L_t)}.
+\]
+
+\textbf{Step~3 (Ratio decay under growth).} Under (M3'), the denominator is bounded below by $\gamma > 0$. The relative perturbation $\|\Delta A_t\|_F / \|A_t\|_F \to 0$ under growth, so the angular perturbation per step tends to zero.
+
+\textbf{Step~4 (Summability implies convergence).} Since the angular perturbation decreases, the cosine-to-final becomes monotonically increasing for $t$ sufficiently large, giving $\taufinal > \taustar$.
+
+\subsection{The $\taufinal$ bound}
+
+\begin{proposition}
+If the angular perturbation per step $\theta_s$ is summable ($\sum \theta_s < \infty$), then for $T$ sufficiently large:
+\[
+\taufinal(e) \geq 1 - \frac{2t_2}{T - 1} > 0.5
+\]
+where $t_2 = \max(t_1, t_2')$ and $t_1$ is from \textup{(M3')}, $t_2'$ is the onset of the summability regime.
+\end{proposition}
+
+\begin{proof}
+For $t \geq t_2$, the cosine-to-final $c_t^e$ is non-decreasing by the Grassmannian triangle inequality. The Kendall~$\tau$ of a sequence non-decreasing in its last $T - t_2$ terms satisfies $\tau \geq 1 - 2t_2/(T-1)$. Setting $T > 4t_2 + 1$ gives $\tau > 0.5 = \taustar$. This parallels~\cite[Corollary~1]{kowalczyk2026bayesian}, replacing the Bayesian source of convergence with spectral stability.
+\end{proof}
+
+The summability condition is the gap in the proof: experimental data shows the per-step angular bound from Davis--Kahan does not decrease, so summability is not established by the current argument.
+
+\section{Computational reproducibility}
+\label{app:reproducibility}
+
+All computations performed in Python~3.12 with NetworkX, NumPy, SciPy. Random seed fixed at~42. Complete source code: \url{https://github.com/KarolFilipKowalczyk/PRIMO}. 16~DPO rules, 4~seeds, 3~embeddings, $T = 30$ steps per trajectory ($T = 60$ where noted). Total experimental runtime: $< 30$~minutes on a single GPU (RTX~3050, 4~GB VRAM).
+
+
+%% ═══════════════════════════════════════════════════════
+\begin{acknowledgments}
+This work is part of the PRIMO research programme. Code and data are available at \url{https://github.com/KarolFilipKowalczyk/PRIMO}.
+\end{acknowledgments}
+
+\bibliographystyle{plain}
+\bibliography{../shared/primo}
+
+\end{document}

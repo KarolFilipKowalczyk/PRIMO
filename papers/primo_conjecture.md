@@ -1,6 +1,6 @@
 # Physical Regularity Implies Inference-Like Dynamics in Graph Rewrite Systems
 
-**Author:** Karol (AIRON Games / Faculty of Mathematics, Informatics and Mechanics, University of Warsaw)
+**Author:** Karol (AIRON Games)
 **Date:** March 2026
 **Status:** Draft v7
 

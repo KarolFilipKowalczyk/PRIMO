@@ -1,7 +1,7 @@
 # Geometric Predicates for Classifying Dynamical Behaviors in Graph Rewrite Systems
 
 **Karol**
-AIRON Games / Faculty of Mathematics, Informatics and Mechanics, University of Warsaw (MIMUW)
+AIRON Games
 
 March 2026
 

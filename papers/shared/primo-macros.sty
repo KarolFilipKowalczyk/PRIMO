@@ -1,0 +1,61 @@
+%% primo-macros.sty — Shared mathematical macros for the PRIMO programme
+%% Generated from papers/notation.md
+\NeedsTeXFormat{LaTeX2e}
+\ProvidesPackage{primo-macros}[2026/03/16 PRIMO shared macros]
+
+%% ── Predicates ──
+\newcommand{\Ipos}{I\textsuperscript{+}}
+\newcommand{\Ineg}{I\textsuperscript{$-$}}
+\newcommand{\Phipos}{\Phi\textsuperscript{+}}
+\newcommand{\Phineg}{\Phi\textsuperscript{$-$}}
+
+%% ── Thresholds ──
+\newcommand{\taustar}{\tau^*}
+\newcommand{\rhostar}{\rho^*}
+\newcommand{\dsstar}{\sigma^*_{d_s}}
+\newcommand{\lawstar}{\delta^*}
+\newcommand{\kappastar}{\kappa^*}
+\newcommand{\straightstar}{\sigma^*_S}
+
+%% ── Key quantities ──
+\newcommand{\taufinal}{\tau_{\mathrm{to\_final}}}
+\newcommand{\sprdim}{d_s}
+\DeclareMathOperator{\col}{col}
+\newcommand{\gap}{\mathrm{gap}_k}
+
+%% ── Grassmannian ──
+\DeclareMathOperator{\Gr}{Gr}
+\newcommand{\dGr}{d_{\mathrm{Gr}}}
+\newcommand{\thetamax}{\theta_{\max}}
+
+%% ── DPO / Hierarchy ──
+\newcommand{\GPI}{\mathrm{GPI}}
+\newcommand{\Graphinj}{\mathbf{Graph}_{\mathrm{inj}}}
+\newcommand{\Dclass}[1]{\mathcal{D}_{#1}}
+\newcommand{\Cclass}[1]{\mathcal{C}_{#1}}
+\newcommand{\Dhat}[1]{\hat{\mathcal{D}}_{#1}}
+\newcommand{\Chat}[1]{\hat{\mathcal{C}}_{#1}}
+\newcommand{\kstar}{k^*}
+
+%% ── Information theory ──
+\newcommand{\KL}{D_{\mathrm{KL}}}
+\newcommand{\compratio}{\rho(\tau)}
+
+%% ── PRIMO-specific ──
+\newcommand{\NImin}{N_I^{\min}}
+\newcommand{\NPhimin}{N_\Phi^{\min}}
+
+%% ── Graph notation ──
+\newcommand{\Kn}[1]{K_{#1}}
+\newcommand{\Pn}[1]{P_{#1}}
+
+%% ── Common operators ──
+\DeclareMathOperator{\rank}{rank}
+\DeclareMathOperator{\PR}{PR}
+\DeclareMathOperator{\dedit}{d_{edit}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+%% ── Formatting helpers ──
+\newcommand{\defn}[1]{Definition~\ref{#1}}
+
+\endinput
