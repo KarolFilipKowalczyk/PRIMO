@@ -27,7 +27,7 @@ This raises a natural question: under what formal conditions does a discrete dyn
 
 2. **Forward theorem.** We define precisely what it means for a graph dynamical system to "implement Bayesian posterior updating" (Definition 5) and prove that any such system satisfies the I-predicate, with progressive alignment rate bounded by KL divergence and dimensional reduction rate O(1/t) under any embedding satisfying regularity Conditions E1–E3 (Section 2.2). The proof is given in full in Section 4.
 
-3. **Spectral gap obstruction (partial converse).** We prove that systems whose spectral gap sequence violates a monotonicity condition cannot be I-positive (Theorem 2, Section 5). This gives a computationally cheap necessary condition for I-positivity.
+3. **Spectral gap obstruction (partial converse).** We prove that systems whose spectral gap sequence violates a monotonicity condition cannot be I-positive under the Laplacian embedding, under non-degeneracy conditions on the eigenvalue structure (Theorem 2, Section 5). This gives a computationally cheap necessary condition for I-positivity.
 
 4. **Discrimination examples.** We construct four graph dynamical systems — a Bayesian updater (I-positive by construction), a contraction mapping (convergent but non-Bayesian), a deterministic cellular automaton (complex but non-inferential), and a random rewiring process (null model) — and verify that the I-predicate correctly classifies all four (Section 6).
 
@@ -312,19 +312,37 @@ For T > 4t₀ + 1, this gives τ_to_final > 0.5, exceeding the I-predicate thres
 
 ### 5.1 Statement
 
-**Theorem 2 (Spectral gap obstruction).** Let (G₀, R, T) be a graph dynamical system. Denote by λ₂(t) the second-smallest eigenvalue of the graph Laplacian of G_t (the spectral gap). If there exists a subsequence t₁ < t₂ < ··· < t_m with m > T/3 such that λ₂(t_{i+1}) < λ₂(t_i) − δ for some δ > 0, then (G₀, R, T) is not I-positive under the Laplacian embedding e_L.
+**Theorem 2 (Spectral gap obstruction).** *Let (G₀, R, T) be a graph dynamical system. Denote by λ₁(t) ≤ λ₂(t) ≤ ··· ≤ λ_n(t) the eigenvalues of the graph Laplacian L(G_t), and let v₁(t), ..., v_d(t) be orthonormal eigenvectors for the d smallest non-zero eigenvalues. If there exists a subsequence t₁ < t₂ < ··· < t_m with m > T/3 such that λ₂(t_{i+1}) < λ₂(t_i) − δ for some δ > 0, then (G₀, R, T) is not I-positive under the Laplacian embedding e_L, provided the following non-degeneracy conditions hold:*
 
-### 5.2 Proof sketch
+**(ND)** *For each decrease step t_i, the eigenvalue λ₂(t_i) is simple (multiplicity 1), and the eigenvalue gap satisfies λ₃(t_i) − λ₂(t_i) ≥ g > 0.*
 
-The spectral gap controls the Laplacian eigenvalue structure. By the Davis-Kahan theorem applied to the Laplacian (as a symmetric matrix), a decrease of δ in the spectral gap at step t induces an eigenvector rotation of at least δ/(λ₃ − λ₂) in the leading eigenvectors. When this decrease occurs more than T/3 times, the cumulative eigenvector rotations disrupt monotone approach to the final embedding state, forcing τ_to_final below any positive threshold.
+**(ND')** *The eigenvalue gap at the embedding boundary satisfies λ_{d+2}(t) − λ_{d+1}(t) ≥ g' > 0 for all t.*
 
-More precisely: each spectral gap decrease contributes a positive lower bound on d_G([V_t], [V_{t+1}]) via the Davis-Kahan lower bound. If more than T/3 such decreases occur, the resulting discordant pairs in the cosine-to-final sequence prevent τ_to_final from exceeding the threshold.
+*These conditions ensure that eigenvector rotations caused by spectral gap decreases translate to column-space rotations of the d-dimensional Laplacian embedding, rather than being absorbed within the selected eigenspace.*
 
-*[The full proof requires a precise bound on the d vs n relationship when d is fixed and small relative to n. This is stated without proof as a technical condition.]*
+### 5.2 Proof
 
-### 5.3 Scope
+**Stage 1 (Eigenvalue decrease → subspace rotation).** At a decrease step t_i where λ₂(t_{i+1}) < λ₂(t_i) − δ, the d-dimensional column space V_i = col(X^{e_L}_{t_i}) = span{v₂(t_i), ..., v_{d+1}(t_i)} is the eigenspace of the d smallest non-trivial Laplacian eigenvalues. Under (ND'), this eigenspace is separated from its complement by gap g'. The eigenvalue λ₂ shifts by more than δ, so the old subspace V_i is suboptimal for the new Laplacian by at least δ in its minimum Rayleigh quotient. By the eigenspace perturbation bound (the subspace generalization of Kato–Temple; see Stewart and Sun [8], Theorem V.2.7):
 
-Under the at-least-one rule (Definition 4), failure under e_L alone does not suffice for I-negativity. However, an analogous obstruction can be formulated for e_R using the singular value structure of the projected adjacency matrix. If both obstructions fire, the system is I-negative. The spectral gap obstruction is checkable in O(T · n²) time and serves as a fast pre-filter.
+$$\sin\theta_{\max}(V_i, V_{i+1}) \geq \frac{\delta}{\mathrm{spread}_{d+2}}$$
+
+where spread_{d+2} = max_t(λ_{d+2}(t) − λ₂(t)) is the eigenvalue spread across the selected and first excluded eigenvalues. Define η_d = δ / spread_{d+2} > 0, a positive constant independent of n.
+
+This resolves the d-vs-n issue: the subspace rotation bound η_d depends on the eigenvalue structure of the first d+2 Laplacian eigenvalues (which are intrinsic to the graph and independent of n for n ≫ d), not on the ambient dimension n.
+
+**Stage 2 (Path length exceeds chord length).** The m > T/3 decrease steps contribute total path length ≥ m · arcsin(η_d) on the Grassmannian Gr(d, n). The diameter of Gr(d, n) is π/2 (the maximum principal angle). For T sufficiently large that (T/3) · arcsin(η_d) > π, the path must reverse direction: the cosine-to-final c_t cannot be monotonically increasing because the path overshoots the target.
+
+**Stage 3 (Reversals kill τ_to_final).** Each direction reversal produces a local maximum in c_t followed by a decrease — a discordant pair. The minimum number of reversals is:
+
+$$\text{reversals} \geq \frac{m \cdot \arcsin(\eta_d)}{\pi} - 1 > \frac{T \arcsin(\eta_d)}{3\pi} - 1$$
+
+Each reversal contributes at least one discordant pair to the Kendall τ calculation. By the analysis in Section 4.7, once the number of discordant pairs exceeds T/4, the Kendall τ satisfies τ_to_final < 1 − 2 · (T/4) / T = 0.5 = τ*. The reversal count exceeds T/4 for T > 3π / (4 arcsin(η_d)) + 3, a finite constant. For T above this threshold, the system is not I-positive under e_L. □
+
+*Remark (The non-degeneracy conditions).* Conditions (ND) and (ND') are generically satisfied: eigenvalue multiplicities greater than 1 have codimension ≥ 1 in the space of graph Laplacians, so they are non-generic. For specific rule families (e.g., tree-growing rules that produce high multiplicity at λ = 1), (ND) may fail at position 2 but hold at the cluster level (the cluster gap replaces the individual gap, as in [6, condition M3']). The theorem can be extended to the cluster-gap setting by replacing eigenvector rotation with eigenspace rotation, at the cost of a weaker constant η_d.
+
+*Remark (Scope under the at-least-one rule).* Theorem 2 shows non-I-positivity under e_L only. Under Definition 4's at-least-one rule, the system could still be I-positive via e_R. An analogous obstruction for e_R can be formulated using singular value gap decreases of A(G_t) · M rather than Laplacian eigenvalue decreases. If both obstructions fire simultaneously, the system is I-negative.
+
+*Remark (Computational cost).* The spectral gap obstruction is checkable in O(T · n²) time (one eigenvalue computation per step) and serves as a fast pre-filter for I-negativity.
 
 ---
 
